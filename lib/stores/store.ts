@@ -1,7 +1,7 @@
 import { create } from "zustand"
 import { persist } from "zustand/middleware"
 import * as repository from "../repository"
-import { Teacher, Room, StudentGroup, Building, Course, Schedule, Alert, Metric, ScheduleResponse, SessionType } from '../types'
+import { Teacher, Room, StudentGroup, Building, Course, Schedule, Alert, Metric, ScheduleResponse } from '../types'
 import { mockScheduleData } from "../mock-data"
 
 // Store interface

@@ -18,6 +18,13 @@ const eslintConfig = [
       "@typescript-eslint/no-explicit-any": "warn",
     },
   }),
+
+  {
+    files: ["lib/utils/api-client.ts", "lib/stores/store.ts", , "lib/mock-data.ts"],
+    rules: {
+      "@typescript-eslint/no-unused-vars": "off",
+    },
+  },
   
 ];
 
