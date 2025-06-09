@@ -1,7 +1,7 @@
 import { BookOpen, Home, School, Users, TrendingDown, TrendingUp, Minus } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
 import { cn } from "@/lib/utils"
-import type { Metric } from "@/lib/stores/store"
+import type { Metric } from "@/lib/types"
 
 export function MetricCard({ metric }: { metric: Metric }) {
   const getIcon = () => {

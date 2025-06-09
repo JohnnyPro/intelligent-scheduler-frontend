@@ -1,4 +1,4 @@
-import { apiClient } from '@lib/utils/apiClient';
+import { apiClient } from '@/lib/utils/api-client';
 
 const api_url = 'http://localhost:3001'
 

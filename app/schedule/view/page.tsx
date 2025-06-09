@@ -1,5 +1,4 @@
 "use client"
-import type { Metadata } from "next";
 import { Sidebar } from "@/components/sidebar";
 import { Header } from "@/components/header";
 import { Button } from "@/components/ui/button";
@@ -13,7 +12,7 @@ export default function ViewSchedulePage() {
   const { currentSchedule, fetchCurrentSchedule } = useStore()
   useEffect(() => {
     fetchCurrentSchedule();
-  }, []);
+  }, [fetchCurrentSchedule]);
 
   let scheduleData = currentSchedule;
   if (scheduleData == null)

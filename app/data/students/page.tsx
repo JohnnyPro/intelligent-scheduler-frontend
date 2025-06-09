@@ -14,7 +14,7 @@ import { useRouter } from "next/navigation"
 import { useEffect } from "react"
 
 export default function StudentGroupsPage() {
-  const { isAuthenticated, studentGroups, courses, addStudentGroup, updateStudentGroup, deleteStudentGroup, teachers } =
+  const { isAuthenticated, studentGroups, addStudentGroup, updateStudentGroup, deleteStudentGroup, teachers } =
     useStore()
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)

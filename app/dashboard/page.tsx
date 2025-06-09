@@ -63,8 +63,7 @@ export default function DashboardPage() {
             <p className="text-gray-500">Academic Year 2025-2026</p>
           </div>
         </div>
-        "FIX THE BELOW CARD"
-        {currentSchedule && <CurrentScheduleCard name={"New Name"} lastUpdated={"21/09/2002"} />}
+        {currentSchedule && <CurrentScheduleCard name={"Fix Name"} lastUpdated={"21/09/2002"} />}
 
         <div>
           <div className="mb-4 flex items-center justify-between">

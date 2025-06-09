@@ -1,4 +1,4 @@
-import type { Schedule } from "@/lib/stores/store"
+import type { Schedule } from "@/lib/types"
 import { Button } from "@/components/ui/button"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { cn } from "@/lib/utils"
