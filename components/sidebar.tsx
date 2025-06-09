@@ -15,8 +15,8 @@ import {
 } from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { useStore } from "@/lib/stores/store"
 import { Button } from "@/components/ui/button"
+import useAuthStore from "@/lib/stores/auth-store"
 
 const sidebarItems = [
   {
@@ -88,7 +88,7 @@ const sidebarItems = [
 
 export function Sidebar() {
   const pathname = usePathname()
-  const logout = useStore((state) => state.logout)
+  const logout = useAuthStore((state) => state.logout)
 
   return (
     <div className="flex h-screen w-64 flex-col border-r bg-white">

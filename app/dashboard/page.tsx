@@ -10,6 +10,7 @@ import { CurrentScheduleCard } from "@/components/current-schedule-card"
 import { RoomUtilizationCard, ScheduleQualityCard } from "@/components/analytics-card"
 import { useRouter } from "next/navigation"
 import { useEffect } from "react"
+import useAuthStore from "@/lib/stores/auth-store"
 
 // Quick actions data
 const quickActions = [
@@ -40,7 +41,8 @@ const quickActions = [
 ]
 
 export default function DashboardPage() {
-  const { isAuthenticated, metrics, alerts, schedules, currentSchedule } = useStore()
+  const {isAuthenticated } = useAuthStore()
+  const { metrics, alerts, schedules, currentSchedule } = useStore()
 
   const router = useRouter()
 
@@ -95,7 +97,7 @@ export default function DashboardPage() {
               View All History
             </a>
           </div>
-          <ScheduleHistoryTable schedules={schedules.slice(0, 3)} />
+          <ScheduleHistoryTable schedules={[]} />
         </div>
 
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">

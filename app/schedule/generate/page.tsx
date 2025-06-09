@@ -11,9 +11,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { CheckCircle, Clock, Play, Settings, X } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useEffect } from "react"
+import useAuthStore from "@/lib/stores/auth-store"
 
 export default function GenerateSchedulePage() {
-  const { isAuthenticated } = useStore()
+  const { isAuthenticated } = useAuthStore()
+
   const router = useRouter()
 
   useEffect(() => {

@@ -1,16 +1,10 @@
 import { create } from "zustand"
 import { persist } from "zustand/middleware"
-import * as repository from "../repository"
-import { Teacher, Room, StudentGroup, Building, Course, Schedule, Alert, Metric, ScheduleResponse } from '../types'
-import { mockScheduleData } from "../mock-data"
+import * as repository from "../repositories/repository"
+import { Teacher, Room, StudentGroup, Building, Course, Alert, Metric, ScheduleResponse } from '../types'
 
 // Store interface
 interface StoreState {
-  // Auth
-  isAuthenticated: boolean
-  login: (email: string, password: string) => void
-  logout: () => void
-
   //Loading
   isLoading: boolean
   startLoading: () => void
@@ -22,7 +16,7 @@ interface StoreState {
   studentGroups: StudentGroup[]
   buildings: Building[]
   courses: Course[]
-  schedules: Schedule[]
+  schedules: ScheduleResponse[]
   alerts: Alert[]
   metrics: Metric[]
   currentSchedule: ScheduleResponse | null
@@ -55,24 +49,14 @@ interface StoreState {
 
   fetchSchedules: () => void
   fetchCurrentSchedule: () => void
-  updateSchedule: (id: string, schedule: Partial<Schedule>) => void
+  updateSchedule: (id: string, schedule: Partial<ScheduleResponse>) => void
   deleteSchedule: (id: string) => void
 }
 
 // Create store
 export const useStore = create<StoreState>()(
   persist(
-    (set) => ({
-      // Auth
-      isAuthenticated: false,
-      login: (email, password) => {
-        // In a real app, you would validate credentials
-        if (email && password) {
-          set({ isAuthenticated: true })
-        }
-      },
-      logout: () => set({ isAuthenticated: false }),
-
+    (set, get) => ({
       // Loading
       isLoading: false,
       startLoading: () => set({ isLoading: true }),
@@ -314,8 +298,11 @@ export const useStore = create<StoreState>()(
       fetchSchedules: async () => {
         set({ isLoading: true })
         try {
-          const schedules = await repository.getSchedules()
-          set({ schedules })
+          const { success, data, message } = await repository.getSchedules();
+          if (success && ((data?.length ?? 0) > 0))
+            set({ schedules: data! })
+
+
         } catch (e) {
         } finally {
           set({ isLoading: false })
@@ -324,9 +311,11 @@ export const useStore = create<StoreState>()(
       fetchCurrentSchedule: async () => {
         set({ isLoading: true })
         try {
-          // const currentSchedule = await repository.getCurrentSchedule();
-          const currentSchedule = mockScheduleData;
-          set({ currentSchedule })
+          const { success, data, message } = await repository.getSchedules();
+          if (success && ((data?.length ?? 0) > 0))
+            set({ currentSchedule: data![0] })
+          else
+            set({ currentSchedule: null })
         }
         catch (e) {
           console.error(e);
@@ -339,8 +328,7 @@ export const useStore = create<StoreState>()(
         set({ isLoading: true })
         try {
           await repository.updateSchedule(id, schedule)
-          const schedules = await repository.getSchedules()
-          set({ schedules })
+          get().fetchSchedules()
         } catch (e) {
         } finally {
           set({ isLoading: false })
@@ -350,8 +338,7 @@ export const useStore = create<StoreState>()(
         set({ isLoading: true })
         try {
           await repository.deleteSchedule(id)
-          const schedules = await repository.getSchedules()
-          set({ schedules })
+          get().fetchSchedules()
         } catch (e) {
         } finally {
           set({ isLoading: false })

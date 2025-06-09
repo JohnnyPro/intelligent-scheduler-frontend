@@ -1,23 +1,21 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
-
-interface UserData {
-  name: string;
-  email: string;
-  profleImg: string | null;
-}
+import { authRepository } from '../repositories/auth-repository';
+import { redirect } from 'next/navigation';
+import { User } from '../types';
 
 interface AuthState {
   accessToken: string | null;
   refreshToken: string | null;
   isAuthenticated: boolean;
-  user: UserData | null;
+  user: User | null;
   isLoading: boolean; // True while checking session
   setTokens: (access: string, refresh: string) => void;
-  login: (access: string, refresh: string, userData: UserData) => void;
+  login: (email: string, password: string) => Promise<{ success: boolean, error?: string }>;
   logout: () => Promise<void>;
   setLoading: (loading: boolean) => void;
-  setUser: (user: UserData | null) => void;
+  setUser: (user: User | null) => void;
+  setIsAuthenticated: (isAuthenticated: boolean) => void;
   clearTokens: () => void;
 }
 
@@ -33,23 +31,37 @@ const useAuthStore = create<AuthState>()(
       setTokens: (access, refresh) => {
         set({ accessToken: access, refreshToken: refresh });
       },
-      login: (access, refresh, userData) => {
-        set({
-          accessToken: access,
-          refreshToken: refresh,
-          isAuthenticated: true,
-          user: userData,
-          isLoading: false,
-        });
+      setIsAuthenticated: (isAuthenticated) => {
+        set({ isAuthenticated })
+      },
+      login: async (email, password) => {
+        const { success, accessToken, refreshToken, error } = await authRepository.login(email, password);
+
+        if (success) {
+          set({
+            accessToken: accessToken,
+            refreshToken: refreshToken,
+            isAuthenticated: true,
+            isLoading: false,
+          });
+        }
+        else {
+          set({
+            accessToken: null,
+            refreshToken: null,
+            isAuthenticated: false,
+            isLoading: false,
+          });
+        }
+        return { success, error }
       },
       logout: async () => {
-        await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/auth/logout`, {
-          method: 'GET',
-          headers: {
-            'Authorization': `Bearer ${get().accessToken}`
-          }
-        });
+        const token = get().accessToken;
+        if (token)
+          await authRepository.logout(token);
+
         set({ accessToken: null, refreshToken: null, isAuthenticated: false, user: null, isLoading: false });
+        redirect('/');
       },
       setLoading: (loading) => set({ isLoading: loading }),
       setUser: (user) => set({ user }),

@@ -13,9 +13,12 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Download, Filter, Plus, Search, Upload } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useEffect } from "react"
+import useAuthStore from "@/lib/stores/auth-store"
 
 export default function RoomsPage() {
-  const { isAuthenticated, rooms, buildings, addRoom, updateRoom, deleteRoom } = useStore()
+  const { isAuthenticated } = useAuthStore()
+
+  const { rooms, buildings, addRoom, updateRoom, deleteRoom } = useStore()
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)

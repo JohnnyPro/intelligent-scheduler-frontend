@@ -54,6 +54,25 @@ export type Course = {
    studentGroups: string[]
 }
 
+export enum Role {
+   ADMIN,
+   TEACHER,
+   STUDENT
+}
+
+export type User = {
+   userId: string
+   firstName: string;
+   lastName: string;
+   email: string;
+   role: Role;
+   createdAt: Date;
+   updatedAt: Date;
+}
+
+
+
+
 export type Schedule = {
    id: string
    name: string
@@ -104,4 +123,20 @@ export interface ScheduledSessionDto {
 export interface ScheduleResponse {
    scheduleId: string;
    sessions: ScheduledSessionDto[];
+}
+
+export type LoginResult = { success: boolean; accessToken: string; refreshToken: string; error: "" }
+   | { success: false; accessToken: null; refreshToken: null; error: string };
+
+
+export interface TokensDto {
+   accessToken: string;
+   refreshToken: string;
+}
+
+export interface ApiResponse<T> {
+   message: string;
+   success: boolean;
+   data: T | null;
+   statusCode: number;
 }

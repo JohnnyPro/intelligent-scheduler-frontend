@@ -1,4 +1,4 @@
-import { Teacher, Room, StudentGroup, Building, Course, Schedule, Alert, Metric, ScheduleResponse, SessionType } from './types'
+import { Teacher, Room, StudentGroup, Building, Course, Alert, Metric, ScheduleResponse, SessionType } from './types'
 
 // Mock data
 const mockTeachers: Teacher[] = [
@@ -268,37 +268,6 @@ const mockCourses: Course[] = [
     sessions: 3,
     teacher: "T005",
     studentGroups: ["SG005"],
-  },
-]
-
-const mockSchedules: Schedule[] = [
-  {
-    id: "1",
-    name: "Fall 2025 - Initial Draft",
-    date: "May 15, 2025, 10:30 AM",
-    status: "Completed",
-    fitnessScore: "95.8%",
-  },
-  {
-    id: "2",
-    name: "Fall 2025 - Test Run",
-    date: "May 14, 2025, 3:15 PM",
-    status: "Failed",
-    fitnessScore: null,
-  },
-  {
-    id: "3",
-    name: "Spring 2025 - Final",
-    date: "Jan 10, 2025, 9:00 AM",
-    status: "Published",
-    fitnessScore: "97.2%",
-  },
-  {
-    id: "4",
-    name: "Fall 2024 - Final",
-    date: "Aug 20, 2024, 2:45 PM",
-    status: "Published",
-    fitnessScore: "94.5%",
   },
 ]
 

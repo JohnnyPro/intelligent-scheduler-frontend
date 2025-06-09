@@ -4,23 +4,29 @@ import type React from "react"
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { useStore } from "@/lib/stores/store"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Calendar, Eye, EyeOff, User } from "lucide-react"
 import Image from "next/image"
+import useAuthStore from "@/lib/stores/auth-store"
 
 export default function LoginPage() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
-  const login = useStore((state) => state.login)
+  const [error, setError] = useState<string | null>(null)
+
+  const login = useAuthStore((state) => state.login)
   const router = useRouter()
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    login(email, password)
-    router.push("/dashboard")
+    const { success, error } = await login(email, password)
+    if (success){
+      router.push("/dashboard")
+    }
+    else
+      setError(error ?? "Error")
   }
 
   return (
@@ -88,6 +94,10 @@ export default function LoginPage() {
                 </button>
               </div>
             </div>
+            {error && (
+              <p className="text-sm text-red-600 text-center -mt-4">{error}</p>
+            )}
+
             <Button type="submit" className="w-full bg-indigo-600 hover:bg-indigo-700">
               Login
             </Button>

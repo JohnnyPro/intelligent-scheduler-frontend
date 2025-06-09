@@ -11,9 +11,11 @@ import { Label } from "@/components/ui/label"
 import { Download, Filter, Plus, Search, Upload } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useEffect } from "react"
+import useAuthStore from "@/lib/stores/auth-store"
 
 export default function TeachersPage() {
-  const { isAuthenticated, teachers, addTeacher, updateTeacher, deleteTeacher } = useStore()
+  const { isAuthenticated } = useAuthStore();
+  const { teachers, addTeacher, updateTeacher, deleteTeacher } = useStore()
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)

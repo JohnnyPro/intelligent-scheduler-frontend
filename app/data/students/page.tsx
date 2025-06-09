@@ -12,9 +12,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Download, Filter, Plus, Search, Upload } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useEffect } from "react"
+import useAuthStore from "@/lib/stores/auth-store"
 
 export default function StudentGroupsPage() {
-  const { isAuthenticated, studentGroups, addStudentGroup, updateStudentGroup, deleteStudentGroup, teachers } =
+  const { isAuthenticated } = useAuthStore();
+  const { studentGroups, addStudentGroup, updateStudentGroup, deleteStudentGroup, teachers } =
     useStore()
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)

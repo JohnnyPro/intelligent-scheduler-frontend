@@ -1,6 +1,5 @@
 import useAuthStore from '@/lib/stores/auth-store';
 import { Mutex } from 'async-mutex';
-import Router from 'next/router'
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_BACKEND_API_URL || 'http://localhost:3000';
 
@@ -71,9 +70,7 @@ export const apiClient = async <T = unknown>(
             throw new Error('Refresh token invalid or expired. Please login again.');
           }
         } catch (refreshError) {
-          console.error('Token refresh failed:', refreshError);
           useAuthStore.getState().logout();
-          Router.push('/login');
           throw refreshError;
         }
       });
