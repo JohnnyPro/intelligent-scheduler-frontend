@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import useAuthStore from '@/lib/stores/auth-store';
 import { ApiResponse, User } from '@/lib/types';
 import { apiClient } from '@/lib/utils/api-client';
+import LoadingSpinner from './loader';
 
 const AuthInitializer = ({ children }: { children: React.ReactNode }) => {
    const { accessToken, isAuthenticated, isLoading, setLoading, setIsAuthenticated, login, logout, user, setUser } = useAuthStore();
@@ -38,19 +39,17 @@ const AuthInitializer = ({ children }: { children: React.ReactNode }) => {
          setLoading(false);
       };
 
-      if (!isAuthenticated && accessToken) {
+      if (accessToken) {
          verifySession();
-      } else if (!accessToken) {
-         setLoading(false);
-      } else if (isAuthenticated) {
+      } else {
          setLoading(false);
       }
 
 
-   }, [accessToken, isAuthenticated, login, logout, setLoading, user]);
+   }, []);
 
    if (isLoading) {
-      return <div>Loading session...</div>;
+      return <LoadingSpinner />
    }
 
    return <>{children}</>;

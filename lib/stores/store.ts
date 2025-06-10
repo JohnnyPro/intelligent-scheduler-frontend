@@ -1,7 +1,7 @@
 import { create } from "zustand"
 import { persist } from "zustand/middleware"
 import * as repository from "../repositories/repository"
-import { Teacher, Room, StudentGroup, Building, Course, Alert, Metric, ScheduleResponse } from '../types'
+import { Teacher, StudentGroup, Building, Course, Alert, Metric, ScheduleResponse, Classroom, ClassroomCreating } from '../types'
 
 // Store interface
 interface StoreState {
@@ -12,7 +12,7 @@ interface StoreState {
 
   // Data
   teachers: Teacher[]
-  rooms: Room[]
+  rooms: Classroom[]
   studentGroups: StudentGroup[]
   buildings: Building[]
   courses: Course[]
@@ -28,8 +28,8 @@ interface StoreState {
   deleteTeacher: (id: string) => void
 
   fetchRooms: () => void
-  addRoom: (room: Omit<Room, "id">) => void
-  updateRoom: (id: string, room: Partial<Room>) => void
+  addRoom: (room: ClassroomCreating) => void
+  updateRoom: (id: string, room: Partial<Classroom>) => void
   deleteRoom: (id: string) => void
 
   fetchStudentGroups: () => void
@@ -122,9 +122,13 @@ export const useStore = create<StoreState>()(
       fetchRooms: async () => {
         set({ isLoading: true })
         try {
-          const rooms = await repository.getRooms()
-          set({ rooms })
+          const resp = await repository.getRooms()
+          if (resp.success && resp.data) {
+            const rooms = resp.data;
+            set({ rooms })
+          }
         } catch (e) {
+
         } finally {
           set({ isLoading: false })
         }
@@ -133,8 +137,7 @@ export const useStore = create<StoreState>()(
         set({ isLoading: true })
         try {
           await repository.addRoom(room)
-          const rooms = await repository.getRooms()
-          set({ rooms })
+          get().fetchRooms()
         } catch (e) {
         } finally {
           set({ isLoading: false })
@@ -144,8 +147,7 @@ export const useStore = create<StoreState>()(
         set({ isLoading: true })
         try {
           await repository.updateRoom(id, room)
-          const rooms = await repository.getRooms()
-          set({ rooms })
+          get().fetchRooms()
         } catch (e) {
         } finally {
           set({ isLoading: false })
@@ -155,8 +157,7 @@ export const useStore = create<StoreState>()(
         set({ isLoading: true })
         try {
           await repository.deleteRoom(id)
-          const rooms = await repository.getRooms()
-          set({ rooms })
+          get().fetchRooms()
         } catch (e) {
         } finally {
           set({ isLoading: false })

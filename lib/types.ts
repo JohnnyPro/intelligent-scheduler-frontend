@@ -23,6 +23,37 @@ export type Room = {
    isAccessible: boolean
    facilities: string[]
 }
+export type Classroom = {
+   classroomId: string;
+   name: string;
+   capacity: number;
+   type: ClassroomType;
+   campusId: string;
+   buildingId: string | null;
+   isWheelchairAccessible: boolean;
+   openingTime: string | null;
+   closingTime: string | null;
+   floor: number;
+   campus: {
+      name: string;
+   };
+   building?: {
+      name: string;
+   } | null;
+}
+export type ClassroomCreating = {
+   name: string;
+   capacity: number;
+   type: ClassroomType;
+   buildingId: string | null;
+   isWheelchairAccessible: boolean;
+   openingTime: string | null;
+   closingTime: string | null;
+   floor: number;
+}
+export type ClassroomUpdating = Partial<ClassroomCreating>;
+
+export type ClassroomType = "LECTURE" | "LAB" | "SEMINAR"
 
 export type StudentGroup = {
    studentGroupId: string

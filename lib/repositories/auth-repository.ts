@@ -1,5 +1,5 @@
 
-import { LoginResult, ApiResponse, TokensDto } from "../types";
+import { LoginResult, ApiResponse, TokensDto, User } from "../types";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_BACKEND_API_URL || 'http://localhost:3001';
 
@@ -33,6 +33,7 @@ class AuthRepository {
          return { success: false, accessToken: null, refreshToken: null, error: error.message || 'Network error' };
       }
    }
+   
 
    //   async register(email: string, password: string): Promise<LoginResult> {
    //     try {

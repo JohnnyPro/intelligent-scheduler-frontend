@@ -1,6 +1,6 @@
 const API_BASE_URL = process.env.NEXT_PUBLIC_BACKEND_API_BASE_URL || 'http://localhost:3001';
 
-import { Teacher, Room, StudentGroup, Building, Course, ApiResponse, ScheduleResponse } from '../types'
+import { Teacher, StudentGroup, Building, Course, ApiResponse, ScheduleResponse, Classroom, ClassroomCreating, User, ClassroomUpdating } from '../types'
 import { apiClient } from '../utils/api-client';
 
 // Helper for fetch with JSON
@@ -22,13 +22,13 @@ export const deleteTeacher = (id: string) =>
    fetchJSON(`${API_BASE_URL}/teachers/${id}`, { method: 'DELETE' })
 
 // Rooms CRUD
-export const getRooms = () => fetchJSON(`${API_BASE_URL}/classrooms`)
-export const addRoom = (room: Omit<Room, 'id'>) =>
-   fetchJSON(`${API_BASE_URL}/classrooms`, { method: 'POST', body: JSON.stringify(room) })
-export const updateRoom = (id: string, room: Partial<Room>) =>
-   fetchJSON(`${API_BASE_URL}/classrooms/${id}`, { method: 'PUT', body: JSON.stringify(room) })
+export const getRooms = () => apiClient<ApiResponse<Classroom[]>>(`/classrooms`)
+export const addRoom = (room: ClassroomCreating) =>
+   apiClient(`/classrooms`, { method: 'POST', body: JSON.stringify(room) })
+export const updateRoom = (id: string, room: Partial<ClassroomUpdating>) =>
+   apiClient(`/classrooms/${id}`, { method: 'PUT', body: JSON.stringify(room) })
 export const deleteRoom = (id: string) =>
-   fetchJSON(`${API_BASE_URL}/classrooms/${id}`, { method: 'DELETE' })
+   apiClient(`/classrooms/${id}`, { method: 'DELETE' })
 
 // StudentGroups CRUD
 export const getStudentGroups = () => fetchJSON(`${API_BASE_URL}/student-groups`)
@@ -68,3 +68,7 @@ export const deleteSchedule = (id: string) =>
 
 //TODO: NOT DONE ON THE BACKEND
 export const getCurrentSchedule = () => apiClient<ApiResponse<ScheduleResponse>>(`/current-schedule`)
+
+
+export const getProfile = async (accessToken: string): Promise<ApiResponse<User>> => apiClient<ApiResponse<User>>(`/users/me`);
+

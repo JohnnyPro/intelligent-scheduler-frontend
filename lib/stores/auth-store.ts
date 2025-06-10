@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import { authRepository } from '../repositories/auth-repository';
+import { getProfile } from '../repositories/repository';
 import { redirect } from 'next/navigation';
 import { User } from '../types';
 
@@ -16,6 +17,7 @@ interface AuthState {
   setLoading: (loading: boolean) => void;
   setUser: (user: User | null) => void;
   setIsAuthenticated: (isAuthenticated: boolean) => void;
+  getProfile: () => void;
   clearTokens: () => void;
 }
 
@@ -42,8 +44,9 @@ const useAuthStore = create<AuthState>()(
             accessToken: accessToken,
             refreshToken: refreshToken,
             isAuthenticated: true,
-            isLoading: false,
+            isLoading: true,
           });
+          get().getProfile();
         }
         else {
           set({
@@ -54,6 +57,19 @@ const useAuthStore = create<AuthState>()(
           });
         }
         return { success, error }
+      },
+      getProfile: async () => {
+        set({ isLoading: true });
+        const access = get().accessToken;
+        if (access) {
+          const response = await getProfile(access);
+          if (response.success && response.data) {
+            const { data } = response;
+            set({ user: data });
+          }
+        }
+        set({ isLoading: false });
+
       },
       logout: async () => {
         const token = get().accessToken;
