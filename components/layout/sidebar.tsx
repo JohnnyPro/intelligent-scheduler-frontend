@@ -12,6 +12,7 @@ import {
   Users,
   Building,
   LogOut,
+  Upload,
 } from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
@@ -42,6 +43,11 @@ const sidebarItems = [
   {
     title: "DATA MANAGEMENT",
     items: [
+      {
+        title: "CSV Upload",
+        href: "/data/csv-upload",
+        icon: <Upload className="h-5 w-5" />,
+      },
       {
         title: "Courses & Sessions",
         href: "/data/courses",

@@ -114,6 +114,12 @@ export default function LoginPage() {
                      Login
                   </Button>
                </form>
+               {/* After the login form, add this button for testing */}
+            <div className="mt-4 text-center">
+               <Button variant="outline" onClick={() => router.push("/teacher/schedule")} className="w-full">
+               Go to Teacher Dashboard (Demo)
+               </Button>
+            </div>
             </div>
          </div>
       </div>

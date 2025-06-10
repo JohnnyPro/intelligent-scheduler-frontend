@@ -1,6 +1,6 @@
 "use client"
-import { Sidebar } from "@/components/sidebar";
-import { Header } from "@/components/header";
+import { Sidebar } from "@/components/layout/sidebar";
+import { Header } from "@/components/layout/header";
 import { Button } from "@/components/ui/button";
 import { Calendar, ChevronLeft, ChevronRight, Download, Filter, Grid, List } from "lucide-react";
 import { ScheduleCalendar } from "@/components/schedule-calendar"; // Import the new component
