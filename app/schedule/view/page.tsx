@@ -6,15 +6,16 @@ import { Calendar, ChevronLeft, ChevronRight, Download, Filter, Grid, List } fro
 import { ScheduleCalendar } from "@/components/schedule-calendar"; // Import the new component
 import { useStore } from "@/lib/stores/store"
 import { useEffect } from "react";
+import { useScheduleStore } from "@/lib/stores/schedule.store";
 
 
 export default function ViewSchedulePage() {
-  const { currentSchedule, fetchCurrentSchedule } = useStore()
+  const { activeSchedule, fetchCurrentSchedule } = useScheduleStore()
   useEffect(() => {
     fetchCurrentSchedule();
   }, [fetchCurrentSchedule]);
 
-  let scheduleData = currentSchedule;
+  let scheduleData = activeSchedule;
   if (scheduleData == null)
     scheduleData = {
       "scheduleId": "null",

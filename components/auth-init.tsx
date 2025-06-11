@@ -2,12 +2,13 @@
 
 import { useEffect } from 'react';
 import useAuthStore from '@/lib/stores/auth-store';
-import { ApiResponse, User } from '@/lib/types';
+import { ApiResponse } from '@/lib/types';
+import { User } from '@/lib/types/users.types';
 import { apiClient } from '@/lib/utils/api-client';
 import LoadingSpinner from './loader';
 
 const AuthInitializer = ({ children }: { children: React.ReactNode }) => {
-   const { accessToken, isAuthenticated, isLoading, setLoading, setIsAuthenticated, login, logout, user, setUser } = useAuthStore();
+   const { accessToken, isAuthenticated, isLoading, isAuthDelay, setLoading, setIsAuthenticated, logout, user, setUser } = useAuthStore();
 
    useEffect(() => {
       const verifySession = async () => {
@@ -46,9 +47,9 @@ const AuthInitializer = ({ children }: { children: React.ReactNode }) => {
       }
 
 
-   }, []);
+   }, [accessToken, isAuthenticated]);
 
-   if (isLoading) {
+   if (isLoading || (!children && isAuthDelay)) {
       return <LoadingSpinner />
    }
 

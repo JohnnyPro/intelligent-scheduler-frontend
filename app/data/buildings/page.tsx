@@ -13,10 +13,11 @@ import { Download, Filter, Plus, Search, Upload } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useEffect } from "react"
 import useAuthStore from "@/lib/stores/auth-store"
+import { useBuildingStore } from "@/lib/stores/building.store"
 
 export default function BuildingsPage() {
   const { isAuthenticated } = useAuthStore()
-  const { buildings, addBuilding, updateBuilding, deleteBuilding } = useStore()
+  const { buildings, addBuilding, updateBuilding, deleteBuilding } = useBuildingStore()
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
@@ -68,7 +69,7 @@ export default function BuildingsPage() {
   }
 
   const openEditDialog = (id: string) => {
-    const building = buildings.find((b) => b.id === id)
+    const building = buildings.find((b) => b.buildingId === id)
     if (building) {
       setSelectedBuilding(id)
       setFormData({
