@@ -7,7 +7,7 @@ export function middleware(req: NextRequest) {
   // Get the access token from cookies
   const token = req.cookies.get("accessToken")?.value;
   const pathname = req.nextUrl.pathname;
-  const publicRoutes = ["/", "/unauthorized"];
+  const publicRoutes = ["/unauthorized"];
 
   if (!token) {
     return NextResponse.redirect(new URL("/login", req.url));

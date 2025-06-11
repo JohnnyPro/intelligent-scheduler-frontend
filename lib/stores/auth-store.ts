@@ -90,6 +90,7 @@ const useAuthStore = create<AuthState>()(
           user: null,
           isLoading: false,
         });
+        document.cookie = "accessToken=";
         redirect("/");
       },
       setLoading: (loading) => set({ isLoading: loading }),

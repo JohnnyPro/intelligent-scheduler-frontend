@@ -18,7 +18,8 @@ export default function LoginPage() {
   const [error, setError] = useState<string | null>(null);
 
   const login = useAuthStore((state) => state.login);
-  const { isAuthenticated, accessToken, user, isAuthDelay, setIsAuthDelay } = useAuthStore();
+  const { isAuthenticated, accessToken, user, isAuthDelay, setIsAuthDelay } =
+    useAuthStore();
   const router = useRouter();
 
   useEffect(() => setIsAuthDelay(false), []);
@@ -142,16 +143,6 @@ export default function LoginPage() {
                 Login
               </Button>
             </form>
-            {/* After the login form, add this button for testing */}
-            <div className="mt-4 text-center">
-              <Button
-                variant="outline"
-                onClick={() => router.push("/teacher/schedule")}
-                className="w-full"
-              >
-                Go to Teacher Dashboard (Demo)
-              </Button>
-            </div>
           </div>
         </div>
       </div>
