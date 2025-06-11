@@ -95,13 +95,14 @@ const sidebarItems = [
 export function Sidebar() {
   const pathname = usePathname()
   const logout = useAuthStore((state) => state.logout)
+  const { isAuthenticated, user } = useAuthStore();
 
   return (
     <div className="flex h-screen w-64 flex-col border-r bg-white">
       <div className="flex h-14 items-center border-b px-4">
         <Link href="/dashboard" className="flex items-center gap-2 font-semibold text-indigo-600">
           <Calendar className="h-6 w-6" />
-          <span className="text-lg">TimeTable</span>
+          <span className="text-lg">Intelligent Scheduler</span>
         </Link>
       </div>
       <div className="flex-1 overflow-auto py-2">
@@ -128,15 +129,18 @@ export function Sidebar() {
       </div>
       <div className="border-t p-4">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-indigo-100 text-sm font-semibold text-indigo-600">
-              JS
+          {
+            user &&
+            <div className="flex items-center gap-3">
+              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-indigo-100 text-sm font-semibold text-indigo-600">
+                {user.firstName.at(0)}{user.lastName.at(0)}
+              </div>
+              <div>
+                <div className="text-sm font-medium">{user.firstName} {user.lastName}</div>
+                <div className="text-xs text-gray-500">{user.role}</div>
+              </div>
             </div>
-            <div>
-              <div className="text-sm font-medium">John Smith</div>
-              <div className="text-xs text-gray-500">Administrator</div>
-            </div>
-          </div>
+          }
           <Button variant="ghost" size="icon" onClick={logout} title="Logout">
             <LogOut className="h-5 w-5 text-gray-500" />
           </Button>
