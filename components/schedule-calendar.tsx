@@ -2,6 +2,8 @@
 import { ScheduledSessionDto } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
+import { Button } from "./ui/button";
+import { Calendar, Download, Filter } from "lucide-react";
 
 const CALENDAR_START_HOUR = 8;
 const CALENDAR_END_HOUR = 19;
@@ -141,43 +143,77 @@ export const ScheduleCalendar = ({ sessions }: ScheduleCalendarProps) => {
       sessions.some(s => s.day.toUpperCase() === day) ? "3fr" : "1fr"
    );
    return (
-      <div className="grid grid-cols-[auto_1fr] bg-white">
-         {/* Time Column */}
-         <div className="flex flex-col border-r">
-            <div className="h-10 border-b"></div> {/* Empty corner */}
-            {hours.map(hour => (
-               <div key={hour} className="flex h-16 items-start justify-end pr-2 pt-1 border-b">
-                  <span className="text-sm text-gray-500">{hour}:00</span>
-               </div>
-            ))}
+
+      <div className="rounded-lg border bg-white">
+         <div className="flex items-center justify-between border-b p-4 bg-neutral-200 rounded-t-xl">
+            <div className="flex items-center gap-2">
+               <Calendar className="h-4 w-4" />
+               <span className="font-medium">Generic Calendar Name</span>
+            </div>
+            <div className="flex items-center gap-2">
+               <Button variant="default" size="sm">
+                  <Filter className="mr-2 h-4 w-4" />
+                  Filter
+               </Button>
+               <Button variant="outline" size="sm">
+                  <Download className="mr-2 h-4 w-4" />
+                  Export
+               </Button>
+               {/* <div className="flex rounded-md border">
+                    <Button variant="ghost" size="icon" className="h-8 w-8 rounded-none rounded-l-md border-r bg-gray-100">
+                      <Grid className="h-4 w-4" />
+                    </Button>
+                    <Button variant="ghost" size="icon" className="h-8 w-8 rounded-none border-r">
+                      <List className="h-4 w-4" />
+                    </Button>
+                    <Button variant="ghost" size="icon" className="h-8 w-8 rounded-none rounded-r-md">
+                      <Calendar className="h-4 w-4" />
+                    </Button>
+                  </div> */}
+            </div>
          </div>
 
-         {/* Schedule Grid */}
-         <div className="grid grid-cols-7" style={{ gridTemplateColumns: templateColumns.join(' ') }}>
-            {days.map(day => {
-               const daySessions = sessions.filter(s => s.day.toUpperCase() === day);
-               const positionedSessions = getPositionedSessionsForDay(daySessions);
+         {/* === Replace the old static grid with our new dynamic component === */}
 
-               return (
-                  <div key={day} className="flex-1 border-r last:border-r-0">
-                     {/* Day Header */}
-                     <div className="h-10 border-b p-2 text-center font-medium">
-                        {day.charAt(0).toUpperCase() + day.slice(1).toLowerCase()}
-                     </div>
-                     {/* Sessions Column */}
-                     <div className="relative h-full">
-                        {/* Hour lines for visual reference */}
-                        {hours.map((_, index) => (
-                           <div key={index} className="h-16 border-b"></div>
-                        ))}
-                        {positionedSessions.map(session => (
-                           <ScheduleItem key={session.courseId} session={session} />
-                        ))}
-                     </div>
+         <div className="grid grid-cols-[auto_1fr] bg-white">
+            {/* Time Column */}
+            <div className="flex flex-col border-r">
+               <div className="h-10 border-b"></div> {/* Empty corner */}
+               {hours.map(hour => (
+                  <div key={hour} className="flex h-16 items-start justify-end pr-2 pt-1 border-b">
+                     <span className="text-sm text-gray-500">{hour}:00</span>
                   </div>
-               );
-            })}
+               ))}
+            </div>
+
+            {/* Schedule Grid */}
+            <div className="grid grid-cols-7" style={{ gridTemplateColumns: templateColumns.join(' ') }}>
+               {days.map(day => {
+                  const daySessions = sessions.filter(s => s.day.toUpperCase() === day);
+                  const positionedSessions = getPositionedSessionsForDay(daySessions);
+
+                  return (
+                     <div key={day} className="flex-1 border-r last:border-r-0">
+                        {/* Day Header */}
+                        <div className="h-10 border-b p-2 text-center font-medium">
+                           {day.charAt(0).toUpperCase() + day.slice(1).toLowerCase()}
+                        </div>
+                        {/* Sessions Column */}
+                        <div className="relative h-full">
+                           {/* Hour lines for visual reference */}
+                           {hours.map((_, index) => (
+                              <div key={index} className="h-16 border-b"></div>
+                           ))}
+                           {positionedSessions.map(session => (
+                              <ScheduleItem key={session.courseId} session={session} />
+                           ))}
+                        </div>
+                     </div>
+                  );
+               })}
+            </div>
          </div>
       </div>
+
    );
 };
