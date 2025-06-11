@@ -31,13 +31,13 @@ export type Metric = {
 export enum SessionType {
   LECTURE = "LECTURE",
   LAB = "LAB",
-  TUTORIAL = "TUTORIAL",
+  SEMINAR = "SEMINAR",
 }
 
 export enum ClassroomType {
   LECTURE = "LECTURE",
   LAB = "LAB",
-  TUTORIAL = "TUTORIAL",
+  SEMINAR = "SEMINAR",
 }
 
 export type LoginResult =
