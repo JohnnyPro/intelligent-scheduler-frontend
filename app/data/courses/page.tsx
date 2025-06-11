@@ -1,15 +1,23 @@
-import type { Metadata } from "next"
-import { Sidebar } from "@/components/layout/sidebar"
-import { Header } from "@/components/layout/header"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Download, Filter, Plus, Search, Upload } from "lucide-react"
+import type { Metadata } from "next";
+import { AdminSidebar } from "@/components/layout/sidebar";
+import { Header } from "@/components/layout/header";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Download, Filter, Plus, Search, Upload } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Courses & Sessions | Intelligent Scheduling System",
-  description: "Manage courses and sessions in the Intelligent Scheduling System",
-}
+  description:
+    "Manage courses and sessions in the Intelligent Scheduling System",
+};
 
 // Mock courses data
 const courses = [
@@ -53,12 +61,12 @@ const courses = [
     teacher: "Robert Wilson",
     studentGroups: ["BIO-Y1", "CHEM-Y1"],
   },
-]
+];
 
 export default function CoursesPage() {
   return (
     <div className="flex h-screen bg-gray-50">
-      <Sidebar />
+      <AdminSidebar />
       <div className="flex flex-1 flex-col overflow-hidden">
         <Header title="Courses & Sessions" />
         <main className="flex-1 overflow-auto p-6">
@@ -84,7 +92,11 @@ export default function CoursesPage() {
             <div className="flex items-center gap-4">
               <div className="relative flex-1">
                 <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500" />
-                <Input type="search" placeholder="Search courses..." className="w-full pl-8" />
+                <Input
+                  type="search"
+                  placeholder="Search courses..."
+                  className="w-full pl-8"
+                />
               </div>
               <Button variant="outline">
                 <Filter className="mr-2 h-4 w-4" />
@@ -130,7 +142,11 @@ export default function CoursesPage() {
                           <Button variant="outline" size="sm">
                             Edit
                           </Button>
-                          <Button variant="outline" size="sm" className="text-red-600 hover:text-red-700">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="text-red-600 hover:text-red-700"
+                          >
                             Delete
                           </Button>
                         </div>
@@ -144,5 +160,5 @@ export default function CoursesPage() {
         </main>
       </div>
     </div>
-  )
+  );
 }

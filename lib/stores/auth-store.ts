@@ -1,9 +1,9 @@
-import { create } from 'zustand';
-import { persist, createJSONStorage } from 'zustand/middleware';
-import { authRepository } from '../repositories/auth-repository';
-import { getProfile } from '../repositories/repository';
-import { redirect } from 'next/navigation';
-import { User } from '../types/users.types';
+import { create } from "zustand";
+import { persist, createJSONStorage } from "zustand/middleware";
+import { authRepository } from "../repositories/auth-repository";
+import { getProfile } from "../repositories/repository";
+import { redirect } from "next/navigation";
+import { User } from "../types/users.types";
 
 interface AuthState {
   accessToken: string | null;
@@ -13,7 +13,10 @@ interface AuthState {
   isLoading: boolean; // True while checking session
   isAuthDelay: boolean; // True while auth delay
   setTokens: (access: string, refresh: string) => void;
-  login: (email: string, password: string) => Promise<{ success: boolean, error?: string }>;
+  login: (
+    email: string,
+    password: string
+  ) => Promise<{ success: boolean; error?: string }>;
   logout: () => Promise<void>;
   setLoading: (loading: boolean) => void;
   setUser: (user: User | null) => void;
@@ -37,13 +40,14 @@ const useAuthStore = create<AuthState>()(
         set({ accessToken: access, refreshToken: refresh });
       },
       setIsAuthenticated: (isAuthenticated) => {
-        set({ isAuthenticated })
+        set({ isAuthenticated });
       },
       setIsAuthDelay: (isAuthDelay) => {
-        set({ isAuthDelay })
+        set({ isAuthDelay });
       },
       login: async (email, password) => {
-        const { success, accessToken, refreshToken, error } = await authRepository.login(email, password);
+        const { success, accessToken, refreshToken, error } =
+          await authRepository.login(email, password);
 
         if (success) {
           set({
@@ -52,9 +56,8 @@ const useAuthStore = create<AuthState>()(
             isAuthenticated: true,
             isLoading: false,
           });
-          // get().getProfile();
-        }
-        else {
+          document.cookie = `accessToken=${accessToken}; path=/; SameSite=Strict;`;
+        } else {
           set({
             accessToken: null,
             refreshToken: null,
@@ -62,7 +65,7 @@ const useAuthStore = create<AuthState>()(
             isLoading: false,
           });
         }
-        return { success, error }
+        return { success, error };
       },
       getProfile: async () => {
         set({ isLoading: true });
@@ -75,22 +78,26 @@ const useAuthStore = create<AuthState>()(
           }
         }
         set({ isLoading: false });
-
       },
       logout: async () => {
         const token = get().accessToken;
-        if (token)
-          await authRepository.logout(token);
+        if (token) await authRepository.logout(token);
 
-        set({ accessToken: null, refreshToken: null, isAuthenticated: false, user: null, isLoading: false });
-        redirect('/');
+        set({
+          accessToken: null,
+          refreshToken: null,
+          isAuthenticated: false,
+          user: null,
+          isLoading: false,
+        });
+        redirect("/");
       },
       setLoading: (loading) => set({ isLoading: loading }),
       setUser: (user) => set({ user }),
       clearTokens: () => set({ accessToken: null, refreshToken: null }),
     }),
     {
-      name: 'auth-storage',
+      name: "auth-storage",
       storage: createJSONStorage(() => localStorage),
       partialize: (state) => ({
         accessToken: state.accessToken,
