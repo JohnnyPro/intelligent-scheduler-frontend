@@ -5,6 +5,7 @@ import { Calendar, Settings, User, LogOut } from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { Button } from "@/components/ui/button"
+import ProfileSnippet from "./profile-snippet"
 
 const sidebarItems = [
   {
@@ -57,22 +58,7 @@ export function TeacherSidebar() {
           </div>
         ))}
       </div>
-      <div className="border-t p-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-emerald-100 text-sm font-semibold text-emerald-600">
-              <User className="h-5 w-5" />
-            </div>
-            <div>
-              <div className="text-sm font-medium">Dr. Sarah Johnson</div>
-              <div className="text-xs text-gray-500">Mathematics Dept.</div>
-            </div>
-          </div>
-          <Button variant="ghost" size="icon" title="Logout">
-            <LogOut className="h-5 w-5 text-gray-500" />
-          </Button>
-        </div>
-      </div>
+      <ProfileSnippet />
     </div>
   )
 }
