@@ -11,12 +11,14 @@ interface AuthState {
   isAuthenticated: boolean;
   user: User | null;
   isLoading: boolean; // True while checking session
+  isAuthDelay: boolean; // True while auth delay
   setTokens: (access: string, refresh: string) => void;
   login: (email: string, password: string) => Promise<{ success: boolean, error?: string }>;
   logout: () => Promise<void>;
   setLoading: (loading: boolean) => void;
   setUser: (user: User | null) => void;
   setIsAuthenticated: (isAuthenticated: boolean) => void;
+  setIsAuthDelay: (isAuthDelay: boolean) => void;
   getProfile: () => void;
   clearTokens: () => void;
 }
@@ -27,6 +29,7 @@ const useAuthStore = create<AuthState>()(
       accessToken: null,
       refreshToken: null,
       isAuthenticated: false,
+      isAuthDelay: false,
       user: null,
       isLoading: true,
 
@@ -36,6 +39,9 @@ const useAuthStore = create<AuthState>()(
       setIsAuthenticated: (isAuthenticated) => {
         set({ isAuthenticated })
       },
+      setIsAuthDelay: (isAuthDelay) => {
+        set({ isAuthDelay })
+      },
       login: async (email, password) => {
         const { success, accessToken, refreshToken, error } = await authRepository.login(email, password);
 
@@ -44,9 +50,9 @@ const useAuthStore = create<AuthState>()(
             accessToken: accessToken,
             refreshToken: refreshToken,
             isAuthenticated: true,
-            isLoading: true,
+            isLoading: false,
           });
-          get().getProfile();
+          // get().getProfile();
         }
         else {
           set({

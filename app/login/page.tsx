@@ -18,17 +18,19 @@ export default function LoginPage() {
    const [error, setError] = useState<string | null>(null)
 
    const login = useAuthStore((state) => state.login)
-   const { isAuthenticated } = useAuthStore();
+   const { isAuthenticated,isAuthDelay, setIsAuthDelay } = useAuthStore();
    const router = useRouter()
 
+   useEffect(() => setIsAuthDelay(false), []);
 
    useEffect(() => {
-      console.log("STATUS")
-      console.log(isAuthenticated)
+      console.log("STATUS", isAuthenticated);
       if (isAuthenticated) {
+         setIsAuthDelay(true)
          router.push("/dashboard");
       }
-   }, [isAuthenticated, router]);
+   }, [isAuthenticated]);
+
    const handleSubmit = async (e: React.FormEvent) => {
       e.preventDefault()
       const { success, error } = await login(email, password)
@@ -41,7 +43,7 @@ export default function LoginPage() {
       }
    }
 
-   return (
+   return !isAuthDelay && (
       <div className="flex h-screen">
          <div className="hidden w-1/2 bg-indigo-900 p-12 md:flex md:flex-col md:justify-between">
             <div className="flex items-center gap-2 text-white">

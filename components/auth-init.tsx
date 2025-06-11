@@ -7,7 +7,7 @@ import { apiClient } from '@/lib/utils/api-client';
 import LoadingSpinner from './loader';
 
 const AuthInitializer = ({ children }: { children: React.ReactNode }) => {
-   const { accessToken, isAuthenticated, isLoading, setLoading, setIsAuthenticated, login, logout, user, setUser } = useAuthStore();
+   const { accessToken, isAuthenticated, isLoading, isAuthDelay, setLoading, setIsAuthenticated, logout, user, setUser } = useAuthStore();
 
    useEffect(() => {
       const verifySession = async () => {
@@ -46,9 +46,9 @@ const AuthInitializer = ({ children }: { children: React.ReactNode }) => {
       }
 
 
-   }, []);
+   }, [accessToken, isAuthenticated]);
 
-   if (isLoading) {
+   if (isLoading || (!children && isAuthDelay)) {
       return <LoadingSpinner />
    }
 
