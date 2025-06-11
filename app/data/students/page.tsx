@@ -13,11 +13,13 @@ import { Download, Filter, Plus, Search, Upload } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useEffect } from "react"
 import useAuthStore from "@/lib/stores/auth-store"
+import { useStudentGroupStore } from "@/lib/stores/student-group.store"
+import { useTeacherStore } from "@/lib/stores/teacher.store"
 
 export default function StudentGroupsPage() {
   const { isAuthenticated } = useAuthStore();
-  const { studentGroups, addStudentGroup, updateStudentGroup, deleteStudentGroup, teachers } =
-    useStore()
+  const { studentGroups, addStudentGroup, updateStudentGroup, deleteStudentGroup } =  useStudentGroupStore();
+  const { teachers } = useTeacherStore();
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)

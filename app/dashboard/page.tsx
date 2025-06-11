@@ -1,16 +1,20 @@
-"use client"
+"use client";
 
-import { useStore } from "@/lib/stores/store"
-import { DashboardLayout } from "@/components/layout/dashboard-layout"
-import { MetricCard } from "@/components/dashboard/metric-card"
-import { AlertCard } from "@/components/dashboard/alert-card"
-import { ScheduleHistoryTable } from "@/components/dashboard/schedule-history-table"
-import { QuickActionCard } from "@/components/dashboard/quick-action-card"
-import { CurrentScheduleCard } from "@/components/dashboard/current-schedule-card"
-import { RoomUtilizationCard, ScheduleQualityCard } from "@/components/dashboard/analytics-card"
-import { useRouter } from "next/navigation"
-import { useEffect } from "react"
-import useAuthStore from "@/lib/stores/auth-store"
+import { useStore } from "@/lib/stores/store";
+import { DashboardLayout } from "@/components/layout/dashboard-layout";
+import { MetricCard } from "@/components/dashboard/metric-card";
+import { AlertCard } from "@/components/dashboard/alert-card";
+import { ScheduleHistoryTable } from "@/components/dashboard/schedule-history-table";
+import { QuickActionCard } from "@/components/dashboard/quick-action-card";
+import { CurrentScheduleCard } from "@/components/dashboard/current-schedule-card";
+import {
+  RoomUtilizationCard,
+  ScheduleQualityCard,
+} from "@/components/dashboard/analytics-card";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
+import useAuthStore from "@/lib/stores/auth-store";
+import { useScheduleStore } from "@/lib/stores/schedule.store";
 
 // Quick actions data
 const quickActions = [
@@ -38,22 +42,28 @@ const quickActions = [
     icon: "settings",
     link: "/admin/settings",
   },
-]
+];
 
 export default function DashboardPage() {
-  const {isAuthenticated } = useAuthStore()
-  const { metrics, alerts, schedules, currentSchedule } = useStore()
+  const { isAuthenticated } = useAuthStore();
+  const { activeSchedule, fetchCurrentSchedule: getCurrentSchedule } =
+    useScheduleStore();
+  const { metrics, alerts } = useStore();
 
-  const router = useRouter()
+  const router = useRouter();
+
+  useEffect(() => {
+    getCurrentSchedule();
+  }, [getCurrentSchedule]);
 
   useEffect(() => {
     if (!isAuthenticated) {
-      router.push("/")
+      router.push("/");
     }
-  }, [isAuthenticated, router])
+  }, [isAuthenticated, router]);
 
   if (!isAuthenticated) {
-    return null
+    return null;
   }
 
   return (
@@ -65,12 +75,17 @@ export default function DashboardPage() {
             <p className="text-gray-500">Academic Year 2025-2026</p>
           </div>
         </div>
-        {currentSchedule && <CurrentScheduleCard name={"Fix Name"} lastUpdated={"21/09/2002"} />}
+        {activeSchedule && (
+          <CurrentScheduleCard name={"Fix Name"} lastUpdated={"21/09/2002"} />
+        )}
 
         <div>
           <div className="mb-4 flex items-center justify-between">
             <h3 className="text-lg font-semibold">Alerts & Notifications</h3>
-            <a href="#" className="text-sm font-medium text-indigo-600 hover:underline">
+            <a
+              href="#"
+              className="text-sm font-medium text-indigo-600 hover:underline"
+            >
               View All
             </a>
           </div>
@@ -92,8 +107,13 @@ export default function DashboardPage() {
 
         <div>
           <div className="mb-4 flex items-center justify-between">
-            <h3 className="text-lg font-semibold">Schedule Generation History</h3>
-            <a href="#" className="text-sm font-medium text-indigo-600 hover:underline">
+            <h3 className="text-lg font-semibold">
+              Schedule Generation History
+            </h3>
+            <a
+              href="#"
+              className="text-sm font-medium text-indigo-600 hover:underline"
+            >
               View All History
             </a>
           </div>
@@ -115,5 +135,5 @@ export default function DashboardPage() {
         </div>
       </div>
     </DashboardLayout>
-  )
+  );
 }

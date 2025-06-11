@@ -3,7 +3,7 @@ import { persist, createJSONStorage } from 'zustand/middleware';
 import { authRepository } from '../repositories/auth-repository';
 import { getProfile } from '../repositories/repository';
 import { redirect } from 'next/navigation';
-import { User } from '../types';
+import { User } from '../types/users.types';
 
 interface AuthState {
   accessToken: string | null;

@@ -1,7 +1,7 @@
 import useAuthStore from '@/lib/stores/auth-store';
 import { Mutex } from 'async-mutex';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_BACKEND_API_URL || 'http://localhost:3000';
+const API_BASE_URL = process.env.NEXT_PUBLIC_BACKEND_API_URL || 'http://localhost:3001';
 
 const mutex = new Mutex();
 

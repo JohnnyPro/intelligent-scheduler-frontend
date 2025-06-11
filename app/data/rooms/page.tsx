@@ -1,119 +1,129 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { useStore } from "@/lib/stores/store"
-import { DashboardLayout } from "@/components/layout/dashboard-layout"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
-import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Download, Filter, Plus, Search, Upload } from "lucide-react"
-import { useRouter } from "next/navigation"
-import { useEffect } from "react"
-import useAuthStore from "@/lib/stores/auth-store"
+import { useState } from "react";
+import { ClassroomType } from "@/lib/types";
+import { DashboardLayout } from "@/components/layout/dashboard-layout";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Download, Filter, Plus, Search, Upload } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
+import useAuthStore from "@/lib/stores/auth-store";
+import { useClassroomStore } from "@/lib/stores/classroom.store";
+import { useBuildingStore } from "@/lib/stores/building.store";
 
 export default function RoomsPage() {
-  const { isAuthenticated } = useAuthStore()
+  const { isAuthenticated } = useAuthStore();
 
-  const { rooms, buildings, addRoom, updateRoom, deleteRoom } = useStore()
-  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
-  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
-  const [selectedRoom, setSelectedRoom] = useState<string | null>(null)
+  const { classrooms, fetchClassrooms, addClassroom, updateClassroom, deleteClassroom } =
+    useClassroomStore();
+  const { buildings } = useBuildingStore();
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [selectedRoom, setSelectedRoom] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     name: "",
     capacity: 0,
-    building: "",
+    buildingId: null as string | null,
     floor: 1,
-    type: "Lecture Hall" as "Lecture Hall" | "Laboratory" | "Seminar Room" | "Computer Lab",
-    isAccessible: false,
-    facilities: [] as string[],
-  })
-  const [facilityInput, setFacilityInput] = useState("")
+    type: ClassroomType.LECTURE,
+    isWheelchairAccessible: false,
+    openingTime: null as string | null,
+    closingTime: null as string | null,
+  });
 
-  const router = useRouter()
+  const router = useRouter();
+  const classroomTypes = Object.values(ClassroomType); // ["LECTURE", "LAB", "SEMINAR"]
 
   useEffect(() => {
     if (!isAuthenticated) {
-      router.push("/")
+      router.push("/");
     }
-  }, [isAuthenticated, router])
+  }, [isAuthenticated, router]);
 
   if (!isAuthenticated) {
-    return null
+    return null;
   }
+  useEffect(() => {
+    fetchClassrooms();
+  }, [fetchClassrooms])
 
   const handleAddRoom = () => {
-    addRoom(formData)
+    addClassroom(formData);
     setFormData({
       name: "",
       capacity: 0,
-      building: "",
+      buildingId: null,
       floor: 1,
-      type: "Lecture Hall",
-      isAccessible: false,
-      facilities: [],
-    })
-    setIsAddDialogOpen(false)
-  }
+      type: ClassroomType.LECTURE,
+      isWheelchairAccessible: false,
+      openingTime: null,
+      closingTime: null,
+    });
+    setIsAddDialogOpen(false);
+  };
 
   const handleEditRoom = () => {
     if (selectedRoom) {
-      updateRoom(selectedRoom, formData)
-      setIsEditDialogOpen(false)
+      updateClassroom(selectedRoom, formData);
+      setIsEditDialogOpen(false);
     }
-  }
+  };
 
   const handleDeleteRoom = () => {
     if (selectedRoom) {
-      deleteRoom(selectedRoom)
-      setIsDeleteDialogOpen(false)
+      deleteClassroom(selectedRoom);
+      setIsDeleteDialogOpen(false);
     }
-  }
+  };
 
   const openEditDialog = (id: string) => {
-    const room = rooms.find((r) => r.id === id)
+    const room = classrooms.find((r) => r.classroomId === id);
     if (room) {
-      setSelectedRoom(id)
+      setSelectedRoom(id);
       setFormData({
         name: room.name,
         capacity: room.capacity,
-        building: room.building,
+        buildingId: room.buildingId,
         floor: room.floor,
         type: room.type,
-        isAccessible: room.isAccessible,
-        facilities: [...room.facilities],
-      })
-      setIsEditDialogOpen(true)
+        isWheelchairAccessible: room.isWheelchairAccessible,
+        openingTime: room.openingTime,
+        closingTime: room.closingTime,
+      });
+      setIsEditDialogOpen(true);
     }
-  }
+  };
 
   const openDeleteDialog = (id: string) => {
-    setSelectedRoom(id)
-    setIsDeleteDialogOpen(true)
-  }
-
-  const addFacility = () => {
-    if (facilityInput.trim() !== "") {
-      setFormData({
-        ...formData,
-        facilities: [...formData.facilities, facilityInput.trim()],
-      })
-      setFacilityInput("")
-    }
-  }
-
-  const removeFacility = (index: number) => {
-    const newFacilities = [...formData.facilities]
-    newFacilities.splice(index, 1)
-    setFormData({
-      ...formData,
-      facilities: newFacilities,
-    })
-  }
+    setSelectedRoom(id);
+    setIsDeleteDialogOpen(true);
+  };
 
   return (
     <DashboardLayout title="Rooms">
@@ -129,7 +139,10 @@ export default function RoomsPage() {
               <Download className="mr-2 h-4 w-4" />
               Export CSV
             </Button>
-            <Button className="bg-indigo-600 hover:bg-indigo-700" onClick={() => setIsAddDialogOpen(true)}>
+            <Button
+              className="bg-indigo-600 hover:bg-indigo-700"
+              onClick={() => setIsAddDialogOpen(true)}
+            >
               <Plus className="mr-2 h-4 w-4" />
               Add Room
             </Button>
@@ -139,7 +152,11 @@ export default function RoomsPage() {
         <div className="flex items-center gap-4">
           <div className="relative flex-1">
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500" />
-            <Input type="search" placeholder="Search rooms..." className="w-full pl-8" />
+            <Input
+              type="search"
+              placeholder="Search classrooms..."
+              className="w-full pl-8"
+            />
           </div>
           <Button variant="outline">
             <Filter className="mr-2 h-4 w-4" />
@@ -163,37 +180,34 @@ export default function RoomsPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {rooms.map((room) => (
-                <TableRow key={room.id}>
-                  <TableCell className="font-medium">{room.id}</TableCell>
+              {classrooms.map((room) => (
+                <TableRow key={room.classroomId}>
+                  <TableCell className="font-medium">
+                    {room.classroomId}
+                  </TableCell>
                   <TableCell>{room.name}</TableCell>
                   <TableCell>{room.capacity}</TableCell>
-                  <TableCell>{room.building}</TableCell>
+                  <TableCell>{room.building?.name || "N/A"}</TableCell>
                   <TableCell>{room.floor}</TableCell>
                   <TableCell>{room.type}</TableCell>
-                  <TableCell>{room.isAccessible ? "Yes" : "No"}</TableCell>
                   <TableCell>
-                    <div className="flex flex-wrap gap-1">
-                      {room.facilities.map((facility, index) => (
-                        <span
-                          key={index}
-                          className="inline-flex rounded-full bg-gray-100 px-2 py-1 text-xs font-medium"
-                        >
-                          {facility}
-                        </span>
-                      ))}
-                    </div>
+                    {room.isWheelchairAccessible ? "Yes" : "No"}
                   </TableCell>
+                  <TableCell>N/A</TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2">
-                      <Button variant="outline" size="sm" onClick={() => openEditDialog(room.id)}>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => openEditDialog(room.classroomId)}
+                      >
                         Edit
                       </Button>
                       <Button
                         variant="outline"
                         size="sm"
                         className="text-red-600 hover:text-red-700"
-                        onClick={() => openDeleteDialog(room.id)}
+                        onClick={() => openDeleteDialog(room.classroomId)}
                       >
                         Delete
                       </Button>
@@ -218,7 +232,9 @@ export default function RoomsPage() {
               <Input
                 id="name"
                 value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, name: e.target.value })
+                }
               />
             </div>
             <div className="space-y-2">
@@ -227,21 +243,31 @@ export default function RoomsPage() {
                 id="capacity"
                 type="number"
                 value={formData.capacity}
-                onChange={(e) => setFormData({ ...formData, capacity: Number.parseInt(e.target.value) || 0 })}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    capacity: Number.parseInt(e.target.value) || 0,
+                  })
+                }
               />
             </div>
             <div className="space-y-2">
               <Label htmlFor="building">Building</Label>
               <Select
-                value={formData.building}
-                onValueChange={(value) => setFormData({ ...formData, building: value })}
+                value={formData.buildingId || ""}
+                onValueChange={(value) =>
+                  setFormData({ ...formData, buildingId: value || null })
+                }
               >
                 <SelectTrigger id="building">
                   <SelectValue placeholder="Select building" />
                 </SelectTrigger>
                 <SelectContent>
                   {buildings.map((building) => (
-                    <SelectItem key={building.id} value={building.name}>
+                    <SelectItem
+                      key={building.buildingId}
+                      value={building.buildingId}
+                    >
                       {building.name}
                     </SelectItem>
                   ))}
@@ -254,14 +280,19 @@ export default function RoomsPage() {
                 id="floor"
                 type="number"
                 value={formData.floor}
-                onChange={(e) => setFormData({ ...formData, floor: Number.parseInt(e.target.value) || 1 })}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    floor: Number.parseInt(e.target.value) || 1,
+                  })
+                }
               />
             </div>
             <div className="space-y-2">
               <Label htmlFor="type">Room Type</Label>
               <Select
                 value={formData.type}
-                onValueChange={(value: "Lecture Hall" | "Laboratory" | "Seminar Room" | "Computer Lab") =>
+                onValueChange={(value: ClassroomType) =>
                   setFormData({ ...formData, type: value })
                 }
               >
@@ -269,55 +300,66 @@ export default function RoomsPage() {
                   <SelectValue placeholder="Select room type" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="Lecture Hall">Lecture Hall</SelectItem>
-                  <SelectItem value="Laboratory">Laboratory</SelectItem>
-                  <SelectItem value="Seminar Room">Seminar Room</SelectItem>
-                  <SelectItem value="Computer Lab">Computer Lab</SelectItem>
+                  {classroomTypes.map((type) => (
+                    <SelectItem key={type} value={type}>
+                      {type}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
             <div className="flex items-center space-x-2">
               <Checkbox
-                id="isAccessible"
-                checked={formData.isAccessible}
-                onCheckedChange={(checked) => setFormData({ ...formData, isAccessible: checked === true })}
+                id="isWheelchairAccessible"
+                checked={formData.isWheelchairAccessible}
+                onCheckedChange={(checked) =>
+                  setFormData({
+                    ...formData,
+                    isWheelchairAccessible: checked === true,
+                  })
+                }
               />
-              <Label htmlFor="isAccessible">Wheelchair Accessible</Label>
+              <Label htmlFor="isWheelchairAccessible">
+                Wheelchair Accessible
+              </Label>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="facilities">Facilities</Label>
-              <div className="flex gap-2">
-                <Input
-                  id="facilities"
-                  value={facilityInput}
-                  onChange={(e) => setFacilityInput(e.target.value)}
-                  placeholder="e.g., Projector, Whiteboard"
-                />
-                <Button type="button" variant="outline" onClick={addFacility}>
-                  Add
-                </Button>
-              </div>
-              <div className="mt-2 flex flex-wrap gap-2">
-                {formData.facilities.map((facility, index) => (
-                  <div key={index} className="flex items-center rounded-full bg-gray-100 px-3 py-1 text-sm">
-                    {facility}
-                    <button
-                      type="button"
-                      className="ml-2 text-gray-500 hover:text-gray-700"
-                      onClick={() => removeFacility(index)}
-                    >
-                      &times;
-                    </button>
-                  </div>
-                ))}
-              </div>
+              <Label htmlFor="openingTime">Opening Time</Label>
+              <Input
+                id="openingTime"
+                type="time"
+                value={formData.openingTime || ""}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    openingTime: e.target.value || null,
+                  })
+                }
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="closingTime">Closing Time</Label>
+              <Input
+                id="closingTime"
+                type="time"
+                value={formData.closingTime || ""}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    closingTime: e.target.value || null,
+                  })
+                }
+              />
             </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>
               Cancel
             </Button>
-            <Button className="bg-indigo-600 hover:bg-indigo-700" onClick={handleAddRoom}>
+            <Button
+              className="bg-indigo-600 hover:bg-indigo-700"
+              onClick={handleAddRoom}
+            >
               Add Room
             </Button>
           </DialogFooter>
@@ -336,7 +378,9 @@ export default function RoomsPage() {
               <Input
                 id="edit-name"
                 value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, name: e.target.value })
+                }
               />
             </div>
             <div className="space-y-2">
@@ -345,21 +389,31 @@ export default function RoomsPage() {
                 id="edit-capacity"
                 type="number"
                 value={formData.capacity}
-                onChange={(e) => setFormData({ ...formData, capacity: Number.parseInt(e.target.value) || 0 })}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    capacity: Number.parseInt(e.target.value) || 0,
+                  })
+                }
               />
             </div>
             <div className="space-y-2">
               <Label htmlFor="edit-building">Building</Label>
               <Select
-                value={formData.building}
-                onValueChange={(value) => setFormData({ ...formData, building: value })}
+                value={formData.buildingId || ""}
+                onValueChange={(value) =>
+                  setFormData({ ...formData, buildingId: value || null })
+                }
               >
                 <SelectTrigger id="edit-building">
                   <SelectValue placeholder="Select building" />
                 </SelectTrigger>
                 <SelectContent>
                   {buildings.map((building) => (
-                    <SelectItem key={building.id} value={building.name}>
+                    <SelectItem
+                      key={building.buildingId}
+                      value={building.buildingId}
+                    >
                       {building.name}
                     </SelectItem>
                   ))}
@@ -372,70 +426,89 @@ export default function RoomsPage() {
                 id="edit-floor"
                 type="number"
                 value={formData.floor}
-                onChange={(e) => setFormData({ ...formData, floor: Number.parseInt(e.target.value) || 1 })}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    floor: Number.parseInt(e.target.value) || 1,
+                  })
+                }
               />
             </div>
             <div className="space-y-2">
               <Label htmlFor="edit-type">Room Type</Label>
               <Select
                 value={formData.type}
-                onValueChange={(value: "Lecture Hall" | "Laboratory" | "Seminar Room" | "Computer Lab") =>
-                  setFormData({ ...formData, type: value })
-                }
+                onValueChange={(
+                  value: ClassroomType
+                ) => setFormData({ ...formData, type: value })}
               >
                 <SelectTrigger id="edit-type">
                   <SelectValue placeholder="Select room type" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="Lecture Hall">Lecture Hall</SelectItem>
-                  <SelectItem value="Laboratory">Laboratory</SelectItem>
-                  <SelectItem value="Seminar Room">Seminar Room</SelectItem>
-                  <SelectItem value="Computer Lab">Computer Lab</SelectItem>
+                  {classroomTypes.map((type) => (
+                    <SelectItem key={type} value={type}>
+                      {type}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
             <div className="flex items-center space-x-2">
               <Checkbox
-                id="edit-isAccessible"
-                checked={formData.isAccessible}
-                onCheckedChange={(checked) => setFormData({ ...formData, isAccessible: checked === true })}
+                id="edit-isWheelchairAccessible"
+                checked={formData.isWheelchairAccessible}
+                onCheckedChange={(checked) =>
+                  setFormData({
+                    ...formData,
+                    isWheelchairAccessible: checked === true,
+                  })
+                }
               />
-              <Label htmlFor="edit-isAccessible">Wheelchair Accessible</Label>
+              <Label htmlFor="edit-isWheelchairAccessible">
+                Wheelchair Accessible
+              </Label>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="edit-facilities">Facilities</Label>
-              <div className="flex gap-2">
-                <Input
-                  id="edit-facilities"
-                  value={facilityInput}
-                  onChange={(e) => setFacilityInput(e.target.value)}
-                  placeholder="e.g., Projector, Whiteboard"
-                />
-                <Button type="button" variant="outline" onClick={addFacility}>
-                  Add
-                </Button>
-              </div>
-              <div className="mt-2 flex flex-wrap gap-2">
-                {formData.facilities.map((facility, index) => (
-                  <div key={index} className="flex items-center rounded-full bg-gray-100 px-3 py-1 text-sm">
-                    {facility}
-                    <button
-                      type="button"
-                      className="ml-2 text-gray-500 hover:text-gray-700"
-                      onClick={() => removeFacility(index)}
-                    >
-                      &times;
-                    </button>
-                  </div>
-                ))}
-              </div>
+              <Label htmlFor="edit-openingTime">Opening Time</Label>
+              <Input
+                id="edit-openingTime"
+                type="time"
+                value={formData.openingTime || ""}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    openingTime: e.target.value || null,
+                  })
+                }
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="edit-closingTime">Closing Time</Label>
+              <Input
+                id="edit-closingTime"
+                type="time"
+                value={formData.closingTime || ""}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    closingTime: e.target.value || null,
+                  })
+                }
+              />
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setIsEditDialogOpen(false)}
+            >
               Cancel
             </Button>
-            <Button className="bg-indigo-600 hover:bg-indigo-700" onClick={handleEditRoom}>
+            <Button
+              className="bg-indigo-600 hover:bg-indigo-700"
+              onClick={handleEditRoom}
+            >
               Save Changes
             </Button>
           </DialogFooter>
@@ -449,10 +522,16 @@ export default function RoomsPage() {
             <DialogTitle>Delete Room</DialogTitle>
           </DialogHeader>
           <div className="py-4">
-            <p>Are you sure you want to delete this room? This action cannot be undone.</p>
+            <p>
+              Are you sure you want to delete this room? This action cannot be
+              undone.
+            </p>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setIsDeleteDialogOpen(false)}
+            >
               Cancel
             </Button>
             <Button variant="destructive" onClick={handleDeleteRoom}>
@@ -462,5 +541,5 @@ export default function RoomsPage() {
         </DialogContent>
       </Dialog>
     </DashboardLayout>
-  )
+  );
 }

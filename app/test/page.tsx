@@ -1,26 +1,25 @@
 "use client"
-import { useStore } from "@/lib/stores/store";
-import { Classroom, ClassroomCreating, ClassroomType, ClassroomUpdating } from "@/lib/types";
+import { useStudentGroupStore } from "@/lib/stores/student-group.store";
+import { StudentGroup, StudentGroupUpdating } from "@/lib/types/student-group.types";
 import { useEffect } from "react";
 
 export default function Test() {
-   const { rooms, fetchRooms, updateRoom } = useStore();
+   const { studentGroups, fetchStudentGroups, deleteStudentGroup } = useStudentGroupStore();
    useEffect(() => {
-      fetchRooms();
-   }, [fetchRooms]);
+      fetchStudentGroups();
+   }, [fetchStudentGroups]);
    
-   const newRoom: ClassroomUpdating = {
-      name: "updated",
-      capacity: 50,
-      type: "LAB",
+   const updatedGroup: StudentGroupUpdating = {
+      name: "new",
+      size: 30,
    }
-   const del = () => {
-      updateRoom("6a2735e8-73de-4b0d-a24c-b82cec51717b", newRoom);
+   const update = () => {
+      deleteStudentGroup("a24d0876-80c9-49e5-abad-0266ff91034d");
    }
 
    return <div>
-      <p>{rooms.length}</p>
-      <button onClick={() => del()}>del</button>
+      <p>{studentGroups.length}</p>
+      <button onClick={() => update()}>Update</button>
    </div>
 
 

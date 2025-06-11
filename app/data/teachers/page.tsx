@@ -12,10 +12,11 @@ import { Download, Filter, Plus, Search, Upload } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useEffect } from "react"
 import useAuthStore from "@/lib/stores/auth-store"
+import { useTeacherStore } from "@/lib/stores/teacher.store"
 
 export default function TeachersPage() {
   const { isAuthenticated } = useAuthStore();
-  const { teachers, addTeacher, updateTeacher, deleteTeacher } = useStore()
+  const { teachers, addTeacher, updateTeacher, deleteTeacher } = useTeacherStore()
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
@@ -24,7 +25,7 @@ export default function TeachersPage() {
     firstName: "",
     lastName: "",
     email: "",
-    departmentName: "",
+    departmentId: "",
     campusId: "",
   })
 
@@ -42,24 +43,14 @@ export default function TeachersPage() {
 
   const handleAddTeacher = () => {
     addTeacher({
-      user: {
-        firstName: formData.firstName,
-        lastName: formData.lastName,
-        email: formData.email,
-      },
-      department: {
-        name: formData.departmentName,
-        campusId: formData.campusId,
-      },
-      teacherId: "", // or generate as needed
-      userId: "", // or generate as needed
+      userId: formData.firstName,
       departmentId: "", // or generate as needed
     })
     setFormData({
       firstName: "",
       lastName: "",
       email: "",
-      departmentName: "",
+      departmentId: "",
       campusId: "",
     })
     setIsAddDialogOpen(false)
@@ -68,15 +59,7 @@ export default function TeachersPage() {
   const handleEditTeacher = () => {
     if (selectedTeacher) {
       updateTeacher(selectedTeacher, {
-        user: {
-          firstName: formData.firstName,
-          lastName: formData.lastName,
-          email: formData.email,
-        },
-        department: {
-          name: formData.departmentName,
-          campusId: formData.campusId,
-        },
+        departmentId: formData.departmentId,
       })
       setIsEditDialogOpen(false)
     }
@@ -97,7 +80,7 @@ export default function TeachersPage() {
         firstName: teacher.user.firstName,
         lastName: teacher.user.lastName,
         email: teacher.user.email,
-        departmentName: teacher.department.name,
+        departmentId: teacher.department.deptId,
         campusId: teacher.department.campusId,
       })
       setIsEditDialogOpen(true)
@@ -221,8 +204,8 @@ export default function TeachersPage() {
               <Label htmlFor="departmentName">Department</Label>
               <Input
                 id="departmentName"
-                value={formData.departmentName}
-                onChange={(e) => setFormData({ ...formData, departmentName: e.target.value })}
+                value={formData.departmentId}
+                onChange={(e) => setFormData({ ...formData, departmentId: e.target.value })}
               />
             </div>
             <div className="space-y-2">
@@ -281,8 +264,8 @@ export default function TeachersPage() {
               <Label htmlFor="edit-departmentName">Department</Label>
               <Input
                 id="edit-departmentName"
-                value={formData.departmentName}
-                onChange={(e) => setFormData({ ...formData, departmentName: e.target.value })}
+                value={formData.departmentId}
+                onChange={(e) => setFormData({ ...formData, departmentId: e.target.value })}
               />
             </div>
             <div className="space-y-2">

@@ -1,5 +1,5 @@
 
-import { LoginResult, ApiResponse, TokensDto, User } from "../types";
+import { LoginResult, ApiResponse, TokensDto } from "../types";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_BACKEND_API_URL || 'http://localhost:3001';
 

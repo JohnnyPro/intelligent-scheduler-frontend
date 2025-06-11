@@ -2,7 +2,8 @@
 
 import { useEffect } from 'react';
 import useAuthStore from '@/lib/stores/auth-store';
-import { ApiResponse, User } from '@/lib/types';
+import { ApiResponse } from '@/lib/types';
+import { User } from '@/lib/types/users.types';
 import { apiClient } from '@/lib/utils/api-client';
 import LoadingSpinner from './loader';
 
