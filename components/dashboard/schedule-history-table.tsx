@@ -16,7 +16,7 @@ export function ScheduleHistoryTable({ schedules }: { schedules: Schedule[] }) {
             <TableHead className="text-right">ACTIONS</TableHead>
           </TableRow>
         </TableHeader>
-        {/* <TableBody>
+        <TableBody>
           {schedules.map((schedule) => (
             <TableRow key={schedule.id}>
               <TableCell className="font-medium">{schedule.name}</TableCell>
@@ -69,7 +69,7 @@ export function ScheduleHistoryTable({ schedules }: { schedules: Schedule[] }) {
               </TableCell>
             </TableRow>
           ))}
-        </TableBody> */}
+        </TableBody>
       </Table>
     </div>
   )

@@ -1,7 +1,7 @@
 import { create } from "zustand"
 import { persist } from "zustand/middleware"
 import * as repository from "../repositories/repository"
-import { Teacher, StudentGroup, Building, Course, Alert, Metric, ScheduleResponse, Classroom, ClassroomCreating } from '../types'
+import { Teacher, StudentGroup, Building, Course, Alert, Metric, ScheduleResponse, Classroom, ClassroomCreating, TimeSlot } from '../types'
 
 // Store interface
 interface StoreState {
@@ -20,6 +20,7 @@ interface StoreState {
   alerts: Alert[]
   metrics: Metric[]
   currentSchedule: ScheduleResponse | null
+  timeslots: TimeSlot[]
 
   // CRUD operations
   fetchTeachers: () => void
@@ -51,6 +52,8 @@ interface StoreState {
   fetchCurrentSchedule: () => void
   updateSchedule: (id: string, schedule: Partial<ScheduleResponse>) => void
   deleteSchedule: (id: string) => void
+  
+  fetchTimeslots: () => void
 }
 
 // Create store
@@ -73,6 +76,7 @@ export const useStore = create<StoreState>()(
       metrics: [],
       currentSchedule: null,
       schedule: null,
+      timeslots: [],
       // CRUD operations
       fetchTeachers: async () => {
         set({ isLoading: true })
@@ -340,6 +344,20 @@ export const useStore = create<StoreState>()(
         try {
           await repository.deleteSchedule(id)
           get().fetchSchedules()
+        } catch (e) {
+        } finally {
+          set({ isLoading: false })
+        }
+      },
+
+      fetchTimeslots: async () => {
+        set({ isLoading: true })
+        try {
+          const { success, data, message } = await repository.getTimeslots();
+          if (success && ((data?.length ?? 0) > 0))
+            set({ timeslots: data! })
+          else
+            set({ timeslots: [] })
         } catch (e) {
         } finally {
           set({ isLoading: false })

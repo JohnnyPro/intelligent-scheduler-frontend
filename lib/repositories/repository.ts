@@ -1,7 +1,8 @@
 const API_BASE_URL = process.env.NEXT_PUBLIC_BACKEND_API_BASE_URL || 'http://localhost:3001';
 
-import { Teacher, StudentGroup, Building, Course, ApiResponse, ScheduleResponse, Classroom, ClassroomCreating, User, ClassroomUpdating } from '../types'
+import { Teacher, StudentGroup, Building, Course, ApiResponse, ScheduleResponse, Classroom, ClassroomCreating, User, ClassroomUpdating, TimeSlot } from '../types'
 import { apiClient } from '../utils/api-client';
+import { mockTimeslots } from '../mock-data';
 
 // Helper for fetch with JSON
 async function fetchJSON(url: string, options: RequestInit = {}) {
@@ -71,4 +72,14 @@ export const getCurrentSchedule = () => apiClient<ApiResponse<ScheduleResponse>>
 
 
 export const getProfile = async (accessToken: string): Promise<ApiResponse<User>> => apiClient<ApiResponse<User>>(`/users/me`);
+
+// TODO: Remove mock data and make it fetch from the backend
+// export const getTimeslots = () => apiClient<ApiResponse<TimeSlot[]>>(`/timeslots`)
+export const getTimeslots = async () => {
+   await new Promise((resolve) => setTimeout(resolve, 500))
+   return {
+      success: true,
+      data: mockTimeslots,
+   }
+}
 

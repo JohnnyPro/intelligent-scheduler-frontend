@@ -171,3 +171,12 @@ export interface ApiResponse<T> {
    data: T | null;
    statusCode: number;
 }
+
+export type TimeSlot = {
+  timeslotId: string
+  code: string
+  label: string
+  startTime: string
+  endTime: string
+  order: number
+}
