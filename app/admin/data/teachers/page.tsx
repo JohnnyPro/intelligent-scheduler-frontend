@@ -201,7 +201,6 @@ export default function TeachersPage() {
                 <TableHead>TEACHER</TableHead>
                 <TableHead>EMAIL</TableHead>
                 <TableHead>DEPARTMENT</TableHead>
-                <TableHead>CAMPUS</TableHead>
                 <TableHead className="text-right">ACTIONS</TableHead>
               </TableRow>
             </TableHeader>
@@ -229,16 +228,10 @@ export default function TeachersPage() {
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2">
-                      <GraduationCap className="h-4 w-4 text-green-600" />
                       <span>{teacher.department.name}</span>
                     </div>
                   </TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-2">
-                      <Building className="h-4 w-4 text-purple-600" />
-                      <span>{teacher.department.campusId}</span>
-                    </div>
-                  </TableCell>
+                  
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2">
                       <Button
