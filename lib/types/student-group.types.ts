@@ -5,12 +5,17 @@ export type StudentGroup = {
    size: number
    accessibilityRequirement: boolean
    departmentId: string
+   students?: Student[]
    department: {
       name: string
       campusId: string
    }
 }
 
+export type Student = {
+   studentId: string
+   userId: string
+}
 
 export type StudentGroupCreating = {
    name: string

@@ -37,5 +37,7 @@ export interface ScheduledSessionDto {
 
 export interface ScheduleResponse {
    scheduleId: string;
-   sessions: ScheduledSessionDto[];
+   scheduleName: string;
+   isActive: boolean;
+   sessions?: ScheduledSessionDto[];
 }
