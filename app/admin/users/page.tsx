@@ -29,7 +29,15 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Edit, Plus, Search, Trash2, User, UserCog, UserPlus } from "lucide-react";
+import {
+  Edit,
+  Plus,
+  Search,
+  Trash2,
+  User,
+  UserCog,
+  UserPlus,
+} from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import useAuthStore from "@/lib/stores/auth-store";
@@ -38,15 +46,14 @@ import { ConfirmDeleteDialog } from "@/components/ui/confirm-delete";
 import { User as UserType, UserCreating } from "@/lib/types/users.types";
 
 export default function UsersPage() {
-  const { isAuthenticated } = useAuthStore();
-
   const { users, fetchUsers, addUser, updateUser, deleteUser } = useUserStore();
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [roleFilter, setRoleFilter] = useState("all");
   const [selectedUser, setSelectedUser] = useState<string | null>(null);
-  const [isConfirmDeleteDialogOpen, setIsConfirmDeleteDialogOpen] = useState(false);
+  const [isConfirmDeleteDialogOpen, setIsConfirmDeleteDialogOpen] =
+    useState(false);
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [passwordError, setPasswordError] = useState("");
@@ -63,18 +70,7 @@ export default function UsersPage() {
 
   const [formData, setFormData] = useState(initialFormData);
 
-  const router = useRouter();
   const roles = Object.values(Role);
-
-  useEffect(() => {
-    if (!isAuthenticated) {
-      router.push("/");
-    }
-  }, [isAuthenticated, router]);
-
-  if (!isAuthenticated) {
-    return null;
-  }
 
   useEffect(() => {
     fetchUsers();
@@ -92,16 +88,20 @@ export default function UsersPage() {
 
   const [filteredUsers, setFilteredUsers] = useState<UserType[]>([]);
   useEffect(() => {
-    let newFiltered = users.filter((user) =>
-      `${user.firstName} ${user.lastName}`.toLowerCase().includes(searchQuery.toLowerCase()) &&
-      (roleFilter === 'all' || user.role === roleFilter)
+    let newFiltered = users.filter(
+      (user) =>
+        `${user.firstName} ${user.lastName}`
+          .toLowerCase()
+          .includes(searchQuery.toLowerCase()) &&
+        (roleFilter === "all" || user.role === roleFilter)
     );
     setFilteredUsers(newFiltered);
   }, [searchQuery, roleFilter, users]);
 
   const handleEditUser = () => {
     if (selectedUser) {
-      updateUser(selectedUser, formData);
+      const { password, role, ...dataWithoutPassword } = formData;
+      updateUser(selectedUser, dataWithoutPassword);
       setIsEditDialogOpen(false);
     }
   };
@@ -136,7 +136,8 @@ export default function UsersPage() {
         role: user.role,
         password: "",
         phone: user.phone || undefined,
-        needWheelchairAccessibleRoom: user.needWheelchairAccessibleRoom || false,
+        needWheelchairAccessibleRoom:
+          user.needWheelchairAccessibleRoom || false,
       });
       setIsEditDialogOpen(true);
     }
@@ -175,7 +176,9 @@ export default function UsersPage() {
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 pb-2 border-b">
           <div>
             <h1 className="text-3xl font-bold tracking-tight">Users</h1>
-            <p className="text-muted-foreground text-sm">Manage user accounts and permissions</p>
+            <p className="text-muted-foreground text-sm">
+              Manage user accounts and permissions
+            </p>
           </div>
           <Button
             className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold shadow-sm"
@@ -198,14 +201,19 @@ export default function UsersPage() {
               onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
-          <Select onValueChange={(val) => setRoleFilter(val)} value={roleFilter}>
+          <Select
+            onValueChange={(val) => setRoleFilter(val)}
+            value={roleFilter}
+          >
             <SelectTrigger className="w-[140px]">
               <SelectValue placeholder="All Roles" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Roles</SelectItem>
               {roles.map((role) => (
-                <SelectItem key={role} value={role}>{role}</SelectItem>
+                <SelectItem key={role} value={role}>
+                  {role}
+                </SelectItem>
               ))}
             </SelectContent>
           </Select>
@@ -228,16 +236,28 @@ export default function UsersPage() {
               {filteredUsers.map((user) => (
                 <TableRow key={user.userId} className="hover:bg-muted/40">
                   <TableCell className="flex items-center gap-3 font-medium">
-                    <span className={`inline-flex items-center justify-center h-8 w-8 rounded-md ${getRoleColor(user.role)}`}>
+                    <span
+                      className={`inline-flex items-center justify-center h-8 w-8 rounded-md ${getRoleColor(
+                        user.role
+                      )}`}
+                    >
                       {getRoleIcon(user.role)}
                     </span>
                     <div>
-                      <div className="font-semibold leading-tight">{user.firstName} {user.lastName}</div>
-                      <div className="text-xs text-muted-foreground">ID: {user.userId}</div>
+                      <div className="font-semibold leading-tight">
+                        {user.firstName} {user.lastName}
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        ID: {user.userId}
+                      </div>
                     </div>
                   </TableCell>
                   <TableCell>
-                    <span className={`px-2 py-1 rounded text-xs font-medium ${getRoleColor(user.role)}`}>
+                    <span
+                      className={`px-2 py-1 rounded text-xs font-medium ${getRoleColor(
+                        user.role
+                      )}`}
+                    >
                       {user.role}
                     </span>
                   </TableCell>
@@ -247,15 +267,17 @@ export default function UsersPage() {
                       <span className="inline-flex items-center gap-1 px-2 py-1 rounded bg-red-100 text-red-700 text-xs font-medium">
                         Requires Accessible Room
                       </span>
-                    ) : <span className="inline-flex items-center gap-1 px-2 py-1 rounded bg-green-100 text-green-700 text-xs font-medium">
+                    ) : (
+                      <span className="inline-flex items-center gap-1 px-2 py-1 rounded bg-green-100 text-green-700 text-xs font-medium">
                         Not Required
-                      </span>}
+                      </span>
+                    )}
                   </TableCell>
                   <TableCell>
-                    {new Date(user.updatedAt).toLocaleDateString('en-US', {
-                      month: 'short',
-                      day: 'numeric',
-                      year: 'numeric'
+                    {new Date(user.updatedAt).toLocaleDateString("en-US", {
+                      month: "short",
+                      day: "numeric",
+                      year: "numeric",
                     })}
                   </TableCell>
                   <TableCell className="text-right">
@@ -276,7 +298,11 @@ export default function UsersPage() {
                         onClick={() => openConfirmDeleteDialog(user.userId)}
                         aria-label="Delete"
                       >
-                        <Trash2 color="currentColor" strokeWidth={2} className="w-5 h-5" />
+                        <Trash2
+                          color="currentColor"
+                          strokeWidth={2}
+                          className="w-5 h-5"
+                        />
                       </Button>
                     </div>
                   </TableCell>
@@ -288,19 +314,24 @@ export default function UsersPage() {
       </div>
 
       {/* Add/Edit User Dialog */}
-      <Dialog open={isAddDialogOpen || isEditDialogOpen} onOpenChange={(open) => {
-        if (!open) {
-          setIsAddDialogOpen(false);
-          setIsEditDialogOpen(false);
-          resetFormData();
-        }
-      }}>
+      <Dialog
+        open={isAddDialogOpen || isEditDialogOpen}
+        onOpenChange={(open) => {
+          if (!open) {
+            setIsAddDialogOpen(false);
+            setIsEditDialogOpen(false);
+            resetFormData();
+          }
+        }}
+      >
         <DialogContent className="max-w-2xl w-full">
           <DialogHeader>
-            <DialogTitle>{isAddDialogOpen ? 'Add New User' : 'Edit User'}</DialogTitle>
+            <DialogTitle>
+              {isAddDialogOpen ? "Add New User" : "Edit User"}
+            </DialogTitle>
           </DialogHeader>
           <form
-            onSubmit={e => {
+            onSubmit={(e) => {
               e.preventDefault();
               if (isAddDialogOpen) handleAddUser();
               if (isEditDialogOpen) handleEditUser();
@@ -313,7 +344,9 @@ export default function UsersPage() {
                   id="firstName"
                   placeholder="e.g., John"
                   value={formData.firstName}
-                  onChange={e => setFormData({ ...formData, firstName: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, firstName: e.target.value })
+                  }
                   required
                 />
               </div>
@@ -323,7 +356,9 @@ export default function UsersPage() {
                   id="lastName"
                   placeholder="e.g., Doe"
                   value={formData.lastName}
-                  onChange={e => setFormData({ ...formData, lastName: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, lastName: e.target.value })
+                  }
                   required
                 />
               </div>
@@ -334,7 +369,9 @@ export default function UsersPage() {
                   type="email"
                   placeholder="e.g., john.doe@example.com"
                   value={formData.email}
-                  onChange={e => setFormData({ ...formData, email: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, email: e.target.value })
+                  }
                   required
                 />
               </div>
@@ -345,26 +382,37 @@ export default function UsersPage() {
                   type="tel"
                   placeholder="e.g., +1234567890"
                   value={formData.phone}
-                  onChange={e => setFormData({ ...formData, phone: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, phone: e.target.value })
+                  }
                 />
               </div>
-              <div className="space-y-2 flex flex-col gap-3">
-                <Label htmlFor="role">Role</Label>
-                <Select
-                  value={formData.role}
-                  onValueChange={value => setFormData({ ...formData, role: value as Role })}
-                  required
-                >
-                  <SelectTrigger id="role">
-                    <SelectValue placeholder="Select role..." />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {roles.map(role => (
-                      <SelectItem key={role} value={role}>{role}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+              {isAddDialogOpen && (
+                <>
+                  <div className="space-y-2 flex flex-col gap-3">
+                    <Label htmlFor="role">Role</Label>
+                    <Select
+                      value={formData.role}
+                      onValueChange={(value) =>
+                        setFormData({ ...formData, role: value as Role })
+                      }
+                      required
+                    >
+                      <SelectTrigger id="role">
+                        <SelectValue placeholder="Select role..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {roles.map((role) => (
+                          <SelectItem key={role} value={role}>
+                            {role}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </>
+              )}
+
               {isAddDialogOpen && (
                 <>
                   <div className="space-y-2 flex flex-col gap-3">
@@ -374,7 +422,7 @@ export default function UsersPage() {
                       type="password"
                       placeholder="Enter password"
                       value={password}
-                      onChange={e => setPassword(e.target.value)}
+                      onChange={(e) => setPassword(e.target.value)}
                       required
                     />
                   </div>
@@ -385,11 +433,13 @@ export default function UsersPage() {
                       type="password"
                       placeholder="Confirm password"
                       value={confirmPassword}
-                      onChange={e => setConfirmPassword(e.target.value)}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
                       required
                     />
                     {passwordError && (
-                      <span className="text-red-500 text-sm">{passwordError}</span>
+                      <span className="text-red-500 text-sm">
+                        {passwordError}
+                      </span>
                     )}
                   </div>
                 </>
@@ -398,26 +448,38 @@ export default function UsersPage() {
                 <Checkbox
                   id="needWheelchairAccessibleRoom"
                   checked={formData.needWheelchairAccessibleRoom}
-                  onCheckedChange={checked => setFormData({ ...formData, needWheelchairAccessibleRoom: checked === true })}
+                  onCheckedChange={(checked) =>
+                    setFormData({
+                      ...formData,
+                      needWheelchairAccessibleRoom: checked === true,
+                    })
+                  }
                 />
-                <Label htmlFor="needWheelchairAccessibleRoom" className="text-sm font-medium">
+                <Label
+                  htmlFor="needWheelchairAccessibleRoom"
+                  className="text-sm font-medium"
+                >
                   Requires Wheelchair Accessible Room
                 </Label>
               </div>
             </div>
             <DialogFooter className="mt-2">
-              <Button type="button" variant="outline" onClick={() => {
-                setIsAddDialogOpen(false);
-                setIsEditDialogOpen(false);
-              }}>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => {
+                  setIsAddDialogOpen(false);
+                  setIsEditDialogOpen(false);
+                }}
+              >
                 Cancel
               </Button>
-              <Button 
-                type="submit" 
+              <Button
+                type="submit"
                 className="bg-indigo-600 hover:bg-indigo-700"
                 disabled={isAddDialogOpen && password !== confirmPassword}
               >
-                {isAddDialogOpen ? 'Create User' : 'Save Changes'}
+                {isAddDialogOpen ? "Create User" : "Save Changes"}
               </Button>
             </DialogFooter>
           </form>

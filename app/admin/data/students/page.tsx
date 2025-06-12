@@ -38,10 +38,8 @@ import { ConfirmDeleteDialog } from "@/components/ui/confirm-delete";
 import { useDepartmentStore } from "@/lib/stores/department.store";
 
 export default function StudentGroupsPage() {
-  const { isAuthenticated } = useAuthStore();
   const { studentGroups, fetchStudentGroups, addStudentGroup, updateStudentGroup, deleteStudentGroup } =
     useStudentGroupStore();
-  const { teachers, fetchTeachers } = useTeacherStore();
   const { departments, fetchDepartments } = useDepartmentStore();
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
@@ -57,23 +55,10 @@ export default function StudentGroupsPage() {
   };
   const [formData, setFormData] = useState(initialFormData);
 
-  const router = useRouter();
-
   useEffect(() => {
-    if (!isAuthenticated) {
-      router.push("/");
-    }
-  }, [isAuthenticated, router]);
-
-  if (!isAuthenticated) {
-    return null;
-  }
-
-  useEffect(() => {
-    fetchTeachers();
     fetchStudentGroups();
     fetchDepartments();
-  }, [fetchTeachers, fetchStudentGroups, fetchDepartments]);
+  }, [fetchStudentGroups, fetchDepartments]);
 
   const [filteredStudentGroups, setFilteredStudentGroups] = useState<StudentGroup[]>([]);
   useEffect(() => {
@@ -83,16 +68,6 @@ export default function StudentGroupsPage() {
     );
     setFilteredStudentGroups(newFiltered);
   }, [searchQuery, studentGroups]);
-
-  useEffect(() => {
-    if (!isAuthenticated) {
-      router.push("/")
-    }
-  }, [isAuthenticated, router])
-
-  if (!isAuthenticated) {
-    return null
-  }
 
   const handleAddStudentGroup = () => {
     addStudentGroup(formData);

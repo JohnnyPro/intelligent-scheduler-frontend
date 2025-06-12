@@ -56,11 +56,11 @@ export default function DashboardPage() {
     getCurrentSchedule();
   }, [getCurrentSchedule]);
 
-  useEffect(() => {
-    if (!isAuthenticated) {
-      router.push("/");
-    }
-  }, [isAuthenticated, router]);
+  // useEffect(() => {
+  //   if (!isAuthenticated) {
+  //     router.push("/");
+  //   }
+  // }, [isAuthenticated, router]);
 
   if (!isAuthenticated) {
     return null;

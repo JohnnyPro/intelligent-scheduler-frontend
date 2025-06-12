@@ -4,17 +4,17 @@ import type { NextRequest } from "next/server";
 import jwt from "jsonwebtoken";
 
 export function middleware(req: NextRequest) {
-  // Get the access token from cookies
   const token = req.cookies.get("accessToken")?.value;
   const pathname = req.nextUrl.pathname;
   const publicRoutes = ["/unauthorized"];
+  
+  if (publicRoutes.includes(pathname)) {
+    return NextResponse.next();
+  }
+
 
   if (!token) {
     return NextResponse.redirect(new URL("/login", req.url));
-  }
-
-  if (publicRoutes.includes(pathname)) {
-    return NextResponse.next();
   }
 
   try {
@@ -25,10 +25,10 @@ export function middleware(req: NextRequest) {
     }
 
     const role = decoded.role;
-    console.log("Requested path:", pathname);
 
-    if (pathname === "/login" || pathname === "/")
+    if (pathname === "/login" || pathname === "/"){
       return NextResponse.redirect(new URL(`/${role.toLowerCase()}/dashboard`, req.url));
+    }
 
     if (pathname.startsWith("/admin") && role !== Role.ADMIN) {
       console.log(`Role ${role} not admin, redirecting to /${role}/dashboard`);

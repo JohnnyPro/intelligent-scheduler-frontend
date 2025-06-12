@@ -28,7 +28,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { BookOpen, Edit, FlaskConical, Laptop, Plus, Search, Trash2 } from "lucide-react";
+import {
+  BookOpen,
+  Edit,
+  FlaskConical,
+  Laptop,
+  Plus,
+  Search,
+  Trash2,
+} from "lucide-react";
 import useAuthStore from "@/lib/stores/auth-store";
 import { useCourseStore } from "@/lib/stores/course.store";
 import { useDepartmentStore } from "@/lib/stores/department.store";
@@ -39,11 +47,9 @@ import { Course } from "@/lib/types/course.types";
 import { SessionType } from "@/lib/types";
 
 export default function CoursesPage() {
-  const { isAuthenticated } = useAuthStore();
-  const router = useRouter();
-
   // Stores
-  const { courses, fetchCourses, addCourse, updateCourse, deleteCourse } = useCourseStore();
+  const { courses, fetchCourses, addCourse, updateCourse, deleteCourse } =
+    useCourseStore();
   const { departments, fetchDepartments } = useDepartmentStore();
 
   // State
@@ -53,7 +59,8 @@ export default function CoursesPage() {
   const [departmentFilter, setDepartmentFilter] = useState("all");
   const [sessionTypeFilter, setsessionTypeFilter] = useState("all");
   const [selectedCourse, setSelectedCourse] = useState<string | null>(null);
-  const [isConfirmDeleteDialogOpen, setIsConfirmDeleteDialogOpen] = useState(false);
+  const [isConfirmDeleteDialogOpen, setIsConfirmDeleteDialogOpen] =
+    useState(false);
   const [filteredCourses, setFilteredCourses] = useState<Course[]>([]);
 
   const initialFormData = {
@@ -69,33 +76,29 @@ export default function CoursesPage() {
 
   const [formData, setFormData] = useState(initialFormData);
 
-  // Authentication check
-  useEffect(() => {
-    if (!isAuthenticated) {
-      router.push("/");
-    }
-  }, [isAuthenticated, router]);
-
   // Fetch initial data
   useEffect(() => {
-    if (isAuthenticated) {
-      fetchCourses();
-      fetchDepartments();
-    }
-  }, [isAuthenticated, fetchCourses, fetchDepartments, ]);
+    fetchCourses();
+    fetchDepartments();
+  }, [fetchCourses, fetchDepartments]);
 
   // Filter courses
   useEffect(() => {
-    let filtered = courses.filter((course) =>
-      course.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      course.code.toLowerCase().includes(searchQuery.toLowerCase())
+    let filtered = courses.filter(
+      (course) =>
+        course.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        course.code.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
     if (departmentFilter !== "all") {
-      filtered = filtered.filter(course => course.departmentId === departmentFilter);
+      filtered = filtered.filter(
+        (course) => course.departmentId === departmentFilter
+      );
     }
     if (sessionTypeFilter !== "all") {
-      filtered = filtered.filter(course => course.sessionType === sessionTypeFilter);
+      filtered = filtered.filter(
+        (course) => course.sessionType === sessionTypeFilter
+      );
     }
 
     setFilteredCourses(filtered);
@@ -148,10 +151,6 @@ export default function CoursesPage() {
     setIsConfirmDeleteDialogOpen(true);
   };
 
-  if (!isAuthenticated) {
-    return null;
-  }
-
   return (
     <DashboardLayout title="Courses">
       <div className="space-y-6">
@@ -159,7 +158,9 @@ export default function CoursesPage() {
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 pb-2 border-b">
           <div>
             <h1 className="text-3xl font-bold tracking-tight">Courses</h1>
-            <p className="text-muted-foreground text-sm">Manage course information and sessions</p>
+            <p className="text-muted-foreground text-sm">
+              Manage course information and sessions
+            </p>
           </div>
           <Button
             className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold shadow-sm"
@@ -182,25 +183,35 @@ export default function CoursesPage() {
               onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
-          <Select onValueChange={(val) => setDepartmentFilter(val)} value={departmentFilter}>
+          <Select
+            onValueChange={(val) => setDepartmentFilter(val)}
+            value={departmentFilter}
+          >
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="All Departments" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Departments</SelectItem>
               {departments.map((dept) => (
-                <SelectItem key={dept.deptId} value={dept.deptId}>{dept.name}</SelectItem>
+                <SelectItem key={dept.deptId} value={dept.deptId}>
+                  {dept.name}
+                </SelectItem>
               ))}
             </SelectContent>
           </Select>
-          <Select onValueChange={(val) => setsessionTypeFilter(val)} value={sessionTypeFilter}>
+          <Select
+            onValueChange={(val) => setsessionTypeFilter(val)}
+            value={sessionTypeFilter}
+          >
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="Lecture or Lab..." />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Session Types</SelectItem>
               {sessionTypes.map((type) => (
-                <SelectItem key={type} value={type}>{type}</SelectItem>
+                <SelectItem key={type} value={type}>
+                  {type}
+                </SelectItem>
               ))}
             </SelectContent>
           </Select>
@@ -223,13 +234,15 @@ export default function CoursesPage() {
               {filteredCourses.map((course) => (
                 <TableRow key={course.courseId} className="hover:bg-muted/40">
                   <TableCell className="flex items-center gap-3 font-medium">
-                    <span className={`inline-flex items-center justify-center h-8 w-8 rounded-md ${
-                      course.sessionType === SessionType.LECTURE 
-                        ? "bg-blue-100 text-blue-600" 
-                        : course.sessionType === SessionType.LAB 
-                          ? "bg-green-100 text-green-600" 
+                    <span
+                      className={`inline-flex items-center justify-center h-8 w-8 rounded-md ${
+                        course.sessionType === SessionType.LECTURE
+                          ? "bg-blue-100 text-blue-600"
+                          : course.sessionType === SessionType.LAB
+                          ? "bg-green-100 text-green-600"
                           : "bg-purple-100 text-purple-600"
-                    }`}>
+                      }`}
+                    >
                       {course.sessionType === SessionType.LECTURE ? (
                         <Laptop className="w-4 h-4" />
                       ) : course.sessionType === SessionType.LAB ? (
@@ -239,14 +252,18 @@ export default function CoursesPage() {
                       )}
                     </span>
                     <div>
-                      <div className="font-semibold leading-tight">{course.name}</div>
-                      <div className="text-xs text-muted-foreground">ID: {course.courseId}</div>
+                      <div className="font-semibold leading-tight">
+                        {course.name}
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        ID: {course.courseId}
+                      </div>
                     </div>
                   </TableCell>
                   <TableCell>{course.code}</TableCell>
                   <TableCell>
                     <span className="px-2 py-1 rounded text-xs font-medium bg-gray-100 text-gray-700">
-                      {course.department?.name || 'N/A'}
+                      {course.department?.name || "N/A"}
                     </span>
                   </TableCell>
                   <TableCell>{course.sessionsPerWeek}</TableCell>
@@ -281,19 +298,24 @@ export default function CoursesPage() {
       </div>
 
       {/* Add/Edit Course Dialog */}
-      <Dialog open={isAddDialogOpen || isEditDialogOpen} onOpenChange={(open) => {
-        if (!open) {
-          setIsAddDialogOpen(false);
-          setIsEditDialogOpen(false);
-          resetFormData();
-        }
-      }}>
+      <Dialog
+        open={isAddDialogOpen || isEditDialogOpen}
+        onOpenChange={(open) => {
+          if (!open) {
+            setIsAddDialogOpen(false);
+            setIsEditDialogOpen(false);
+            resetFormData();
+          }
+        }}
+      >
         <DialogContent className="max-w-2xl w-full">
           <DialogHeader>
-            <DialogTitle>{isAddDialogOpen ? 'Add New Course' : 'Edit Course'}</DialogTitle>
+            <DialogTitle>
+              {isAddDialogOpen ? "Add New Course" : "Edit Course"}
+            </DialogTitle>
           </DialogHeader>
           <form
-            onSubmit={e => {
+            onSubmit={(e) => {
               e.preventDefault();
               if (isAddDialogOpen) handleAddCourse();
               if (isEditDialogOpen) handleEditCourse();
@@ -306,7 +328,9 @@ export default function CoursesPage() {
                   id="name"
                   placeholder="e.g., Introduction to Computer Science"
                   value={formData.name}
-                  onChange={e => setFormData({ ...formData, name: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, name: e.target.value })
+                  }
                   required
                 />
               </div>
@@ -316,7 +340,9 @@ export default function CoursesPage() {
                   id="code"
                   placeholder="e.g., CS101"
                   value={formData.code}
-                  onChange={e => setFormData({ ...formData, code: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, code: e.target.value })
+                  }
                   required
                 />
               </div>
@@ -326,20 +352,24 @@ export default function CoursesPage() {
                   id="description"
                   placeholder="Course description"
                   value={formData.description}
-                  onChange={e => setFormData({ ...formData, description: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, description: e.target.value })
+                  }
                 />
               </div>
               <div className="space-y-2 flex flex-col gap-3">
                 <Label htmlFor="department">Department</Label>
                 <Select
-                  value={formData.departmentId || ''}
-                  onValueChange={(value: string) => setFormData({ ...formData, departmentId: value || null })}
+                  value={formData.departmentId || ""}
+                  onValueChange={(value: string) =>
+                    setFormData({ ...formData, departmentId: value || null })
+                  }
                 >
                   <SelectTrigger id="department">
                     <SelectValue placeholder="Select department..." />
                   </SelectTrigger>
                   <SelectContent>
-                    {departments.map(dept => (
+                    {departments.map((dept) => (
                       <SelectItem key={dept.deptId} value={dept.deptId}>
                         {dept.name}
                       </SelectItem>
@@ -354,7 +384,12 @@ export default function CoursesPage() {
                   type="number"
                   placeholder="e.g., 5"
                   value={formData.ectsCredits}
-                  onChange={e => setFormData({ ...formData, ectsCredits: Number(e.target.value) })}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      ectsCredits: Number(e.target.value),
+                    })
+                  }
                   min={0}
                 />
               </div>
@@ -362,14 +397,18 @@ export default function CoursesPage() {
                 <Label htmlFor="sessionType">Session Type</Label>
                 <Select
                   value={formData.sessionType}
-                  onValueChange={(value: SessionType) => setFormData({ ...formData, sessionType: value })}
+                  onValueChange={(value: SessionType) =>
+                    setFormData({ ...formData, sessionType: value })
+                  }
                 >
                   <SelectTrigger id="sessionType">
                     <SelectValue placeholder="Select session type..." />
                   </SelectTrigger>
                   <SelectContent>
-                    {Object.values(SessionType).map(type => (
-                      <SelectItem key={type} value={type}>{type}</SelectItem>
+                    {Object.values(SessionType).map((type) => (
+                      <SelectItem key={type} value={type}>
+                        {type}
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -381,20 +420,32 @@ export default function CoursesPage() {
                   type="number"
                   placeholder="e.g., 2"
                   value={formData.sessionsPerWeek}
-                  onChange={e => setFormData({ ...formData, sessionsPerWeek: Number(e.target.value) })}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      sessionsPerWeek: Number(e.target.value),
+                    })
+                  }
                   min={1}
                 />
               </div>
             </div>
             <DialogFooter className="mt-2">
-              <Button type="button" variant="outline" onClick={() => {
-                setIsAddDialogOpen(false);
-                setIsEditDialogOpen(false);
-              }}>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => {
+                  setIsAddDialogOpen(false);
+                  setIsEditDialogOpen(false);
+                }}
+              >
                 Cancel
               </Button>
-              <Button type="submit" className="bg-indigo-600 hover:bg-indigo-700">
-                {isAddDialogOpen ? 'Create Course' : 'Save Changes'}
+              <Button
+                type="submit"
+                className="bg-indigo-600 hover:bg-indigo-700"
+              >
+                {isAddDialogOpen ? "Create Course" : "Save Changes"}
               </Button>
             </DialogFooter>
           </form>

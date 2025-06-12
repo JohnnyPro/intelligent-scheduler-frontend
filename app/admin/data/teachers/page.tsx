@@ -45,7 +45,6 @@ import { useDepartmentStore } from "@/lib/stores/department.store";
 import { ConfirmDeleteDialog } from "@/components/ui/confirm-delete";
 
 export default function TeachersPage() {
-  const { isAuthenticated } = useAuthStore();
   const { teachers, fetchTeachers, addTeacher, updateTeacher, deleteTeacher } =
     useTeacherStore();
   const { departments, fetchDepartments } = useDepartmentStore();
@@ -65,18 +64,7 @@ export default function TeachersPage() {
   };
 
   const [formData, setFormData] = useState(initialFormData);
-  const router = useRouter();
-
-  useEffect(() => {
-    if (!isAuthenticated) {
-      router.push("/");
-    }
-  }, [isAuthenticated, router]);
-
-  if (!isAuthenticated) {
-    return null;
-  }
-
+  
   useEffect(() => {
     fetchDepartments();
     fetchTeachers();

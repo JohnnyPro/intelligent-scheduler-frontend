@@ -29,7 +29,6 @@ import { useDepartmentStore } from "@/lib/stores/department.store";
 import { ConfirmDeleteDialog } from "@/components/ui/confirm-delete";
 
 export default function DepartmentsPage() {
-  const { isAuthenticated } = useAuthStore();
 
   const { departments, fetchDepartments, addDepartment, updateDepartment, deleteDepartment } =
     useDepartmentStore();
@@ -43,18 +42,6 @@ export default function DepartmentsPage() {
     name: "",
   };
   const [formData, setFormData] = useState<DepartmentCreating>(initialFormData);
-
-  const router = useRouter();
-
-  useEffect(() => {
-    if (!isAuthenticated) {
-      router.push("/");
-    }
-  }, [isAuthenticated, router]);
-
-  if (!isAuthenticated) {
-    return null;
-  }
 
   useEffect(() => {
     fetchDepartments();
