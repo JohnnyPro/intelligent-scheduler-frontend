@@ -21,7 +21,7 @@ interface StoreState {
 
   activeSchedule: ScheduleResponse | null;
   fetchSchedules: () => void;
-  addSchedule: () => void;
+  addSchedule: (name: string) => void;
   filterSessionsInSchedule: (params: SearchSessionsRequest) => void;
   deleteSchedule: (id: string) => void;
   activate: (id: string) => void;
@@ -55,10 +55,10 @@ export const useScheduleStore = create<StoreState>()(
           set({ isLoading: false });
         }
       },
-      addSchedule: async () => {
+      addSchedule: async (name) => {
         set({ isLoading: true });
         try {
-          const resp = await repository.generateSchedule();
+          const resp = await repository.generateSchedule(name);
           if (resp.success) get().fetchSchedules();
           else set({ error: `Error${resp.statusCode}: ${resp.message}` });
         } catch (e) {
@@ -80,8 +80,25 @@ export const useScheduleStore = create<StoreState>()(
         }
       },
       // THIS IS FOR BACKEND ACTIVATE
-      activate: (id) => {
-        //TODO ACTIVATE BACKEND Integration
+      activate: async (id) => {
+        set({ isLoading: true });
+        try {
+          const resp = await repository.activateSchedule(id);
+          if (resp.success) {
+            set({
+              activeSchedule: {
+                ...get().schedules.find((x) => x.scheduleId == id)!,
+                isActive: true,
+              },
+            });
+
+            get().fetchSchedules();
+          } else set({ error: `Error${resp.statusCode}: ${resp.message}` });
+        } catch (e) {
+          set({ error: `Error: ${e}` });
+        } finally {
+          set({ isLoading: false });
+        }
       },
 
       // THIS IS ONLY FOR FRONTEND NOT ACTUALLY SETTING THE ACTIVE SCHEDULE IN DB

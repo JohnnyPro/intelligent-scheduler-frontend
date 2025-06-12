@@ -19,6 +19,7 @@ export default function ViewSchedulePage() {
   const {
     schedules,
     activeSchedule,
+    activate,
     fetchSchedules,
     fetchCurrentSchedule,
     setActive,
@@ -77,7 +78,7 @@ export default function ViewSchedulePage() {
             disabled={activeSchedule?.isActive}
             variant="outline"
             className="bg-green-600 hover:bg-green-500 text-white  hover:text-white font-semibold shadow-sm"
-            onClick={() => {}}
+            onClick={() => {activeSchedule?.scheduleId ? activate(activeSchedule?.scheduleId) : null}}
           >
             <Play className="mr-2 h-4 w-4" />
             Activate
