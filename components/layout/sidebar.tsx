@@ -13,6 +13,7 @@ import {
   Building,
   LogOut,
   Upload,
+  BriefcaseBusiness,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -70,6 +71,11 @@ const sidebarItems = [
         icon: <School className="h-5 w-5" />,
       },
       {
+        title: "Departments",
+        href: "/admin/data/departments",
+        icon: <BriefcaseBusiness className="h-5 w-5" />,
+      },
+      {
         title: "Buildings",
         href: "/admin/data/buildings",
         icon: <Building className="h-5 w-5" />,
@@ -83,7 +89,7 @@ const sidebarItems = [
         title: "User Management",
         href: "/admin/users",
         icon: <Users className="h-5 w-5" />,
-      }
+      },
     ],
   },
 ];
