@@ -17,8 +17,6 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Button } from "@/components/ui/button";
-import useAuthStore from "@/lib/stores/auth-store";
 import ProfileSnippet from "./profile-snippet";
 
 const sidebarItems = [
