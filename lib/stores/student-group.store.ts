@@ -3,6 +3,7 @@ import { persist } from "zustand/middleware"
 import * as repository from "../repositories/repository"
 
 import { StudentGroup, StudentGroupCreating, StudentGroupUpdating } from "../types/student-group.types"
+import { PaginationData } from "../types";
 
 interface StoreState {
     isLoading: boolean
@@ -12,8 +13,9 @@ interface StoreState {
     setError: (error: string) => void
 
     studentGroups: StudentGroup[]
+    pagination: PaginationData | null
     activeStudentGroup: StudentGroup | null
-    fetchStudentGroups: () => void
+    fetchStudentGroups: (page?: number, size?: number) => void
     addStudentGroup: (studentGroup: StudentGroupCreating) => void
     updateStudentGroup: (id: string, studentGroup: StudentGroupUpdating) => void
     deleteStudentGroup: (id: string) => void
@@ -31,13 +33,15 @@ export const useStudentGroupStore = create<StoreState>()(
         setError: (error) => set ({ error}),
 
         studentGroups: [],
+        pagination: null,
         activeStudentGroup: null,
-    fetchStudentGroups: async () => {
+    fetchStudentGroups: async (page = 1, size = 10) => {
         set({ isLoading: true })
         try {
-          const studentGroups = await repository.getStudentGroups()
+          const studentGroups = await repository.getStudentGroups(page, size)
           if (studentGroups.success && studentGroups.data){
             set({ studentGroups: studentGroups.data})
+            set({ pagination: studentGroups.pagination || null })
           }
           else
             set( { error: `Error: ${studentGroups.message}` })

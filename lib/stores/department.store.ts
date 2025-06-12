@@ -3,6 +3,7 @@ import { persist } from "zustand/middleware"
 import * as repository from "../repositories/repository"
 
 import { Department, DepartmentCreating, DepartmentUpdating } from "../types/department.type"
+import { PaginationData } from "../types";
 
 interface StoreState {
     isLoading: boolean
@@ -12,8 +13,9 @@ interface StoreState {
     setError: (error: string) => void
 
     departments: Department[]
+    pagination: PaginationData | null
     activeDepartment: Department | null
-    fetchDepartments: () => void
+    fetchDepartments: (page?: number, size?: number) => void
     addDepartment: (department: DepartmentCreating) => void
     updateDepartment: (id: string, department: DepartmentUpdating) => void
     deleteDepartment: (id: string) => void
@@ -31,13 +33,15 @@ export const useDepartmentStore = create<StoreState>()(
         setError: (error) => set ({ error }),
 
         departments: [],
+        pagination: null,
         activeDepartment: null,
-        fetchDepartments: async () => {
+        fetchDepartments: async (page = 1, size = 10) => {
             set({ isLoading: true })
             try {
-              const departments = await repository.getDepartments()
+              const departments = await repository.getDepartments(page, size)
               if (departments.success && departments.data){
                 set({ departments: departments.data })
+                set({ pagination: departments.pagination || null })
               }
               else
                 set({ error: `Error: ${departments.message}` })

@@ -31,7 +31,8 @@ import { apiClient } from "../utils/api-client";
 import { mockTimeslots } from "../mock-data";
 
 // Teachers CRUD
-export const getTeachers = () => apiClient<ApiResponse<Teacher[]>>(`/teachers`);
+export const getTeachers = (page?: number, size?: number) => 
+  apiClient<ApiResponse<Teacher[]>>(`/teachers?${page ? `page=${page}` : ''}${size ? `&size=${size}` : ''}`);
 export const addTeacher = (teacher: TeacherCreating) =>
   apiClient<ApiResponse<Teacher>>(`/teachers`, {
     method: "POST",
@@ -46,8 +47,8 @@ export const deleteTeacher = (id: string) =>
   apiClient<ApiResponse<any>>(`/teachers/${id}`, { method: "DELETE" });
 
 // Rooms CRUD
-export const getRooms = () =>
-  apiClient<ApiResponse<Classroom[]>>(`/classrooms`);
+export const getRooms = (page?: number, size?: number) =>
+  apiClient<ApiResponse<Classroom[]>>(`/classrooms?${page ? `page=${page}` : ''}${size ? `&size=${size}` : ''}`);
 export const addRoom = (room: ClassroomCreating) =>
   apiClient<ApiResponse<Classroom>>(`/classrooms`, {
     method: "POST",
@@ -62,8 +63,8 @@ export const deleteRoom = (id: string) =>
   apiClient<ApiResponse<any>>(`/classrooms/${id}`, { method: "DELETE" });
 
 // StudentGroups CRUD
-export const getStudentGroups = () =>
-  apiClient<ApiResponse<StudentGroup[]>>(`/student-groups`);
+export const getStudentGroups = (page?: number, size?: number) =>
+  apiClient<ApiResponse<StudentGroup[]>>(`/student-groups?${page ? `page=${page}` : ''}${size ? `&size=${size}` : ''}`);
 export const addStudentGroup = (studentGroup: StudentGroupCreating) =>
   apiClient<ApiResponse<StudentGroup>>(`/student-groups`, {
     method: "POST",
@@ -81,8 +82,8 @@ export const deleteStudentGroup = (id: string) =>
   apiClient<ApiResponse<any>>(`/student-groups/${id}`, { method: "DELETE" });
 
 // Buildings CRUD
-export const getBuildings = () =>
-  apiClient<ApiResponse<Building[]>>(`/buildings`);
+export const getBuildings = (page?: number, size?: number) =>
+  apiClient<ApiResponse<Building[]>>(`/buildings?${page ? `page=${page}` : ''}${size ? `&size=${size}` : ''}`);
 export const addBuilding = (building: BuildingCreating) =>
   apiClient<ApiResponse<Building>>(`/buildings`, {
     method: "POST",
@@ -97,7 +98,8 @@ export const deleteBuilding = (id: string) =>
   apiClient<ApiResponse<any>>(`/buildings/${id}`, { method: "DELETE" });
 
 // Courses CRUD
-export const getCourses = () => apiClient<ApiResponse<Course[]>>(`/courses`);
+export const getCourses = (page?: number, size?: number) => 
+  apiClient<ApiResponse<Course[]>>(`/courses?${page ? `page=${page}` : ''}${size ? `&size=${size}` : ''}`);
 export const addCourse = (course: CourseCreating) =>
   apiClient<ApiResponse<Course>>(`/courses`, {
     method: "POST",
@@ -131,8 +133,6 @@ export const getProfile = async (
   accessToken: string
 ): Promise<ApiResponse<User>> => apiClient<ApiResponse<User>>(`/users/me`);
 
-// TODO: Remove mock data and make it fetch from the backend
-// export const getTimeslots = () => apiClient<ApiResponse<TimeSlot[]>>(`/timeslots`)
 export const getTimeslots = async () => {
   await new Promise((resolve) => setTimeout(resolve, 500));
   return {
@@ -142,8 +142,8 @@ export const getTimeslots = async () => {
 };
 
 // Departments CRUD
-export const getDepartments = () =>
-  apiClient<ApiResponse<Department[]>>(`/departments`);
+export const getDepartments = (page?: number, size?: number) =>
+  apiClient<ApiResponse<Department[]>>(`/departments?${page ? `page=${page}` : ''}${size ? `&size=${size}` : ''}`);
 export const addDepartment = (department: DepartmentCreating) =>
   apiClient<ApiResponse<Department>>(`/departments`, {
     method: "POST",
@@ -158,7 +158,8 @@ export const deleteDepartment = (id: string) =>
   apiClient<ApiResponse<any>>(`/departments/${id}`, { method: "DELETE" });
 
 // Users CRUD
-export const getUsers = () => apiClient<ApiResponse<User[]>>(`/users`);
+export const getUsers = (page?: number, size?: number) => 
+  apiClient<ApiResponse<User[]>>(`/users?${page ? `page=${page}` : ''}${size ? `&size=${size}` : ''}`);
 export const addUser = (user: UserCreating) =>
   apiClient<ApiResponse<User>>(`/users`, {
     method: "POST",

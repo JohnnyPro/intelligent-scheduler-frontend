@@ -28,10 +28,12 @@ import useAuthStore from "@/lib/stores/auth-store";
 import { useBuildingStore } from "@/lib/stores/building.store";
 import { ConfirmDeleteDialog } from "@/components/ui/confirm-delete";
 import { BuildingCreating } from "@/lib/types/building.types";
+import PaginationControls from "@/components/ui/pagination-control";
 
 export default function BuildingsPage() {
   const {
     buildings,
+    pagination,
     fetchBuildings,
     addBuilding,
     updateBuilding,
@@ -47,7 +49,6 @@ export default function BuildingsPage() {
     name: "",
     floor: 1,
   });
-
 
   useEffect(() => {
     fetchBuildings();
@@ -129,15 +130,25 @@ export default function BuildingsPage() {
         </div>
 
         {/* Search Section */}
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-          <Input
-            type="search"
-            placeholder="Search buildings..."
-            className="w-full pl-10 py-2 rounded-md border-gray-200"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
+        <div className="flex flex-col md:flex-row md:items-center gap-3 md:gap-4">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+            <Input
+              type="search"
+              placeholder="Search buildings..."
+              className="w-full pl-10 py-2 rounded-md border-gray-200"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
+          {pagination && (
+            <PaginationControls
+              pagination={pagination}
+              onPaginationChange={(newPage: number, newSize: number) =>
+                fetchBuildings(newPage, newSize)
+              }
+            />
+          )}
         </div>
 
         {/* Table Section */}

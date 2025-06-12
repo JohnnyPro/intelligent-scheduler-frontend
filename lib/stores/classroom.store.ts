@@ -7,6 +7,7 @@ import {
   ClassroomCreating,
   ClassroomUpdating,
 } from "../types/classroom.types";
+import { PaginationData } from "../types";
 
 interface StoreState {
   isLoading: boolean;
@@ -16,8 +17,9 @@ interface StoreState {
   setError: (error: string) => void;
 
   classrooms: Classroom[];
+  pagination: PaginationData | null;
   activeClassroom: Classroom | null;
-  fetchClassrooms: () => void;
+  fetchClassrooms: (page?: number, size?: number) => void;
   addClassroom: (classroom: ClassroomCreating) => void;
   updateClassroom: (id: string, classroom: ClassroomUpdating) => void;
   deleteClassroom: (id: string) => void;
@@ -35,13 +37,15 @@ export const useClassroomStore = create<StoreState>()(
       setError: (error) => set({ error }),
 
       classrooms: [],
+      pagination: null,
       activeClassroom: null,
-      fetchClassrooms: async () => {
+      fetchClassrooms: async (page = 1, size = 10) => {
         set({ isLoading: true });
         try {
-          const classrooms = await repository.getRooms();
+          const classrooms = await repository.getRooms(page, size);
           if (classrooms.success && classrooms.data) {
             set({ classrooms: classrooms.data });
+            set({ pagination: classrooms.pagination || null });
           } else set({ error: `Error: ${classrooms.message}` });
         } catch (e) {
           set({ error: `Error: ${e}` });

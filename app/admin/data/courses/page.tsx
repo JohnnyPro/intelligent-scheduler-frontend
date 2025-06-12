@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import { DashboardLayout } from "@/components/layout/dashboard-layout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -37,19 +36,23 @@ import {
   Search,
   Trash2,
 } from "lucide-react";
-import useAuthStore from "@/lib/stores/auth-store";
 import { useCourseStore } from "@/lib/stores/course.store";
 import { useDepartmentStore } from "@/lib/stores/department.store";
-import { useTeacherStore } from "@/lib/stores/teacher.store";
-import { useStudentGroupStore } from "@/lib/stores/student-group.store";
 import { ConfirmDeleteDialog } from "@/components/ui/confirm-delete";
 import { Course } from "@/lib/types/course.types";
 import { SessionType } from "@/lib/types";
+import PaginationControls from "@/components/ui/pagination-control";
 
 export default function CoursesPage() {
   // Stores
-  const { courses, fetchCourses, addCourse, updateCourse, deleteCourse } =
-    useCourseStore();
+  const {
+    courses,
+    pagination,
+    fetchCourses,
+    addCourse,
+    updateCourse,
+    deleteCourse,
+  } = useCourseStore();
   const { departments, fetchDepartments } = useDepartmentStore();
 
   // State
@@ -215,6 +218,12 @@ export default function CoursesPage() {
               ))}
             </SelectContent>
           </Select>
+          {pagination && (
+            <PaginationControls
+              pagination={pagination}
+              onPaginationChange={(newPage: number, newSize: number) => fetchCourses(newPage, newSize)}
+            />
+          )}
         </div>
 
         {/* Table Section */}

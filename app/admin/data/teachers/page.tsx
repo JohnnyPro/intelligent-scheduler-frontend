@@ -37,16 +37,21 @@ import {
   Edit,
   Trash2,
 } from "lucide-react";
-import { useRouter } from "next/navigation";
 import { useEffect } from "react";
-import useAuthStore from "@/lib/stores/auth-store";
 import { useTeacherStore } from "@/lib/stores/teacher.store";
 import { useDepartmentStore } from "@/lib/stores/department.store";
 import { ConfirmDeleteDialog } from "@/components/ui/confirm-delete";
+import PaginationControls from "@/components/ui/pagination-control";
 
 export default function TeachersPage() {
-  const { teachers, fetchTeachers, addTeacher, updateTeacher, deleteTeacher } =
-    useTeacherStore();
+  const {
+    teachers,
+    pagination,
+    fetchTeachers,
+    addTeacher,
+    updateTeacher,
+    deleteTeacher,
+  } = useTeacherStore();
   const { departments, fetchDepartments } = useDepartmentStore();
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
@@ -64,7 +69,7 @@ export default function TeachersPage() {
   };
 
   const [formData, setFormData] = useState(initialFormData);
-  
+
   useEffect(() => {
     fetchDepartments();
     fetchTeachers();
@@ -179,6 +184,14 @@ export default function TeachersPage() {
               ))}
             </SelectContent>
           </Select>
+          {pagination && (
+            <PaginationControls
+              pagination={pagination}
+              onPaginationChange={(newPage: number, newSize: number) =>
+                fetchTeachers(newPage, newSize)
+              }
+            />
+          )}
         </div>
 
         {/* Table Section */}
@@ -219,7 +232,7 @@ export default function TeachersPage() {
                       <span>{teacher.department.name}</span>
                     </div>
                   </TableCell>
-                  
+
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2">
                       <Button
