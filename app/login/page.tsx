@@ -25,13 +25,10 @@ export default function LoginPage() {
   useEffect(() => setIsAuthDelay(false), []);
 
   useEffect(() => {
-    console.log("STATUS", isAuthenticated);
-    console.log("User", user);
     if (isAuthenticated && user) {
       setIsAuthDelay(true);
       switch (user.role) {
         case Role.ADMIN:
-          console.log("PUSHING ADMIN DASHBOARD");
           router.push("/admin/dashboard");
           break;
         case Role.TEACHER:
@@ -61,36 +58,42 @@ export default function LoginPage() {
         <div className="hidden w-1/2 bg-indigo-900 p-12 md:flex md:flex-col md:justify-between">
           <div className="flex items-center gap-2 text-white">
             <Calendar className="h-8 w-8" />
+
             <span className="text-2xl font-bold">
               Intelligent School Scheduler
             </span>
           </div>
           <div className="relative h-96 w-full">
             <Image
-              src="/placeholder.svg?height=400&width=400"
+              src="/login_asset.png"
               alt="Scheduling illustration"
               fill
               className="object-contain"
             />
           </div>
-          <div className="text-white">
-            <h2 className="text-2xl font-bold">Intelligent School Scheduler</h2>
-            <p className="mt-2 text-gray-300">
+          <div className="text-white w-10/12 mx-auto">
+            <h2 className="text-xl text-gray-300 font-bold text-center">
               Welcome to the Intelligent School Scheduler – the platform that
               simplifies schedule management for teachers and students. Access
               and organize your class schedules effortlessly, all in one place!
-            </p>
+            </h2>
           </div>
         </div>
         <div className="flex w-full flex-col items-center justify-center bg-gray-100 p-8 md:w-1/2">
           <div className="w-full max-w-md">
             <div className="mb-8 text-center">
-              <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-indigo-100">
-                <Calendar className="h-8 w-8 text-indigo-600" />
+              <div className="mx-auto mb-4 flex h-32 w-32 items-center justify-center rounded-full bg-indigo-100">
+                <Image
+                  src="/logo.svg"
+                  alt="Logo"
+                  className="object-contain"
+                  width={256}
+                  height={256}
+                />
               </div>
-              <h1 className="text-2xl font-bold">Login to continue</h1>
+              <h1 className="text-2xl font-bold mt-12">Login to continue</h1>
               <p className="mt-2 text-gray-600">
-                Enter your credentials to access the admin dashboard
+                Enter your credentials to access your dashboard
               </p>
             </div>
             <form onSubmit={handleSubmit} className="space-y-6">

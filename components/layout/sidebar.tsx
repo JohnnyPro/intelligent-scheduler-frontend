@@ -70,7 +70,7 @@ const sidebarItems = [
         icon: <School className="h-5 w-5" />,
       },
       {
-        title: "Buildings & Campuses",
+        title: "Buildings",
         href: "/admin/data/buildings",
         icon: <Building className="h-5 w-5" />,
       },
