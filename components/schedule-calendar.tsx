@@ -6,10 +6,9 @@ import {
 import { cn } from "@/lib/utils";
 import { useEffect, useState, useRef } from "react";
 import { Button } from "./ui/button";
-import { Calendar, ChevronDownSquare, Download, Filter } from "lucide-react";
+import { Calendar, ChevronDownSquare, Download, Filter } from "lucide-react"; // Removed ChevronDownSquare as Popover handles its own chevron
 import { DayOfWeek } from "@/lib/types";
 import { useScheduleStore } from "@/lib/stores/schedule.store";
-import { useUserStore } from "@/lib/stores/user.store";
 import useAuthStore from "@/lib/stores/auth-store";
 import { Role } from "@/lib/types/users.types";
 import { useTeacherStore } from "@/lib/stores/teacher.store";
@@ -18,6 +17,7 @@ import { useClassroomStore } from "@/lib/stores/classroom.store";
 import { useCourseStore } from "@/lib/stores/course.store";
 import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "./ui/select";
 import { Label } from "./ui/label";
+import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover"; // Import Popover components
 
 const CALENDAR_START_HOUR = 8;
 const CALENDAR_END_HOUR = 19;
@@ -43,14 +43,6 @@ const getCourseColor = (courseName: string) => {
     "bg-pink-100 border-pink-300 text-pink-800",
     "bg-indigo-100 border-indigo-300 text-indigo-800",
   ];
-  // const colors = [
-  //    "bg-purple-100 border-purple-300",
-  //    "bg-blue-100 border-blue-300",
-  //    "bg-green-100 border-green-300",
-  //    "bg-yellow-100 border-yellow-300",
-  //    "bg-pink-100 border-pink-300",
-  //    "bg-indigo-100 border-indigo-300",
-  // ];
   let hash = 0;
   for (let i = 0; i < courseName.length; i++) {
     hash = courseName.charCodeAt(i) + ((hash << 5) - hash);
@@ -222,31 +214,29 @@ export const ScheduleCalendar = () => {
     sessions.some((s) => s.day.toUpperCase() === day) ? "3fr" : "1fr"
   );
 
-  // Dropdown filter panel state
-  const [filterOpen, setFilterOpen] = useState(false);
-  const filterBtnRef = useRef<HTMLButtonElement>(null);
-  const filterPanelRef = useRef<HTMLDivElement>(null);
-
-  // Close dropdown on outside click
-  useEffect(() => {
-    if (!filterOpen) return;
-    function handleClick(e: MouseEvent) {
-      if (
-        filterPanelRef.current &&
-        !filterPanelRef.current.contains(e.target as Node) &&
-        filterBtnRef.current &&
-        !filterBtnRef.current.contains(e.target as Node)
-      ) {
-        setFilterOpen(false);
-      }
-    }
-    document.addEventListener("mousedown", handleClick);
-    return () => document.removeEventListener("mousedown", handleClick);
-  }, [filterOpen]);
-
   // Helper to reset all filters
   const clearAllFilters = () => {
-    setSearchParams({ scheduleId: activeSchedule?.scheduleId || "" });
+
+    if (!user) {
+      setSearchParams({ scheduleId: activeSchedule?.scheduleId || "" });
+      return;
+    }
+    if (user.role == Role.ADMIN)
+      setSearchParams({
+        scheduleId: activeSchedule?.scheduleId || "",
+      });
+    else if (user.role == Role.TEACHER)
+      setSearchParams({
+        scheduleId: activeSchedule?.scheduleId || "",
+        teacherId: teachers.find((x) => x.userId == user.userId)?.teacherId,
+      });
+    else if (user.role == Role.STUDENT)
+      setSearchParams({
+        scheduleId: activeSchedule?.scheduleId || "",
+        studentGroupId: studentGroups.find((x) =>
+          x.students?.filter((y) => y.userId == user.userId)
+        )?.studentGroupId,
+      });
   };
 
   // Helper to update a field in searchParams and trigger filtering
@@ -269,24 +259,20 @@ export const ScheduleCalendar = () => {
             <Download className="mr-2 h-4 w-4" />
             Export
           </Button>
-          <Button
-            ref={filterBtnRef}
-            variant="default"
-            size="sm"
-            onClick={() => setFilterOpen((v) => !v)}
-            aria-haspopup="true"
-            aria-expanded={filterOpen}
-          >
-            <Filter className="mr-2 h-4 w-4" />
-            Filter
-            <ChevronDownSquare className="ml-2 h-4 w-4" />
-          </Button>
-          {filterOpen && (
-            <div
-              ref={filterPanelRef}
-              className="absolute right-0 mt-2 z-30 w-96 rounded-xl border bg-white shadow-xl p-6"
-              style={{ top: '100%' }}
-            >
+
+          {/* Popover implementation */}
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant="default"
+                size="sm"
+              >
+                <Filter className="mr-2 h-4 w-4" />
+                Filter
+                <ChevronDownSquare strokeWidth={3} className="ml-2 h-4 w-4" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-96 p-6"> {/* Remove absolute positioning and custom top style */}
               <div className="flex items-center justify-between mb-4">
                 <span className="text-lg font-semibold">Filter Schedule</span>
                 <button
@@ -298,40 +284,45 @@ export const ScheduleCalendar = () => {
                 </button>
               </div>
               <div className="space-y-4">
-                <div>
-                  <Label htmlFor="teacher-select">Teacher</Label>
-                  <Select
-                    value={searchParams.teacherId || "all"}
-                    onValueChange={val => updateFilter("teacherId", val)}
-                  >
-                    <SelectTrigger id="teacher-select" className="mt-1">
-                      <SelectValue placeholder="All Teachers" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Teachers</SelectItem>
-                      {teachers.map(t => (
-                        <SelectItem key={t.teacherId} value={t.teacherId}>{t.user.firstName} {t.user.lastName}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <Label htmlFor="group-select">Student Group</Label>
-                  <Select
-                    value={searchParams.studentGroupId || "all"}
-                    onValueChange={val => updateFilter("studentGroupId", val)}
-                  >
-                    <SelectTrigger id="group-select" className="mt-1">
-                      <SelectValue placeholder="All Groups" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Groups</SelectItem>
-                      {studentGroups.map(g => (
-                        <SelectItem key={g.studentGroupId} value={g.studentGroupId}>{g.name}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
+                {(user?.role !== Role.TEACHER) && (
+                  <div>
+                    <Label htmlFor="teacher-select">Teacher</Label>
+                    <Select
+                      value={searchParams.teacherId || "all"}
+                      onValueChange={val => updateFilter("teacherId", val)}
+                    >
+                      <SelectTrigger id="teacher-select" className="mt-1">
+                        <SelectValue placeholder="All Teachers" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All Teachers</SelectItem>
+                        {teachers.map(t => (
+                          <SelectItem key={t.teacherId} value={t.teacherId}>{t.user.firstName} {t.user.lastName}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
+                {(user?.role !== Role.STUDENT) && (
+                  <div>
+                    <Label htmlFor="group-select">Student Group</Label>
+                    <Select
+                      value={searchParams.studentGroupId || "all"}
+                      onValueChange={val => updateFilter("studentGroupId", val)}
+                    >
+                      <SelectTrigger id="group-select" className="mt-1">
+                        <SelectValue placeholder="All Groups" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All Groups</SelectItem>
+                        {studentGroups.map(g => (
+                          <SelectItem key={g.studentGroupId} value={g.studentGroupId}>{g.name}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
+
                 <div>
                   <Label htmlFor="classroom-select">Classroom</Label>
                   <Select
@@ -367,8 +358,10 @@ export const ScheduleCalendar = () => {
                   </Select>
                 </div>
               </div>
-            </div>
-          )}
+            </PopoverContent>
+          </Popover>
+          {/* End Popover implementation */}
+
         </div>
       </div>
 
