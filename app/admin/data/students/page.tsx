@@ -46,6 +46,7 @@ export default function StudentGroupsPage() {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [departmentFilter, setDepartmentFilter] = useState("all");
   const [selectedStudentGroup, setSelectedStudentGroup] = useState<string | null>(null);
   const [isConfirmDeleteDialogOpen, setIsConfirmDeleteDialogOpen] = useState(false);
   const initialFormData = {
@@ -71,12 +72,14 @@ export default function StudentGroupsPage() {
   useEffect(() => {
     fetchTeachers();
     fetchStudentGroups();
-  }, [fetchTeachers, fetchStudentGroups]);
+    fetchDepartments();
+  }, [fetchTeachers, fetchStudentGroups, fetchDepartments]);
 
   const [filteredStudentGroups, setFilteredStudentGroups] = useState<StudentGroup[]>([]);
   useEffect(() => {
     const newFiltered = studentGroups.filter((group) =>
-      group.name.toLowerCase().includes(searchQuery.toLowerCase())
+      group.name.toLowerCase().includes(searchQuery.toLowerCase()) &&
+      (departmentFilter === "all" || group.departmentId === departmentFilter)
     );
     setFilteredStudentGroups(newFiltered);
   }, [searchQuery, studentGroups]);
@@ -152,16 +155,34 @@ export default function StudentGroupsPage() {
           </Button>
         </div>
 
-        {/* Search Section */}
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-          <Input
-            type="search"
-            placeholder="Search student groups..."
-            className="w-full pl-10 py-2 rounded-md border-gray-200"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
+        {/* Search and Filter Section */}
+        <div className="flex flex-col md:flex-row md:items-center gap-3 md:gap-4">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+            <Input
+              type="search"
+              placeholder="Search student groups..."
+              className="w-full pl-10 py-2 rounded-md border-gray-200"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
+          <Select
+            onValueChange={(val) => setDepartmentFilter(val)}
+            value={departmentFilter}
+          >
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="All Departments" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Departments</SelectItem>
+              {departments.map((dept) => (
+                <SelectItem key={dept.deptId} value={dept.deptId}>
+                  {dept.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
 
         {/* Table Section */}
