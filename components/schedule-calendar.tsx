@@ -112,10 +112,10 @@ export const ScheduleCalendar = () => {
     (_, i) => i + CALENDAR_START_HOUR
   );
   useEffect(() => {
-    fetchTeachers();
-    fetchStudentGroups();
-    fetchClassrooms();
-    fetchCourses();
+    fetchTeachers(1, 10000);
+    fetchStudentGroups(1, 10000);
+    fetchClassrooms(1, 10000);
+    fetchCourses(1, 10000);
   }, [fetchTeachers, fetchStudentGroups, fetchClassrooms, fetchCourses]);
 
   // Search parameters or session filtering
@@ -252,7 +252,7 @@ export const ScheduleCalendar = () => {
       <div className="flex items-center justify-between border-b p-4">
         <div className="flex items-center gap-2">
           <Calendar className="h-4 w-4" />
-          <span className="font-medium">Schedule Calendar</span>
+          <span className="font-medium">{activeSchedule?.scheduleName ?? "Schedule Calendar"}</span>
         </div>
         <div className="flex items-center gap-2 relative">
           <Button variant="secondary" size="sm">
