@@ -44,9 +44,11 @@ import useAuthStore from "@/lib/stores/auth-store";
 import { useUserStore } from "@/lib/stores/user.store";
 import { ConfirmDeleteDialog } from "@/components/ui/confirm-delete";
 import { User as UserType, UserCreating } from "@/lib/types/users.types";
+import PaginationControls from "@/components/ui/pagination-control";
 
 export default function UsersPage() {
-  const { users, fetchUsers, addUser, updateUser, deleteUser } = useUserStore();
+  const { users, pagination, fetchUsers, addUser, updateUser, deleteUser } =
+    useUserStore();
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -217,6 +219,12 @@ export default function UsersPage() {
               ))}
             </SelectContent>
           </Select>
+          {pagination && (
+            <PaginationControls
+              pagination={pagination}
+              onPaginationChange={(newPage: number, newSize: number) => fetchUsers(newPage, newSize)}
+            />
+          )}
         </div>
 
         {/* Table Section */}
