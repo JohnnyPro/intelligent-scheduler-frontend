@@ -3,6 +3,7 @@ import { persist } from "zustand/middleware"
 import * as repository from "../repositories/repository"
 
 import { Building, BuildingCreating, BuildingUpdating } from "../types/building.types"
+import { PaginationData } from "../types";
 
 interface StoreState {
     isLoading: boolean
@@ -12,8 +13,9 @@ interface StoreState {
     setError: (error: string) => void
 
     buildings: Building[]
+    pagination: PaginationData | null
     activeBuilding: Building | null
-    fetchBuildings: () => void
+    fetchBuildings: (page?: number, size?: number) => void
     addBuilding: (building: BuildingCreating) => void
     updateBuilding: (id: string, building: BuildingUpdating) => void
     deleteBuilding: (id: string) => void
@@ -31,13 +33,15 @@ export const useBuildingStore = create<StoreState>()(
         setError: (error) => set ({ error }),
 
         buildings: [],
+        pagination: null,
         activeBuilding: null,
-        fetchBuildings: async () => {
+        fetchBuildings: async (page = 1, size = 10) => {
             set({ isLoading: true })
             try {
-              const buildings = await repository.getBuildings()
+              const buildings = await repository.getBuildings(page, size)
               if (buildings.success && buildings.data){
                 set({ buildings: buildings.data })
+                set({ pagination: buildings.pagination || null })
               }
               else
                 set({ error: `Error: ${buildings.message}` })
