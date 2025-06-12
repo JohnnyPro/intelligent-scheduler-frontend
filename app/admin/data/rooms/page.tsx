@@ -39,7 +39,6 @@ import { ConfirmDeleteDialog } from "@/components/ui/confirm-delete";
 import { Classroom } from "@/lib/types/classroom.types";
 
 export default function RoomsPage() {
-  const { isAuthenticated } = useAuthStore();
 
   const { classrooms, fetchClassrooms, addClassroom, updateClassroom, deleteClassroom } =
     useClassroomStore();
@@ -62,18 +61,8 @@ export default function RoomsPage() {
   };
   const [formData, setFormData] = useState(initialFormData);
 
-  const router = useRouter();
   const classroomTypes = Object.values(ClassroomType);
 
-  useEffect(() => {
-    if (!isAuthenticated) {
-      router.push("/");
-    }
-  }, [isAuthenticated, router]);
-
-  if (!isAuthenticated) {
-    return null;
-  }
   useEffect(() => {
     fetchBuildings();
     fetchClassrooms();

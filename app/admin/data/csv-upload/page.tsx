@@ -142,21 +142,9 @@ const dataTypes: DataType[] = [
 ]
 
 export default function CSVUploadPage() {
-  const { isAuthenticated } = useAuthStore()
   const router = useRouter()
   const [uploadResults, setUploadResults] = useState<Record<string, UploadResult>>({})
   const [activeTab, setActiveTab] = useState("upload")
-  const [isProcessing, setIsProcessing] = useState(false)
-
-  useEffect(() => {
-    if (!isAuthenticated) {
-      router.push("/")
-    }
-  }, [isAuthenticated, router])
-
-  if (!isAuthenticated) {
-    return null
-  }
 
   const getUploadStatus = (dataTypeId: string): UploadStatus => {
     return uploadResults[dataTypeId]?.status || "pending"

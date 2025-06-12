@@ -30,7 +30,6 @@ import { ConfirmDeleteDialog } from "@/components/ui/confirm-delete";
 import { BuildingCreating } from "@/lib/types/building.types";
 
 export default function BuildingsPage() {
-  const { isAuthenticated } = useAuthStore();
   const {
     buildings,
     fetchBuildings,
@@ -49,17 +48,6 @@ export default function BuildingsPage() {
     floor: 1,
   });
 
-  const router = useRouter();
-
-  useEffect(() => {
-    if (!isAuthenticated) {
-      router.push("/");
-    }
-  }, [isAuthenticated, router]);
-
-  if (!isAuthenticated) {
-    return null;
-  }
 
   useEffect(() => {
     fetchBuildings();

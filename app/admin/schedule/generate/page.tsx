@@ -14,19 +14,7 @@ import { useEffect } from "react"
 import useAuthStore from "@/lib/stores/auth-store"
 
 export default function GenerateSchedulePage() {
-  const { isAuthenticated } = useAuthStore()
 
-  const router = useRouter()
-
-  useEffect(() => {
-    if (!isAuthenticated) {
-      router.push("/")
-    }
-  }, [isAuthenticated, router])
-
-  if (!isAuthenticated) {
-    return null
-  }
 
   return (
     <DashboardLayout title="Generate Schedule">

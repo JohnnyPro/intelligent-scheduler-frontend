@@ -10,6 +10,7 @@ export type User = {
   lastName: string;
   email: string;
   role: Role;
+  phone?: string;
   needWheelchairAccessibleRoom?: boolean;
   createdAt: Date;
   updatedAt: Date;
