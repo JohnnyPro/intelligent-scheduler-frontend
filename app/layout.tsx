@@ -32,29 +32,10 @@ export default function RootLayout({
         <AuthInitializer>{children}</AuthInitializer>
 
         <Toaster
-          position="top-right"
-          reverseOrder={true}
           toastOptions={{
-            success: {
-              duration: 2000,
-              iconTheme: {
-                primary: "#16a34a",
-                secondary: "#fff",
-              },
-            },
-            error: {
-              duration: 6000,
-              iconTheme: {
-                primary: "#dc2626",
-                secondary: "#fff",
-              },
-            },
-            loading: {
-              duration: Infinity,
-            },
             style: {
-              background: "#333",
-              color: "#fff",
+              border: "1px solid #713200",
+              padding: "16px",
             },
           }}
         />
