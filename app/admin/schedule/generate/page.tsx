@@ -387,12 +387,12 @@ export default function GenerateSchedulePage() {
               onClick={() => addSchedule(settingParams.scheduleName)} //TODO: include other constraint params
               className="bg-indigo-600 hover:bg-indigo-700"
             >
-              {!isLoading && (
+              {isLoading && (
                 <div className="flex items-center justify-center h-screen">
                   <div className="w-5 h-5 border-4 border-white border-t-transparent rounded-full animate-spin" />
                 </div>
               )}
-              {isLoading && (
+              {!isLoading && (
                 <>
                   <Play className="mr-2 h-4 w-4" />
                   Start Generation
