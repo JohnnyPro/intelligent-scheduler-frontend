@@ -108,7 +108,7 @@ export default function TeacherConstraintsPage() {
       maxConsecutiveSessions: 3,
       preferCompactSchedule: false,
     });
-    setHasUnsavedChanges(false);
+    setHasUnsavedChanges(true);
   };
 
   if (isLoading) {
