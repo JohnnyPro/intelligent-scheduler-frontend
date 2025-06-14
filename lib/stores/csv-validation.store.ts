@@ -3,7 +3,7 @@ import { persist } from "zustand/middleware";
 import * as repository from "../repositories/repository";
 
 import { Course, CourseCreating, CourseUpdating } from "../types/course.types";
-import { CsvCategory } from "../types";
+import { CsvCategory, PaginationData } from "../types";
 import {
   AllTasksResponse,
   CsvUpload,
@@ -18,13 +18,14 @@ interface StoreState {
   setError: (error: string) => void;
 
   tasks: AllTasksResponse[];
+  pagination: PaginationData | null;
   selectedTask: TaskResponse | null;
   uploadCsv: (
     file: File,
     category: CsvCategory,
     description?: string
   ) => Promise<void>;
-  fetchAllTasks: () => Promise<void>;
+  fetchAllTasks: (page?: number, size?: number) => Promise<void>;
   fetchTask: (id: string) => Promise<void>;
   deleteTask: (id: string) => Promise<void>;
   clearError: () => void;
@@ -43,14 +44,15 @@ export const useCsvStore = create<StoreState>()(
 
       tasks: [],
       selectedTask: null,
-
-      fetchAllTasks: async () => {
+      pagination: null,
+      fetchAllTasks: async (page = 1, size = 10) => {
         set({ isLoading: true, error: "" });
         try {
-          const allTasks = await repository.getAllTasks();
+          const allTasks = await repository.getAllTasks(page, size);
           if (allTasks.success && allTasks.data) {
             console.log("Raw tasks from backend:", allTasks.data);
             set({ tasks: allTasks.data });
+            set({ pagination: allTasks.pagination || null });
           } else {
             set({ error: allTasks.message || "Failed to fetch tasks" });
           }

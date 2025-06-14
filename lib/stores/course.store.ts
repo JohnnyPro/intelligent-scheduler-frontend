@@ -3,6 +3,7 @@ import { persist } from "zustand/middleware"
 import * as repository from "../repositories/repository"
 
 import { Course, CourseCreating, CourseUpdating } from "../types/course.types"
+import { PaginationData } from "../types";
 
 interface StoreState {
     isLoading: boolean
@@ -12,8 +13,9 @@ interface StoreState {
     setError: (error: string) => void
 
     courses: Course[]
+    pagination: PaginationData | null
     activeCourse: Course | null
-    fetchCourses: () => void
+    fetchCourses: (page?: number, size?: number) => void
     addCourse: (course: CourseCreating) => void
     updateCourse: (id: string, course: CourseUpdating) => void
     deleteCourse: (id: string) => void
@@ -31,13 +33,15 @@ export const useCourseStore = create<StoreState>()(
         setError: (error) => set ({ error }),
 
         courses: [],
+        pagination: null,
         activeCourse: null,
-        fetchCourses: async () => {
+        fetchCourses: async (page = 1, size = 10) => {
             set({ isLoading: true })
             try {
-              const courses = await repository.getCourses()
+              const courses = await repository.getCourses(page, size)
               if (courses.success && courses.data){
                 set({ courses: courses.data })
+                set({ pagination: courses.pagination || null })
               }
               else
                 set({ error: `Error: ${courses.message}` })

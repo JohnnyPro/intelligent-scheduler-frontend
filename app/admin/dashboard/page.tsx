@@ -11,9 +11,7 @@ import {
   RoomUtilizationCard,
   ScheduleQualityCard,
 } from "@/components/dashboard/analytics-card";
-import { useRouter } from "next/navigation";
 import { useEffect } from "react";
-import useAuthStore from "@/lib/stores/auth-store";
 import { useScheduleStore } from "@/lib/stores/schedule.store";
 
 // Quick actions data
@@ -45,26 +43,15 @@ const quickActions = [
 ];
 
 export default function DashboardPage() {
-  const { isAuthenticated } = useAuthStore();
   const { activeSchedule, fetchCurrentSchedule: getCurrentSchedule } =
     useScheduleStore();
   const { metrics, alerts } = useStore();
 
-  const router = useRouter();
 
   useEffect(() => {
     getCurrentSchedule();
   }, [getCurrentSchedule]);
 
-  // useEffect(() => {
-  //   if (!isAuthenticated) {
-  //     router.push("/");
-  //   }
-  // }, [isAuthenticated, router]);
-
-  if (!isAuthenticated) {
-    return null;
-  }
 
   return (
     <DashboardLayout title="Dashboard">

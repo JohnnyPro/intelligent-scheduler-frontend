@@ -3,6 +3,7 @@ import { persist } from "zustand/middleware"
 import * as repository from "../repositories/repository"
 
 import { Teacher, TeacherCreating, TeacherUpdating } from "../types/teacher.type"
+import { PaginationData } from "../types";
 
 interface StoreState {
     isLoading: boolean
@@ -12,8 +13,9 @@ interface StoreState {
     setError: (error: string) => void
 
     teachers: Teacher[]
+    pagination: PaginationData | null
     activeTeacher: Teacher | null
-    fetchTeachers: () => void
+    fetchTeachers: (page?: number, size?: number) => void
     addTeacher: (teacher: TeacherCreating) => void
     updateTeacher: (id: string, teacher: TeacherUpdating) => void
     deleteTeacher: (id: string) => void
@@ -31,13 +33,15 @@ export const useTeacherStore = create<StoreState>()(
         setError: (error) => set ({ error }),
 
         teachers: [],
+        pagination: null,
         activeTeacher: null,
-        fetchTeachers: async () => {
+        fetchTeachers: async (page = 1, size = 10) => {
             set({ isLoading: true })
             try {
-              const teachers = await repository.getTeachers()
+              const teachers = await repository.getTeachers(page, size)
               if (teachers.success && teachers.data){
                 set({ teachers: teachers.data })
+                set({ pagination: teachers.pagination || null })
               }
               else
                 set({ error: `Error: ${teachers.message}` })

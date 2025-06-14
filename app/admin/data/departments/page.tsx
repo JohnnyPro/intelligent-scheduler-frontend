@@ -22,15 +22,14 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Building, Edit, Plus, Search, Trash2 } from "lucide-react";
-import { useRouter } from "next/navigation";
 import { useEffect } from "react";
-import useAuthStore from "@/lib/stores/auth-store";
 import { useDepartmentStore } from "@/lib/stores/department.store";
 import { ConfirmDeleteDialog } from "@/components/ui/confirm-delete";
+import PaginationControls from "@/components/ui/pagination-control";
 
 export default function DepartmentsPage() {
 
-  const { departments, fetchDepartments, addDepartment, updateDepartment, deleteDepartment } =
+  const { departments, pagination, fetchDepartments, addDepartment, updateDepartment, deleteDepartment } =
     useDepartmentStore();
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
@@ -125,6 +124,12 @@ export default function DepartmentsPage() {
               onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
+          {pagination && (
+            <PaginationControls
+              pagination={pagination}
+              onPaginationChange={(newPage: number, newSize: number) => fetchDepartments(newPage, newSize)}
+            />
+          )}
         </div>
 
         {/* Table Section */}

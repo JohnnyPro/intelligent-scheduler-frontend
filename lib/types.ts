@@ -62,6 +62,13 @@ export enum CsvCategory {
   SGCOURSE = "SGCOURSE",
 }
 
+export type  PaginationData = {
+  totalItems: number;
+  currentPage: number;
+  totalPages: number;
+  itemsPerPage: number;
+}
+
 export type LoginResult =
   | { success: boolean; accessToken: string; refreshToken: string; error: "" }
   | { success: false; accessToken: null; refreshToken: null; error: string };
@@ -76,6 +83,7 @@ export interface ApiResponse<T> {
   success: boolean;
   data: T | null;
   statusCode: number;
+  pagination?: PaginationData;
 }
 
 export type TimeSlot = {

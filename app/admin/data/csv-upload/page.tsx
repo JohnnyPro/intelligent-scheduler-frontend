@@ -31,6 +31,7 @@ import { CsvCategory, TaskStatus } from "@/lib/types";
 import { uploadCsv } from "@/lib/repositories/repository";
 import { useCsvStore } from "@/lib/stores/csv-validation.store";
 import { TaskError, Severity } from "@/lib/types/csv-validation.types";
+import PaginationControls from "@/components/ui/pagination-control";
 
 /**
  * TODO:
@@ -311,6 +312,7 @@ export default function CSVUploadPage() {
     isLoading,
     error,
     deleteTask,
+    pagination,
   } = useCsvStore();
   const [uploadResults, setUploadResults] = useState<
     Record<string, UploadResult>
@@ -827,224 +829,238 @@ export default function CSVUploadPage() {
 
           <TabsContent value="validation" className="space-y-4">
             {tasks.length > 0 ? (
-              tasks.map((allTaskInst) => {
-                const {
-                  taskId,
-                  status: taskStatus,
-                  errorCount,
-                  fileName,
-                  description,
-                  createdAt,
-                } = allTaskInst;
+              <>
+                <div className="flex flex-col md:flex-row md:items-center gap-3 md:gap-4">
+                  {pagination && (
+                    <PaginationControls
+                      pagination={pagination}
+                      onPaginationChange={(newPage: number, newSize: number) =>
+                        fetchAllTasks(newPage, newSize)
+                      }
+                    />
+                  )}
+                </div>
+                {tasks.map((allTaskInst) => {
+                  const {
+                    taskId,
+                    status: taskStatus,
+                    errorCount,
+                    fileName,
+                    description,
+                    createdAt,
+                  } = allTaskInst;
 
-                console.log(
-                  `Task ID: ${taskId}, File Name: ${fileName}, Description: ${description}`
-                );
+                  console.log(
+                    `Task ID: ${taskId}, File Name: ${fileName}, Description: ${description}`
+                  );
 
-                const csvStatus = getCsvStatusFromTaskStatus(
-                  taskStatus,
-                  errorCount
-                );
+                  const csvStatus = getCsvStatusFromTaskStatus(
+                    taskStatus,
+                    errorCount
+                  );
 
-                return (
-                  <Card key={taskId}>
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2">
-                        <StatusIcon
-                          status={csvStatus}
-                          errorCount={errorCount}
-                        />
-                        <div className="flex-1 min-w-0">
-                          <span className="font-semibold text-base text-gray-900">
-                            {fileName}
-                          </span>
-                          <div className="text-sm text-gray-500 truncate mt-0.5">
-                            {description || "No description provided"}
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Button
-                            variant="destructive"
-                            size="sm"
-                            onClick={() => {
-                              if (
-                                window.confirm(
-                                  "Are you sure you want to delete this task?"
-                                )
-                              ) {
-                                deleteTask(taskId);
-                              }
-                            }}
-                          >
-                            Delete Task
-                          </Button>
-                          <span className="text-xs text-gray-400">
-                            {createdAt && new Date(createdAt).toLocaleString()}
-                          </span>
-                        </div>
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-3">
-                        {taskStatus === TaskStatus.FAILED && (
-                          <span className="flex items-center gap-2 text-red-700 font-medium">
-                            <XCircle className="inline h-4 w-4 text-red-500" />
-                            CSV validation failed. The file contains invalid
-                            data or incorrect format.
-                          </span>
-                        )}
-                        {taskStatus === TaskStatus.COMPLETED &&
-                          errorCount > 0 && (
-                            <span className="flex items-center gap-2 text-amber-700 font-medium">
-                              <AlertTriangle className="inline h-4 w-4 text-amber-500" />
-                              {errorCount} database-related error
-                              {errorCount > 1 ? "s" : ""} occurred during
-                              import.
+                  return (
+                    <Card key={taskId}>
+                      <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                          <StatusIcon
+                            status={csvStatus}
+                            errorCount={errorCount}
+                          />
+                          <div className="flex-1 min-w-0">
+                            <span className="font-semibold text-base text-gray-900">
+                              {fileName}
                             </span>
-                          )}
-                        {taskStatus === TaskStatus.COMPLETED &&
-                          errorCount === 0 && (
-                            <span className="flex items-center gap-2 text-emerald-700 font-medium">
-                              <CheckCircle className="inline h-4 w-4 text-emerald-500" />
-                              No errors found. Validation and import completed
-                              successfully.
-                            </span>
-                          )}
-                        {taskStatus === TaskStatus.QUEUED && (
-                          <span className="flex items-center gap-2 text-gray-500 font-medium">
-                            <Clock className="inline h-4 w-4 text-gray-400" />
-                            Validation is queued and will start soon.
-                          </span>
-                        )}
-
-                        {(taskStatus === TaskStatus.FAILED ||
-                          (taskStatus === TaskStatus.COMPLETED &&
-                            errorCount > 0)) && (
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleExpand(taskId)}
-                            className="mt-2"
-                          >
-                            {expandedTaskId === taskId ? (
-                              <>
-                                <ChevronUp className="mr-2 h-4 w-4" />
-                                Hide Details
-                              </>
-                            ) : (
-                              <>
-                                <ChevronDown className="mr-2 h-4 w-4" />
-                                View Details
-                              </>
-                            )}
-                          </Button>
-                        )}
-
-                        {expandedTaskId === taskId &&
-                          (isDetailLoading ? (
-                            <div className="flex items-center justify-center py-4">
-                              <RefreshCw className="h-6 w-6 animate-spin text-gray-400" />
-                              <span className="ml-2 text-gray-500">
-                                Loading details...
-                              </span>
+                            <div className="text-sm text-gray-500 truncate mt-0.5">
+                              {description || "No description provided"}
                             </div>
-                          ) : selectedTask && selectedTask.taskId === taskId ? (
-                            <div className="mt-4 space-y-4">
-                              <div className="rounded-lg border border-gray-200 overflow-hidden">
-                                <div className="bg-gray-50 px-4 py-3 border-b border-gray-200">
-                                  <div className="flex items-center justify-between">
-                                    <div>
-                                      <h4 className="font-medium text-gray-900">
-                                        Validation Results
-                                      </h4>
-                                      <p className="text-sm text-gray-500 mt-1">
-                                        {selectedTask.errors?.length} error
-                                        {selectedTask.errors?.length !== 1
-                                          ? "s"
-                                          : ""}{" "}
-                                        found
-                                      </p>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Button
+                              variant="destructive"
+                              size="sm"
+                              onClick={() => {
+                                if (
+                                  window.confirm(
+                                    "Are you sure you want to delete this task?"
+                                  )
+                                ) {
+                                  deleteTask(taskId);
+                                }
+                              }}
+                            >
+                              Delete Task
+                            </Button>
+                            <span className="text-xs text-gray-400">
+                              {createdAt &&
+                                new Date(createdAt).toLocaleString()}
+                            </span>
+                          </div>
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="space-y-3">
+                          {taskStatus === TaskStatus.FAILED && (
+                            <span className="flex items-center gap-2 text-red-700 font-medium">
+                              <XCircle className="inline h-4 w-4 text-red-500" />
+                              CSV validation failed. The file contains invalid
+                              data or incorrect format.
+                            </span>
+                          )}
+                          {taskStatus === TaskStatus.COMPLETED &&
+                            errorCount > 0 && (
+                              <span className="flex items-center gap-2 text-amber-700 font-medium">
+                                <AlertTriangle className="inline h-4 w-4 text-amber-500" />
+                                {errorCount} database-related error
+                                {errorCount > 1 ? "s" : ""} occurred during
+                                import.
+                              </span>
+                            )}
+                          {taskStatus === TaskStatus.COMPLETED &&
+                            errorCount === 0 && (
+                              <span className="flex items-center gap-2 text-emerald-700 font-medium">
+                                <CheckCircle className="inline h-4 w-4 text-emerald-500" />
+                                No errors found. Validation and import completed
+                                successfully.
+                              </span>
+                            )}
+                          {taskStatus === TaskStatus.QUEUED && (
+                            <span className="flex items-center gap-2 text-gray-500 font-medium">
+                              <Clock className="inline h-4 w-4 text-gray-400" />
+                              Validation is queued and will start soon.
+                            </span>
+                          )}
+
+                          {(taskStatus === TaskStatus.FAILED ||
+                            (taskStatus === TaskStatus.COMPLETED &&
+                              errorCount > 0)) && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleExpand(taskId)}
+                              className="mt-2"
+                            >
+                              {expandedTaskId === taskId ? (
+                                <>
+                                  <ChevronUp className="mr-2 h-4 w-4" />
+                                  Hide Details
+                                </>
+                              ) : (
+                                <>
+                                  <ChevronDown className="mr-2 h-4 w-4" />
+                                  View Details
+                                </>
+                              )}
+                            </Button>
+                          )}
+
+                          {expandedTaskId === taskId &&
+                            (isDetailLoading ? (
+                              <div className="flex items-center justify-center py-4">
+                                <RefreshCw className="h-6 w-6 animate-spin text-gray-400" />
+                                <span className="ml-2 text-gray-500">
+                                  Loading details...
+                                </span>
+                              </div>
+                            ) : selectedTask &&
+                              selectedTask.taskId === taskId ? (
+                              <div className="mt-4 space-y-4">
+                                <div className="rounded-lg border border-gray-200 overflow-hidden">
+                                  <div className="bg-gray-50 px-4 py-3 border-b border-gray-200">
+                                    <div className="flex items-center justify-between">
+                                      <div>
+                                        <h4 className="font-medium text-gray-900">
+                                          Validation Results
+                                        </h4>
+                                        <p className="text-sm text-gray-500 mt-1">
+                                          {selectedTask.errors?.length} error
+                                          {selectedTask.errors?.length !== 1
+                                            ? "s"
+                                            : ""}{" "}
+                                          found
+                                        </p>
+                                      </div>
                                     </div>
                                   </div>
-                                </div>
-                                <div className="divide-y divide-gray-200">
-                                  {errorsToShow.map(
-                                    (error: TaskError, index: number) => (
-                                      <div
-                                        key={index}
-                                        className="p-4 hover:bg-gray-50 transition-colors"
-                                      >
-                                        <div className="flex items-start gap-3">
-                                          <div className="flex-shrink-0 mt-1">
-                                            <XCircle className="h-5 w-5 text-red-500" />
-                                          </div>
-                                          <div className="flex-1 min-w-0">
-                                            <div className="flex items-center gap-2">
-                                              <span className="font-medium text-gray-900">
-                                                Row {error.row}
-                                              </span>
-                                              {error.column && (
-                                                <>
-                                                  <span className="text-gray-400">
-                                                    •
+                                  <div className="divide-y divide-gray-200">
+                                    {errorsToShow.map(
+                                      (error: TaskError, index: number) => (
+                                        <div
+                                          key={index}
+                                          className="p-4 hover:bg-gray-50 transition-colors"
+                                        >
+                                          <div className="flex items-start gap-3">
+                                            <div className="flex-shrink-0 mt-1">
+                                              <XCircle className="h-5 w-5 text-red-500" />
+                                            </div>
+                                            <div className="flex-1 min-w-0">
+                                              <div className="flex items-center gap-2">
+                                                <span className="font-medium text-gray-900">
+                                                  Row {error.row}
+                                                </span>
+                                                {error.column && (
+                                                  <>
+                                                    <span className="text-gray-400">
+                                                      •
+                                                    </span>
+                                                    <span className="text-sm text-gray-500">
+                                                      Column: {error.column}
+                                                    </span>
+                                                  </>
+                                                )}
+                                              </div>
+                                              <p className="mt-1 text-sm text-gray-600">
+                                                {error.message}
+                                              </p>
+                                              {error.severity && (
+                                                <div className="mt-2">
+                                                  <span
+                                                    className={cn(
+                                                      "inline-flex items-center px-2 py-1 rounded-full text-xs font-medium",
+                                                      error.severity ===
+                                                        Severity.ERROR
+                                                        ? "bg-red-100 text-red-700"
+                                                        : "bg-amber-100 text-amber-700"
+                                                    )}
+                                                  >
+                                                    {error.severity ===
+                                                    Severity.ERROR
+                                                      ? "Error"
+                                                      : "Warning"}
                                                   </span>
-                                                  <span className="text-sm text-gray-500">
-                                                    Column: {error.column}
-                                                  </span>
-                                                </>
+                                                </div>
                                               )}
                                             </div>
-                                            <p className="mt-1 text-sm text-gray-600">
-                                              {error.message}
-                                            </p>
-                                            {error.severity && (
-                                              <div className="mt-2">
-                                                <span
-                                                  className={cn(
-                                                    "inline-flex items-center px-2 py-1 rounded-full text-xs font-medium",
-                                                    error.severity ===
-                                                      Severity.ERROR
-                                                      ? "bg-red-100 text-red-700"
-                                                      : "bg-amber-100 text-amber-700"
-                                                  )}
-                                                >
-                                                  {error.severity ===
-                                                  Severity.ERROR
-                                                    ? "Error"
-                                                    : "Warning"}
-                                                </span>
-                                              </div>
-                                            )}
                                           </div>
                                         </div>
+                                      )
+                                    )}
+                                    {showDownload && (
+                                      <div className="pt-4 flex justify-end">
+                                        <Button
+                                          variant="outline"
+                                          size="sm"
+                                          onClick={() =>
+                                            handleDownloadErrors(errors)
+                                          }
+                                        >
+                                          <Download className="mr-2 h-4 w-4" />
+                                          Download All Errors
+                                        </Button>
                                       </div>
-                                    )
-                                  )}
-                                  {showDownload && (
-                                    <div className="pt-4 flex justify-end">
-                                      <Button
-                                        variant="outline"
-                                        size="sm"
-                                        onClick={() =>
-                                          handleDownloadErrors(errors)
-                                        }
-                                      >
-                                        <Download className="mr-2 h-4 w-4" />
-                                        Download All Errors
-                                      </Button>
-                                    </div>
-                                  )}
+                                    )}
+                                  </div>
                                 </div>
                               </div>
-                            </div>
-                          ) : (
-                            <div>No details available</div>
-                          ))}
-                      </div>
-                    </CardContent>
-                  </Card>
-                );
-              })
+                            ) : (
+                              <div>No details available</div>
+                            ))}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+              </>
             ) : (
               <Card>
                 <CardContent className="py-8 text-center">
