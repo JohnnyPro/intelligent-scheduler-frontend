@@ -66,6 +66,7 @@ export const useCourseStore = create<StoreState>()(
                 if (e instanceof Error) {
                   userFriendlyMessage = e.message
                 }
+                set({ isLoading: false })
                 return userFriendlyMessage
               },
             })
@@ -84,6 +85,7 @@ export const useCourseStore = create<StoreState>()(
                 if (e instanceof Error) {
                   userFriendlyMessage = e.message
                 }
+                set({ isLoading: false })
                 return userFriendlyMessage
               },
             })
@@ -102,6 +104,7 @@ export const useCourseStore = create<StoreState>()(
                 if (e instanceof Error) {
                   userFriendlyMessage = e.message
                 }
+                set({ isLoading: false })
                 return userFriendlyMessage
               },
             })
