@@ -1,6 +1,7 @@
 import { create } from "zustand"
 import { persist } from "zustand/middleware"
 import * as repository from "../repositories/repository"
+import toast from "react-hot-toast"
 
 import { Teacher, TeacherCreating, TeacherUpdating } from "../types/teacher.type"
 import { PaginationData } from "../types";
@@ -54,50 +55,57 @@ export const useTeacherStore = create<StoreState>()(
         },
         addTeacher: async (teacher) => {
             set({ isLoading: true })
-            try {
-              const resp = await repository.addTeacher(teacher)
-              if (resp.success)
+            await toast.promise(repository.addTeacher(teacher), {
+              loading: "Adding...",
+              success: () => {
                 get().fetchTeachers()
-              else
-                set({ error: `Error${resp.statusCode}: ${resp.message}` })
-
-            } catch (e) {
-                set({ error: `Error: ${e}` })
-
-            } finally {
-              set({ isLoading: false })
-            }
+                return "Teacher Added!"
+              },
+              error: (e) => {
+                let userFriendlyMessage = "An unexpected error occurred while adding teacher."
+                if (e instanceof Error) {
+                  userFriendlyMessage = e.message
+                }
+                return userFriendlyMessage
+              },
+            })
+            set({ isLoading: false })
         },
         updateTeacher: async (id, teacher) => {
             set({ isLoading: true })
-            try {
-              const resp = await repository.updateTeacher(id, teacher)
-              if (resp.success)
+            await toast.promise(repository.updateTeacher(id, teacher), {
+              loading: "Updating...",
+              success: () => {
                 get().fetchTeachers()
-              else
-                set({ error: `Error${resp.statusCode}: ${resp.message}` })
-            } catch (e) {
-                set({ error: `Error: ${e}` })
-
-            } finally {
-              set({ isLoading: false })
-            }
+                return "Teacher Updated!"
+              },
+              error: (e) => {
+                let userFriendlyMessage = "An unexpected error occurred while updating teacher."
+                if (e instanceof Error) {
+                  userFriendlyMessage = e.message
+                }
+                return userFriendlyMessage
+              },
+            })
+            set({ isLoading: false })
         },
         deleteTeacher: async (id) => {
             set({ isLoading: true })
-            try {
-              const resp = await repository.deleteTeacher(id)
-              if (resp.success)
+            await toast.promise(repository.deleteTeacher(id), {
+              loading: "Deleting...",
+              success: () => {
                 get().fetchTeachers()
-              else
-                set({ error: `Error${resp.statusCode}: ${resp.message}` })
-
-            } catch (e) {
-                set({ error: `Error: ${e}` })
-
-            } finally {
-              set({ isLoading: false })
-            }
+                return "Teacher Deleted!"
+              },
+              error: (e) => {
+                let userFriendlyMessage = "An unexpected error occurred while deleting teacher."
+                if (e instanceof Error) {
+                  userFriendlyMessage = e.message
+                }
+                return userFriendlyMessage
+              },
+            })
+            set({ isLoading: false })
         },
         setActive: (id) => set({ activeTeacher: get().teachers.find(x => x.teacherId == id) || null }),
 

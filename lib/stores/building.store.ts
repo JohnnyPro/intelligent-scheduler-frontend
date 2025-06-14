@@ -9,7 +9,6 @@ import {
 } from "../types/building.types";
 import { PaginationData } from "../types";
 import toast from "react-hot-toast";
-import { ApiClientError } from "../utils";
 
 interface StoreState {
   isLoading: boolean;
@@ -76,28 +75,36 @@ export const useBuildingStore = create<StoreState>()(
         set({ isLoading: false });
       },
       updateBuilding: async (id, building) => {
-        set({ isLoading: true });
-        try {
-          const resp = await repository.updateBuilding(id, building);
-          if (resp.success) get().fetchBuildings();
-          else set({ error: `Error${resp.statusCode}: ${resp.message}` });
-        } catch (e) {
-          set({ error: `Error: ${e}` });
-        } finally {
-          set({ isLoading: false });
-        }
+        await toast.promise(repository.updateBuilding(id, building), {
+          loading: "Updating...",
+          success: () => {
+            get().fetchBuildings();
+            return "Building Updated!";
+          },
+          error: (e) => {
+            let userFriendlyMessage = "An unexpected error occurred while updating building.";
+            if (e instanceof Error) {
+              userFriendlyMessage = e.message;
+            }
+            return userFriendlyMessage;
+          },
+        });
       },
       deleteBuilding: async (id) => {
-        set({ isLoading: true });
-        try {
-          const resp = await repository.deleteBuilding(id);
-          if (resp.success) get().fetchBuildings();
-          else set({ error: `Error${resp.statusCode}: ${resp.message}` });
-        } catch (e) {
-          set({ error: `Error: ${e}` });
-        } finally {
-          set({ isLoading: false });
-        }
+        await toast.promise(repository.deleteBuilding(id), {
+          loading: "Deleting...",
+          success: () => {
+            get().fetchBuildings();
+            return "Building Deleted!";
+          },
+          error: (e) => {
+            let userFriendlyMessage = "An unexpected error occurred while deleting building.";
+            if (e instanceof Error) {
+              userFriendlyMessage = e.message;
+            }
+            return userFriendlyMessage;
+          },
+        });
       },
       setActive: (id) =>
         set({
