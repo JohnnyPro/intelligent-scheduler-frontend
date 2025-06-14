@@ -43,7 +43,7 @@ export default function ViewSchedulePage() {
                 <h2 className="text-2xl font-bold">
                   Fall 2025 - Initial Draft
                 </h2>
-                <p className="text-gray-500">Generated on May 15, 2025</p>
+                <p className="text-gray-500">Generated on June 18, 2025</p>
               </div>
             </div>
             <ScheduleCalendar sessions={scheduleData?.sessions ?? []} />
