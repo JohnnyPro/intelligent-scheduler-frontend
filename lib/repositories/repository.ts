@@ -28,7 +28,7 @@ import {
   DepartmentUpdating,
 } from "../types/department.type";
 import { apiClient } from "../utils/api-client";
-import { Constraint } from "../types/constraints.types";
+import { Constraint, ConstraintCreating } from "../types/constraints.types";
 
 // Teachers CRUD
 export const getTeachers = (page?: number, size?: number) => 
@@ -175,3 +175,9 @@ export const deleteUser = (id: string) =>
 // Teacher Preferences CRUD
 export const getTeacherPreferences = () =>
   apiClient<ApiResponse<Constraint[]>>(`/constraints`);
+
+export const createConstraint = (constraint: ConstraintCreating) => 
+  apiClient<ApiResponse<Constraint>>('/constraints', {
+    method: 'POST',
+    body: JSON.stringify(constraint),
+  });

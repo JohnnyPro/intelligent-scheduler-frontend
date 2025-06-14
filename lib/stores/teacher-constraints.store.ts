@@ -16,32 +16,33 @@ interface StoreState {
   error: string;
   setError: (error: string) => void;
 
+  // boolean to check if there are unsaved changes
   hasUnsavedChanges: boolean;
   setHasUnsavedChanges: (hasUnsavedChanges: boolean) => void;
 
   timeslots: TimeSlot[];
   fetchTimeslots: () => void;
 
+  // current state: what the user is seeing / has changed
   timePreferences: TimePreference[];
   roomPreferences: RoomPreference[];
   scheduleDistributionPreferences: ScheduleDistributionType;
 
+  // setters: what the user is seeing / has changed
   setTimePreferences: (timePreferences: TimePreference[]) => void;
   setRoomPreferences: (roomPreferences: RoomPreference[]) => void;
   setScheduleDistributionPreferences: (
     scheduleDistributionPreferences: ScheduleDistributionType
   ) => void;
 
+  // to get the preferences from the backend
   fetchTeacherPreferences: () => void;
 
-  // constraintIds: {
-  //   timePrefer?: string,
-  //   timeAvoid?: string,
-  //   roomPrefer?: string,
-  //   roomAvoid?: string,
-  //   scheduleCompactness?: string,
-  //   workloadDistribution?: string,
-  // }
+  // save preferences to the backend
+  saveTeacherPreferences: () => void;
+
+  // reset all preferences to defaults
+  resetToDefaults: () => void;
 
   // resetPreferences: () => void;
 }
@@ -93,28 +94,35 @@ export const useTeacherConstraintsStore = create<StoreState>()((set, get) => ({
 
           switch (constraintType) {
             case "Teacher Time Preference":
-              // Transform backend TimeslotConstraintValue to frontend TimePreference[]
-              if (value.days && Array.isArray(value.days) && 
-                  value.timeslotCodes && Array.isArray(value.timeslotCodes) && 
-                  value.preference && typeof value.preference === 'string') {
-                const currentTimeslots = get().timeslots;
-                value.days.forEach((day) => {
-                  if (typeof day === 'string') {
-                    (value.timeslotCodes as unknown[]).forEach((timeslotCode) => {
-                      if (typeof timeslotCode === 'string') {
+              // Transform backend unified TimeslotConstraintValue to frontend TimePreference[]
+              if (value.preferences && typeof value.preferences === 'object') {
+                const preferences = value.preferences as {
+                  PREFER?: { days: string[]; timeslotCodes: string[][] };
+                  AVOID?: { days: string[]; timeslotCodes: string[][] };
+                  NEUTRAL?: { days: string[]; timeslotCodes: string[][] };
+                };
+
+                // Process each preference type
+                ['PREFER', 'AVOID', 'NEUTRAL'].forEach((prefType) => {
+                  const pref = preferences[prefType as keyof typeof preferences];
+                  if (pref && pref.days && pref.timeslotCodes) {
+                    pref.days.forEach((day, dayIndex) => {
+                      const timeslots = pref.timeslotCodes[dayIndex] || [];
+                      timeslots.forEach((timeslotCode) => {
                         // Convert backend day format (MONDAY) to frontend format (Monday)
                         const formattedDay = day.charAt(0).toUpperCase() + day.slice(1).toLowerCase();
                         
                         // Find the corresponding timeslot by code to get the timeslotId
+                        const currentTimeslots = get().timeslots;
                         const matchingTimeslot = currentTimeslots.find(ts => ts.code === timeslotCode);
                         const timeslotId = matchingTimeslot ? matchingTimeslot.timeslotId : timeslotCode;
                         
                         timePrefs.push({
                           day: formattedDay,
                           timeslotId: timeslotId,
-                          preference: (value.preference as string).toLowerCase() as "prefer" | "avoid" | "neutral",
+                          preference: prefType.toLowerCase() as "prefer" | "avoid" | "neutral",
                         });
-                      }
+                      });
                     });
                   }
                 });
@@ -194,4 +202,163 @@ export const useTeacherConstraintsStore = create<StoreState>()((set, get) => ({
     set({ scheduleDistributionPreferences: scheduleDistributionPreferences });
     set({ hasUnsavedChanges: true });
   },
+
+  saveTeacherPreferences: async () => {
+    set({ isLoading: true });
+    
+    try {
+      const state = get();
+      const promises: Promise<any>[] = [];
+
+      // Prepare unified time preferences constraint
+      const timePreferencesData = {
+        PREFER: {
+          days: [] as string[],
+          timeslotCodes: [] as string[][],
+        },
+        AVOID: {
+          days: [] as string[],
+          timeslotCodes: [] as string[][],
+        },
+        NEUTRAL: {
+          days: [] as string[],
+          timeslotCodes: [] as string[][],
+        },
+      };
+
+      // Group time preferences by day and preference type
+      const preferencesByDayAndType = state.timePreferences.reduce((acc, pref) => {
+        const key = `${pref.day}-${pref.preference}`;
+        if (!acc[key]) {
+          acc[key] = {
+            day: pref.day,
+            preference: pref.preference,
+            timeslots: [],
+          };
+        }
+        
+        // Convert timeslotId to timeslot code if needed
+        const timeslot = state.timeslots.find(ts => ts.timeslotId === pref.timeslotId);
+        const timeslotCode = timeslot ? timeslot.code : pref.timeslotId;
+        acc[key].timeslots.push(timeslotCode);
+        
+        return acc;
+      }, {} as Record<string, { day: string; preference: string; timeslots: string[] }>);
+
+      // Build the unified constraint format
+      Object.values(preferencesByDayAndType).forEach(({ day, preference, timeslots }) => {
+        const prefType = preference.toUpperCase() as 'PREFER' | 'AVOID' | 'NEUTRAL';
+        const backendDay = day.toUpperCase();
+        
+        if (timePreferencesData[prefType]) {
+          timePreferencesData[prefType].days.push(backendDay);
+          timePreferencesData[prefType].timeslotCodes.push(timeslots);
+        }
+      });
+
+      // Always send time constraint to ensure proper clearing of backend constraints
+      // Remove empty preference types to keep the payload clean
+      const cleanTimePreferences: any = {};
+      if (timePreferencesData.PREFER.days.length > 0) {
+        cleanTimePreferences.PREFER = timePreferencesData.PREFER;
+      }
+      if (timePreferencesData.AVOID.days.length > 0) {
+        cleanTimePreferences.AVOID = timePreferencesData.AVOID;
+      }
+      if (timePreferencesData.NEUTRAL.days.length > 0) {
+        cleanTimePreferences.NEUTRAL = timePreferencesData.NEUTRAL;
+      }
+
+      // Always send the constraint, even if empty, to clear backend constraints
+      promises.push(
+        repository.createConstraint({
+          constraintTypeKey: 'TEACHER_TIME_PREFERENCE',
+          value: {
+            preferences: cleanTimePreferences,
+          },
+          priority: 5,
+        })
+      );
+
+      // Group room preferences by preference type
+      const roomPreferencesByType = state.roomPreferences.reduce((acc, pref) => {
+        if (!acc[pref.preference]) {
+          acc[pref.preference] = new Set();
+        }
+        acc[pref.preference].add(pref.classroomId);
+        return acc;
+      }, {} as Record<string, Set<string>>);
+
+      // Create room preference constraints - always send to ensure clearing
+      // Send both PREFER and AVOID constraints, even if empty
+      ['prefer', 'avoid'].forEach((preference) => {
+        const roomIds = roomPreferencesByType[preference] || new Set();
+        promises.push(
+          repository.createConstraint({
+            constraintTypeKey: 'TEACHER_ROOM_PREFERENCE',
+            value: {
+              roomIds: Array.from(roomIds),
+              preference: preference.toUpperCase(),
+            },
+            priority: 5,
+          })
+        );
+      });
+
+      // Create schedule compactness constraint - always send to ensure clearing
+      const { scheduleDistributionPreferences } = state;
+      promises.push(
+        repository.createConstraint({
+          constraintTypeKey: 'TEACHER_SCHEDULE_COMPACTNESS',
+          value: {
+            enabled: scheduleDistributionPreferences.preferCompactSchedule,
+            maxGapsPerDay: scheduleDistributionPreferences.preferCompactSchedule ? 0 : 5,
+            maxActiveDays: scheduleDistributionPreferences.maxDaysPerWeek,
+            maxConsecutiveSessions: scheduleDistributionPreferences.maxConsecutiveSessions,
+          },
+          priority: 5,
+        })
+      );
+
+      // Create workload distribution constraint
+      promises.push(
+        repository.createConstraint({
+          constraintTypeKey: 'TEACHER_WORKLOAD_DISTRIBUTION',
+          value: {
+            preferredMaxSessionsPerDay: scheduleDistributionPreferences.maxConsecutiveSessions,
+            avoidBackToBackSessions: false,
+          },
+          priority: 5,
+        })
+      );
+
+      // Execute all constraint creation requests
+      await Promise.all(promises);
+      
+      // Mark as no unsaved changes
+      set({ hasUnsavedChanges: false });
+      
+      // Refresh preferences from backend to ensure consistency
+      await get().fetchTeacherPreferences();
+      
+    } catch (error) {
+      set({ error: `Error saving preferences: ${error}` });
+    } finally {
+      set({ isLoading: false });
+    }
+  },
+
+  // reset all preferences to defaults
+  resetToDefaults: () => {
+    set({
+      timePreferences: [],
+      roomPreferences: [],
+      scheduleDistributionPreferences: {
+        maxDaysPerWeek: 5, // Default values
+        maxConsecutiveSessions: 3,
+        preferCompactSchedule: false,
+      },
+      hasUnsavedChanges: true, // Mark as unsaved so user can save the reset
+    });
+  }
 }));

@@ -8,6 +8,12 @@ export type Constraint = {
   constraintType: ConstraintType;
 };
 
+export type ConstraintCreating = {
+  constraintTypeKey: string;
+  value: Record<string, unknown>;
+  priority: number; // unused. will set it to 5 while sending
+}
+
 export type ConstraintType = {
   id: string;
   name: string;

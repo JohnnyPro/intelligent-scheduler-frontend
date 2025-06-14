@@ -7,7 +7,6 @@ import { RoomPreferences } from "@/components/teacher/room-preferences";
 import { ScheduleDistribution } from "@/components/teacher/schedule-distribution";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { useStore } from "@/lib/stores/store";
 import { Save, RotateCcw, Loader2, AlertTriangle } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useClassroomStore } from "@/lib/stores/classroom.store";
@@ -35,6 +34,8 @@ export default function TeacherConstraintsPage() {
     setScheduleDistributionPreferences,
     setHasUnsavedChanges,
     fetchTeacherPreferences,
+    saveTeacherPreferences,
+    resetToDefaults,
   } = useTeacherConstraintsStore();
 
   const [activeTab, setActiveTab] = useState("time");
@@ -89,26 +90,20 @@ export default function TeacherConstraintsPage() {
     setHasUnsavedChanges(true);
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     // Here you would save to your API
     console.log("Saving constraints:", {
       timePreferences,
       roomPreferences,
       scheduleDistributionPreferences,
     });
+    await saveTeacherPreferences();
     setHasUnsavedChanges(false);
     // Show success message
   };
 
   const handleReset = () => {
-    setTimePreferences([]);
-    setRoomPreferences([]);
-    setScheduleDistributionPreferences({
-      maxDaysPerWeek: 5,
-      maxConsecutiveSessions: 3,
-      preferCompactSchedule: false,
-    });
-    setHasUnsavedChanges(true);
+    resetToDefaults();
   };
 
   if (isLoading) {
