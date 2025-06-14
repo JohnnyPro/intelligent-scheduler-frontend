@@ -40,12 +40,12 @@ export enum ClassroomType {
   SEMINAR = "SEMINAR",
 }
 
-export type  PaginationData = {
+export type PaginationData = {
   totalItems: number;
   currentPage: number;
   totalPages: number;
   itemsPerPage: number;
-}
+};
 
 export type LoginResult =
   | { success: boolean; accessToken: string; refreshToken: string; error: "" }
@@ -62,6 +62,12 @@ export interface ApiResponse<T> {
   data: T | null;
   statusCode: number;
   pagination?: PaginationData;
+}
+export interface ApiErrorData {
+  message?: string;
+  code?: string;
+  details?: any;
+  timestamp?: string;
 }
 
 export type TimeSlot = {
