@@ -125,44 +125,48 @@ export const ScheduleCalendar = () => {
 
   useEffect(() => {
     if (!user) return;
-    if (user.role == Role.ADMIN)
-      setSearchParams({
-        ...searchParams,
-      });
-    else if (user.role == Role.TEACHER)
-      setSearchParams({
-        ...searchParams,
-        teacherId: teachers.find((x) => x.userId == user.userId)?.teacherId,
-      });
-    else if (user.role == Role.STUDENT)
-      setSearchParams({
-        ...searchParams,
-        studentGroupId: studentGroups.find((x) =>
-          x.students?.filter((y) => y.userId == user.userId)
-        )?.studentGroupId,
-      });
-  }, [user, teachers, studentGroups]);
-
-  // update search params when active schedule changes (usually done outside this component to mak it flexible)
-  useEffect(() => {
-    if (activeSchedule) {
-      setSearchParams({
-        ...searchParams,
-        scheduleId: activeSchedule.scheduleId,
-      });
-    } else {
-      setSearchParams({
-        ...searchParams,
-        scheduleId: "",
-      });
+    
+    const currentTeacherId = searchParams.teacherId;
+    const currentStudentGroupId = searchParams.studentGroupId;
+    
+    if (user.role === Role.TEACHER) {
+      const teacherId = teachers.find((x) => x.userId == user.userId)?.teacherId;
+      if (teacherId && teacherId !== currentTeacherId) {
+        setSearchParams(prev => ({
+          ...prev,
+          teacherId: teacherId,
+        }));
+      }
+    } else if (user.role === Role.STUDENT) {
+      const studentGroupId = studentGroups.find((x) =>
+        x.students?.filter((y) => y.userId == user.userId)
+      )?.studentGroupId;
+      if (studentGroupId && studentGroupId !== currentStudentGroupId) {
+        setSearchParams(prev => ({
+          ...prev,
+          studentGroupId: studentGroupId,
+        }));
+      }
     }
-  }, [activeSchedule]);
+  }, [user, teachers, studentGroups, searchParams.teacherId, searchParams.studentGroupId]);
 
-  // make a backend request to get sessions based on active schedul and relevant filters
+  // update search params when active schedule changes (usually done outside this component to make it flexible)
+  useEffect(() => {
+    const newScheduleId = activeSchedule?.scheduleId || "";
+    if (searchParams.scheduleId !== newScheduleId) {
+      setSearchParams(prev => ({
+        ...prev,
+        scheduleId: newScheduleId,
+      }));
+    }
+  }, [activeSchedule?.scheduleId, searchParams.scheduleId]);
+
+  // make a backend request to get sessions based on active schedule and relevant filters
   useEffect(() => {
     if (!activeSchedule || !searchParams.scheduleId) return;
     filterSessionsInSchedule(searchParams);
-  }, [filterSessionsInSchedule, searchParams]);
+  }, [filterSessionsInSchedule, activeSchedule, searchParams]);
+
 
   const getPositionedSessionsForDay = (
     daySessions: ScheduledSessionDto[]

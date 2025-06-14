@@ -7,63 +7,71 @@ import { RoomPreferences } from "@/components/teacher/room-preferences";
 import { ScheduleDistribution } from "@/components/teacher/schedule-distribution";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { useStore } from "@/lib/stores/store";
 import { Save, RotateCcw, Loader2, AlertTriangle } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useClassroomStore } from "@/lib/stores/classroom.store";
-
-type TimePreference = {
-  day: string;
-  timeslotId: string;
-  preference: "prefer" | "avoid" | "neutral";
-};
-
-type RoomPreference = {
-  classroomId: string;
-  preference: "prefer" | "avoid";
-};
-
-type ScheduleDistributionType = {
-  maxDaysPerWeek: number;
-  maxConsecutiveSessions: number;
-  preferCompactSchedule: boolean;
-};
+import {
+  TimePreference,
+  RoomPreference,
+  ScheduleDistributionType,
+} from "@/lib/types/constraints.types";
+import { useTeacherConstraintsStore } from "@/lib/stores/teacher-constraints.store";
 
 export default function TeacherConstraintsPage() {
+  const { classrooms, fetchClassrooms } = useClassroomStore();
   const {
+    isLoading,
+    startLoading,
+    stopLoading,
+    hasUnsavedChanges,
     timeslots,
     fetchTimeslots,
-  } = useStore();
+    timePreferences,
+    roomPreferences,
+    scheduleDistributionPreferences,
+    setTimePreferences,
+    setRoomPreferences,
+    setScheduleDistributionPreferences,
+    setHasUnsavedChanges,
+    fetchTeacherPreferences,
+    saveTeacherPreferences,
+    resetToDefaults,
+  } = useTeacherConstraintsStore();
 
-  const { classrooms, fetchClassrooms } = useClassroomStore();
-  const [loading, setLoading] = useState(true);
-
-  const [timePreferences, setTimePreferences] = useState<TimePreference[]>([]);
-  const [roomPreferences, setRoomPreferences] = useState<RoomPreference[]>([]);
-  const [scheduleDistribution, setScheduleDistribution] =
-    useState<ScheduleDistributionType>({
-      maxDaysPerWeek: 5,
-      maxConsecutiveSessions: 3,
-      preferCompactSchedule: false,
-    });
-
-  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [activeTab, setActiveTab] = useState("time");
 
   // Simulate loading data from API
   useEffect(() => {
     const loadData = async () => {
-      setLoading(true);
+      startLoading();
       try {
-        await Promise.all([fetchTimeslots(), fetchClassrooms()]);
+        await Promise.all([
+          fetchTimeslots(),
+          fetchClassrooms(),
+          fetchTeacherPreferences(),
+        ]);
       } catch (error) {
         console.error("Failed to load data:", error);
       } finally {
-        setLoading(false);
+        stopLoading();
       }
     };
     loadData();
-  }, [fetchTimeslots, fetchClassrooms]);
+  }, [
+    fetchTimeslots,
+    fetchClassrooms,
+    fetchTeacherPreferences,
+    startLoading,
+    stopLoading,
+  ]);
+
+  console.table({
+    timeslots,
+    classrooms,
+    timePreferences,
+    roomPreferences,
+    scheduleDistributionPreferences,
+  });
 
   const handleTimePreferencesChange = (preferences: TimePreference[]) => {
     setTimePreferences(preferences);
@@ -78,33 +86,27 @@ export default function TeacherConstraintsPage() {
   const handleScheduleDistributionChange = (
     distribution: ScheduleDistributionType
   ) => {
-    setScheduleDistribution(distribution);
+    setScheduleDistributionPreferences(distribution);
     setHasUnsavedChanges(true);
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     // Here you would save to your API
     console.log("Saving constraints:", {
       timePreferences,
       roomPreferences,
-      scheduleDistribution,
+      scheduleDistributionPreferences,
     });
+    await saveTeacherPreferences();
     setHasUnsavedChanges(false);
     // Show success message
   };
 
   const handleReset = () => {
-    setTimePreferences([]);
-    setRoomPreferences([]);
-    setScheduleDistribution({
-      maxDaysPerWeek: 5,
-      maxConsecutiveSessions: 3,
-      preferCompactSchedule: false,
-    });
-    setHasUnsavedChanges(false);
+    resetToDefaults();
   };
 
-  if (loading) {
+  if (isLoading) {
     return (
       <TeacherLayout title="Set Constraints">
         <div className="flex items-center justify-center h-64">
@@ -159,11 +161,15 @@ export default function TeacherConstraintsPage() {
           onValueChange={setActiveTab}
           className="w-full"
         >
-          <div className="flex justify-between items-center mb-4">
-            <TabsList className="grid grid-cols-3 w-[400px]">
-              <TabsTrigger value="time">Time Preferences</TabsTrigger>
-              <TabsTrigger value="rooms">Room Preferences</TabsTrigger>
-              <TabsTrigger value="distribution">
+          <div className="flex flex-wrap justify-between items-center mb-4">
+            <TabsList className="grid grid-cols-3">
+              <TabsTrigger className="px-5" value="time">
+                Time Preferences
+              </TabsTrigger>
+              <TabsTrigger className="px-5" value="rooms">
+                Room Preferences
+              </TabsTrigger>
+              <TabsTrigger className="px-5" value="distribution">
                 Schedule Distribution
               </TabsTrigger>
             </TabsList>
@@ -198,7 +204,7 @@ export default function TeacherConstraintsPage() {
 
           <TabsContent value="distribution" className="mt-0">
             <ScheduleDistribution
-              distribution={scheduleDistribution}
+              distribution={scheduleDistributionPreferences}
               onDistributionChange={handleScheduleDistributionChange}
             />
           </TabsContent>
@@ -269,19 +275,19 @@ export default function TeacherConstraintsPage() {
                   <div className="flex justify-between mb-1">
                     <span>Max days per week:</span>
                     <span className="font-medium">
-                      {scheduleDistribution.maxDaysPerWeek}
+                      {scheduleDistributionPreferences.maxDaysPerWeek}
                     </span>
                   </div>
                   <div className="flex justify-between mb-1">
                     <span>Max consecutive sessions:</span>
                     <span className="font-medium">
-                      {scheduleDistribution.maxConsecutiveSessions}
+                      {scheduleDistributionPreferences.maxConsecutiveSessions}
                     </span>
                   </div>
                   <div className="flex justify-between">
                     <span>Compact schedule:</span>
                     <span className="font-medium">
-                      {scheduleDistribution.preferCompactSchedule
+                      {scheduleDistributionPreferences.preferCompactSchedule
                         ? "Yes"
                         : "No"}
                     </span>
