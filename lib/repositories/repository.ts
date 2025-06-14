@@ -1,5 +1,8 @@
 import { ApiResponse, TimeSlot } from "../types";
-import { ScheduleResponse, SearchSessionsRequest } from "../types/schedule.types";
+import {
+  ScheduleResponse,
+  SearchSessionsRequest,
+} from "../types/schedule.types";
 import {
   Classroom,
   ClassroomCreating,
@@ -29,6 +32,11 @@ import {
 } from "../types/department.type";
 import { apiClient } from "../utils/api-client";
 import { mockTimeslots } from "../mock-data";
+import {
+  AllTasksResponse,
+  CsvUpload,
+  TaskResponse,
+} from "../types/csv-validation.types";
 
 // Teachers CRUD
 export const getTeachers = () => apiClient<ApiResponse<Teacher[]>>(`/teachers`);
@@ -115,7 +123,9 @@ export const deleteCourse = (id: string) =>
 export const getSchedules = () =>
   apiClient<ApiResponse<ScheduleResponse[]>>(`/schedules`);
 export const generateSchedule = () =>
-   apiClient<ApiResponse<ScheduleResponse>>(`/schedules/generate`, { method: 'POST' })
+  apiClient<ApiResponse<ScheduleResponse>>(`/schedules/generate`, {
+    method: "POST",
+  });
 
 export const deleteSchedule = (id: string) =>
   apiClient<ApiResponse<any>>(`/schedules/${id}`, { method: "DELETE" });
@@ -171,3 +181,39 @@ export const updateUser = (id: string, user: UserUpdating) =>
   });
 export const deleteUser = (id: string) =>
   apiClient<ApiResponse<any>>(`/users/${id}`, { method: "DELETE" });
+
+// CSV Upload CRUD
+
+export const uploadCsv = (data: CsvUpload) => {
+  const formData = new FormData();
+  formData.append("file", data.file);
+  formData.append("category", data.category);
+  if (data.description) {
+    formData.append("description", data.description);
+  }
+
+  return apiClient<ApiResponse<string>>("/file/upload", {
+    method: "POST",
+    body: formData,
+  });
+};
+
+// Validation Status CRUD
+
+export const getAllTasks = () => {
+  return apiClient<ApiResponse<AllTasksResponse[]>>("/validation/status", {
+    method: "GET",
+  });
+};
+
+export const getTask = (id: string) => {
+  return apiClient<ApiResponse<TaskResponse>>(`/validation/status/${id}`, {
+    method: "GET",
+  });
+};
+
+export const deleteTask = (id: string) => {
+  return apiClient<ApiResponse<AllTasksResponse>>(`/validation/${id}`, {
+    method: "DELETE",
+  });
+};

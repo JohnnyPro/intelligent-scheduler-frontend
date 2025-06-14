@@ -16,7 +16,19 @@ export enum DayOfWeek {
   SATURDAY = "SATURDAY",
   SUNDAY = "SUNDAY",
 }
+/**
+ * enum TaskStatus {
+  COMPLETED
+  QUEUED
+  FAILED
+}
 
+ */
+export enum TaskStatus {
+  COMPLETED = "COMPLETED",
+  QUEUED = "QUEUED",
+  FAILED = "FAILED",
+}
 export type Metric = {
   id: string;
   title: string;
@@ -38,6 +50,16 @@ export enum ClassroomType {
   LECTURE = "LECTURE",
   LAB = "LAB",
   SEMINAR = "SEMINAR",
+}
+
+export enum CsvCategory {
+  TEACHER = "TEACHER",
+  STUDENT = "STUDENT",
+  CLASSROOM = "CLASSROOM",
+  DEPARTMENT = "DEPARTMENT",
+  COURSE = "COURSE",
+  STUDNETGROUP = "STUDNETGROUP",
+  SGCOURSE = "SGCOURSE",
 }
 
 export type LoginResult =
