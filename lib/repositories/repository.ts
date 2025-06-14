@@ -116,8 +116,11 @@ export const deleteCourse = (id: string) =>
 // Schedules CRUD
 export const getSchedules = () =>
   apiClient<ApiResponse<ScheduleResponse[]>>(`/schedules`);
-export const generateSchedule = () =>
-   apiClient<ApiResponse<ScheduleResponse>>(`/schedules/generate`, { method: 'POST' })
+export const generateSchedule = (name: string) =>
+   apiClient<ApiResponse<ScheduleResponse>>(`/schedules/generate/${name}`, { method: 'POST' })
+
+export const activateSchedule = (id: string) =>
+   apiClient<ApiResponse<ScheduleResponse>>(`/schedules/activate/id/${id}`, { method: 'POST' })
 
 export const deleteSchedule = (id: string) =>
   apiClient<ApiResponse<any>>(`/schedules/${id}`, { method: "DELETE" });
@@ -128,6 +131,7 @@ export const filterSessionsInSchedule = (params: SearchSessionsRequest) =>
     method: "POST",
     body: JSON.stringify(params),
   });
+  
 
 export const getProfile = async (
   accessToken: string
