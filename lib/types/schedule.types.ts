@@ -13,13 +13,20 @@ export type Schedule = {
 export type SearchSessionsRequest = {
   scheduleId: string;
   teacherId?: string;
+  teacherFirstName?: string;
+  teacherLastName?: string;
   courseId?: string;
+  courseName?: string;
   sessionType?: SessionType;
   day?: DayOfWeek;
   classroomId?: string;
+  classroomName?: string;
   classroomBuildingId?: string;
+  classroomBuildingName?: string;
   studentGroupId?: string;
+  studentGroupName?: string;
   classroomAccessibility?: boolean;
+  studentGroupAccessibility?: boolean;
 };
 
 export interface ScheduledSessionDto {
@@ -38,4 +45,5 @@ export interface ScheduledSessionDto {
 export interface ScheduleResponse {
    scheduleId: string;
    sessions: ScheduledSessionDto[];
+   scheduleName?: string;
 }

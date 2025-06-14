@@ -23,6 +23,7 @@ interface StoreState {
   deleteSchedule: (id: string) => void;
   setActive: (id: string) => void;
   fetchCurrentSchedule: () => void;
+  fetchActiveScheduleIdOnly: () => Promise<string | null>;
 }
 
 export const useScheduleStore = create<StoreState>()(
@@ -135,6 +136,18 @@ export const useScheduleStore = create<StoreState>()(
           set({ error: `Error: ${e}` });
         } finally {
           set({ isLoading: false });
+        }
+      },
+      fetchActiveScheduleIdOnly: async () => {
+        try {
+          const resp = await repository.getCurrentSchedule();
+          if (resp.success && resp.data) {
+            return resp.data.scheduleId;
+          }
+          return null;
+        } catch (e) {
+          console.error('Error fetching active schedule ID:', e);
+          return null;
         }
       },
     }),

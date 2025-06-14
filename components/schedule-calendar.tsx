@@ -57,6 +57,7 @@ interface ScheduleItemProps {
 }
 
 interface ScheduleCalendarProps {
+  scheduleName?: string;
   sessions: ScheduledSessionDto[];
 }
 
@@ -88,7 +89,7 @@ const ScheduleItem = ({ session }: ScheduleItemProps) => {
   );
 };
 
-export const ScheduleCalendar = ({ sessions }: ScheduleCalendarProps) => {
+export const ScheduleCalendar = ({ sessions, scheduleName }: ScheduleCalendarProps) => {
   const days: ScheduledSessionDto["day"][] = [
     DayOfWeek.MONDAY,
     DayOfWeek.TUESDAY,
@@ -157,7 +158,7 @@ export const ScheduleCalendar = ({ sessions }: ScheduleCalendarProps) => {
       <div className="flex items-center justify-between border-b p-4 bg-neutral-200 rounded-t-xl">
         <div className="flex items-center gap-2">
           <Calendar className="h-4 w-4" />
-          <span className="font-medium">Generic Calendar Name</span>
+          <span className="font-medium">{scheduleName ?? `Unnamed Schedule`}</span>
         </div>
         <div className="flex items-center gap-2">
           <Button variant="default" size="sm">
