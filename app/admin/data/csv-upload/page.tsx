@@ -441,12 +441,16 @@ export default function CSVUploadPage() {
 
   const getOverallProgress = () => {
     const requiredTypes = dataTypes.filter((dt) => dt.required);
-    const completedRequired = requiredTypes.filter(
-      (dt) =>
-        getCsvStatus(dt.id) === CsvStatus.COMPLETED ||
-        getCsvStatus(dt.id) === CsvStatus.QUEUED
-    ).length;
-    return (completedRequired / requiredTypes.length) * 100;
+
+    const completedRequired = requiredTypes.filter((dt) => {
+      const status = getCsvStatus(dt.id);
+      return status === CsvStatus.COMPLETED || status === CsvStatus.QUEUED;
+    }).length;
+
+    const progress = (completedRequired / requiredTypes.length) * 100;
+    console.log("Calculated overall progress:", progress);
+
+    return progress;
   };
 
   const StatusIcon = ({
