@@ -1,6 +1,9 @@
 import useAuthStore from "@/lib/stores/auth-store";
 import { Mutex } from "async-mutex";
 
+import { ApiErrorData } from "../types";
+import { ApiClientError } from "../utils";
+
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_BACKEND_API_URL || "http://localhost:3001";
 
@@ -79,8 +82,17 @@ export const apiClient = async <T = unknown>(
 
             return apiClient(originalRequest.endpoint, originalRequest.options);
           } else {
-            throw new Error(
-              "Refresh token invalid or expired. Please login again."
+            let refreshErrorData: ApiErrorData = {};
+            try {
+              refreshErrorData = await refreshResponse.json();
+            } catch (parseError) {
+              refreshErrorData.message = `Refresh API returned non-JSON or unparseable error.`;
+            }
+            throw new ApiClientError(
+              refreshErrorData.message ||
+                "Your session has expired. Please log in again.",
+              refreshResponse.status,
+              refreshErrorData
             );
           }
         } catch (refreshError) {
@@ -91,8 +103,20 @@ export const apiClient = async <T = unknown>(
     }
 
     if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.message || `API Error: ${response.statusText}`);
+      let errorData: ApiErrorData = {};
+      try {
+        errorData = await response.json();
+      } catch (parseError) {
+        errorData.message = `Server responded with status ${response.status}: ${
+          response.statusText || "Unknown Error"
+        }`;
+      }
+
+      throw new ApiClientError(
+        errorData.message || `API Error: ${response.statusText}`,
+        response.status,
+        errorData
+      );
     }
 
     if (response.status === 204) {
@@ -107,7 +131,20 @@ export const apiClient = async <T = unknown>(
 
     return response.json();
   } catch (error) {
-    console.error(`API Call Error (${endpoint}):`, error);
-    throw error;
+    if (error instanceof ApiClientError) {
+      throw error;
+    } else if (error instanceof Error) {
+      throw new ApiClientError(
+        `Network or client-side error: ${error.message}`,
+        0,
+        { message: error.message }
+      );
+    } else {
+      throw new ApiClientError(
+        `An unexpected error occurred: ${String(error)}`,
+        0,
+        { message: String(error) }
+      );
+    }
   }
 };

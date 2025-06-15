@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import * as repository from "../repositories/repository";
+import toast from "react-hot-toast";
 
 import {
   Schedule,
@@ -27,6 +28,7 @@ interface StoreState {
   activate: (id: string) => void;
   setActive: (id: string) => void; // THIS IS ONLY FOR FRONTEND NOT ACTUALLY SETTING THE ACTIVE SCHEDULE IN DB
   fetchCurrentSchedule: () => void;
+  fetchActiveScheduleIdOnly: () => Promise<string | null>;
 }
 
 export const useScheduleStore = create<StoreState>()(
@@ -57,48 +59,64 @@ export const useScheduleStore = create<StoreState>()(
       },
       addSchedule: async (name) => {
         set({ isLoading: true });
-        try {
-          const resp = await repository.generateSchedule(name);
-          if (resp.success) get().fetchSchedules();
-          else set({ error: `Error${resp.statusCode}: ${resp.message}` });
-        } catch (e) {
-          set({ error: `Error: ${e}` });
-        } finally {
-          set({ isLoading: false });
-        }
+        await toast.promise(repository.generateSchedule(name), {
+          loading: "Generating schedule...",
+          success: () => {
+            get().fetchSchedules();
+            return "Schedule Generated!";
+          },
+          error: (e) => {
+            let userFriendlyMessage = "An unexpected error occurred while generating schedule.";
+            if (e instanceof Error) {
+              userFriendlyMessage = e.message;
+            }
+            return userFriendlyMessage;
+          },
+        });
+        set({ isLoading: false });
       },
       deleteSchedule: async (id) => {
         set({ isLoading: true });
-        try {
-          const resp = await repository.deleteSchedule(id);
-          if (resp.success) get().fetchSchedules();
-          else set({ error: `Error${resp.statusCode}: ${resp.message}` });
-        } catch (e) {
-          set({ error: `Error: ${e}` });
-        } finally {
-          set({ isLoading: false });
-        }
+        await toast.promise(repository.deleteSchedule(id), {
+          loading: "Deleting schedule...",
+          success: () => {
+            get().fetchSchedules();
+            return "Schedule Deleted!";
+          },
+          error: (e) => {
+            let userFriendlyMessage = "An unexpected error occurred while deleting schedule.";
+            if (e instanceof Error) {
+              userFriendlyMessage = e.message;
+            }
+            return userFriendlyMessage;
+          },
+        });
+        set({ isLoading: false });
       },
       // THIS IS FOR BACKEND ACTIVATE
       activate: async (id) => {
         set({ isLoading: true });
-        try {
-          const resp = await repository.activateSchedule(id);
-          if (resp.success) {
+        await toast.promise(repository.activateSchedule(id), {
+          loading: "Activating schedule...",
+          success: () => {
             set({
               activeSchedule: {
                 ...get().schedules.find((x) => x.scheduleId == id)!,
                 isActive: true,
               },
             });
-
             get().fetchSchedules();
-          } else set({ error: `Error${resp.statusCode}: ${resp.message}` });
-        } catch (e) {
-          set({ error: `Error: ${e}` });
-        } finally {
-          set({ isLoading: false });
-        }
+            return "Schedule Activated!";
+          },
+          error: (e) => {
+            let userFriendlyMessage = "An unexpected error occurred while activating schedule.";
+            if (e instanceof Error) {
+              userFriendlyMessage = e.message;
+            }
+            return userFriendlyMessage;
+          },
+        });
+        set({ isLoading: false });
       },
 
       // THIS IS ONLY FOR FRONTEND NOT ACTUALLY SETTING THE ACTIVE SCHEDULE IN DB
@@ -149,6 +167,18 @@ export const useScheduleStore = create<StoreState>()(
           set({ error: `Error: ${e}` });
         } finally {
           set({ isLoading: false });
+        }
+      },
+      fetchActiveScheduleIdOnly: async () => {
+        try {
+          const resp = await repository.getCurrentSchedule();
+          if (resp.success && resp.data) {
+            return resp.data.scheduleId;
+          }
+          return null;
+        } catch (e) {
+          console.error('Error fetching active schedule ID:', e);
+          return null;
         }
       },
     }),

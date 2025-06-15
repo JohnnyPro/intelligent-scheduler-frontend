@@ -31,7 +31,7 @@ import {
   DepartmentUpdating,
 } from "../types/department.type";
 import { apiClient } from "../utils/api-client";
-import { mockTimeslots } from "../mock-data";
+import { Constraint, ConstraintCreating } from "../types/constraints.types";
 import {
   AllTasksResponse,
   CsvUpload,
@@ -162,13 +162,8 @@ export const getProfile = async (
   accessToken: string
 ): Promise<ApiResponse<User>> => apiClient<ApiResponse<User>>(`/users/me`);
 
-export const getTimeslots = async () => {
-  await new Promise((resolve) => setTimeout(resolve, 500));
-  return {
-    success: true,
-    data: mockTimeslots,
-  };
-};
+export const getTimeslots = () =>
+  apiClient<ApiResponse<TimeSlot[]>>(`/timeslots`);
 
 // Departments CRUD
 export const getDepartments = (page?: number, size?: number) =>
@@ -251,4 +246,12 @@ export const deleteTask = (id: string) => {
   });
 };
 
-// Download Template CRUD
+// Teacher Preferences CRUD
+export const getTeacherPreferences = () =>
+  apiClient<ApiResponse<Constraint[]>>(`/constraints`);
+
+export const createConstraint = (constraint: ConstraintCreating) =>
+  apiClient<ApiResponse<Constraint>>("/constraints", {
+    method: "POST",
+    body: JSON.stringify(constraint),
+  });

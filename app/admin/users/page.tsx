@@ -90,7 +90,7 @@ export default function UsersPage() {
 
   const [filteredUsers, setFilteredUsers] = useState<UserType[]>([]);
   useEffect(() => {
-    let newFiltered = users.filter(
+    const newFiltered = users.filter(
       (user) =>
         `${user.firstName} ${user.lastName}`
           .toLowerCase()
@@ -222,7 +222,9 @@ export default function UsersPage() {
           {pagination && (
             <PaginationControls
               pagination={pagination}
-              onPaginationChange={(newPage: number, newSize: number) => fetchUsers(newPage, newSize)}
+              onPaginationChange={(newPage: number, newSize: number) =>
+                fetchUsers(newPage, newSize)
+              }
             />
           )}
         </div>

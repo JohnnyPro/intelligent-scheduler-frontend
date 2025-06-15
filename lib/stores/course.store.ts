@@ -1,6 +1,7 @@
 import { create } from "zustand"
 import { persist } from "zustand/middleware"
 import * as repository from "../repositories/repository"
+import toast from "react-hot-toast"
 
 import { Course, CourseCreating, CourseUpdating } from "../types/course.types"
 import { PaginationData } from "../types";
@@ -54,50 +55,57 @@ export const useCourseStore = create<StoreState>()(
           },
           addCourse: async (course) => {
             set({ isLoading: true })
-            try {
-              const resp = await repository.addCourse(course)
-              if (resp.success)
+            await toast.promise(repository.addCourse(course), {
+              loading: "Adding...",
+              success: () => {
                 get().fetchCourses()
-              else
-                set({ error: `Error${resp.statusCode}: ${resp.message}` })
-
-            } catch (e) {
-                set({ error: `Error: ${e}` })
-
-            } finally {
-              set({ isLoading: false })
-            }
+                return "Course Added!"
+              },
+              error: (e) => {
+                let userFriendlyMessage = "An unexpected error occurred while adding course."
+                if (e instanceof Error) {
+                  userFriendlyMessage = e.message
+                }
+                return userFriendlyMessage
+              },
+            })
+            set({ isLoading: false })
           },
           updateCourse: async (id, course) => {
             set({ isLoading: true })
-            try {
-              const resp = await repository.updateCourse(id, course)
-              if (resp.success)
+            await toast.promise(repository.updateCourse(id, course), {
+              loading: "Updating...",
+              success: () => {
                 get().fetchCourses()
-              else
-                set({ error: `Error${resp.statusCode}: ${resp.message}` })
-            } catch (e) {
-                set({ error: `Error: ${e}` })
-
-            } finally {
-              set({ isLoading: false })
-            }
+                return "Course Updated!"
+              },
+              error: (e) => {
+                let userFriendlyMessage = "An unexpected error occurred while updating course."
+                if (e instanceof Error) {
+                  userFriendlyMessage = e.message
+                }
+                return userFriendlyMessage
+              },
+            })
+            set({ isLoading: false })
           },
           deleteCourse: async (id) => {
             set({ isLoading: true })
-            try {
-              const resp = await repository.deleteCourse(id)
-              if (resp.success)
+            await toast.promise(repository.deleteCourse(id), {
+              loading: "Deleting...",
+              success: () => {
                 get().fetchCourses()
-              else
-                set({ error: `Error${resp.statusCode}: ${resp.message}` })
-
-            } catch (e) {
-                set({ error: `Error: ${e}` })
-
-            } finally {
-              set({ isLoading: false })
-            }
+                return "Course Deleted!"
+              },
+              error: (e) => {
+                let userFriendlyMessage = "An unexpected error occurred while deleting course."
+                if (e instanceof Error) {
+                  userFriendlyMessage = e.message
+                }
+                return userFriendlyMessage
+              },
+            })
+            set({ isLoading: false })
           },
           setActive: (id) => set({ activeCourse: get().courses.find(x => x.courseId == id) || null }),
 

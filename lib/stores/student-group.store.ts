@@ -1,6 +1,7 @@
 import { create } from "zustand"
 import { persist } from "zustand/middleware"
 import * as repository from "../repositories/repository"
+import toast from "react-hot-toast"
 
 import { StudentGroup, StudentGroupCreating, StudentGroupUpdating } from "../types/student-group.types"
 import { PaginationData } from "../types";
@@ -54,50 +55,57 @@ export const useStudentGroupStore = create<StoreState>()(
       },
       addStudentGroup: async (studentGroup) => {
         set({ isLoading: true })
-        try {
-          const resp = await repository.addStudentGroup(studentGroup)
-          if (resp.success)
+        await toast.promise(repository.addStudentGroup(studentGroup), {
+          loading: "Adding...",
+          success: () => {
             get().fetchStudentGroups()
-          else
-            set( { error: `Error${resp.statusCode}: ${resp.message}` })
-
-        } catch (e) {
-            set( { error: `Error: ${e}` })
-
-        } finally {
-          set({ isLoading: false })
-        }
+            return "Student Group Added!"
+          },
+          error: (e) => {
+            let userFriendlyMessage = "An unexpected error occurred while adding student group."
+            if (e instanceof Error) {
+              userFriendlyMessage = e.message
+            }
+            return userFriendlyMessage
+          },
+        })
+        set({ isLoading: false })
       },
       updateStudentGroup: async (id, studentGroup) => {
         set({ isLoading: true })
-        try {
-          const resp = await repository.updateStudentGroup(id, studentGroup)
-          if (resp.success)
+        await toast.promise(repository.updateStudentGroup(id, studentGroup), {
+          loading: "Updating...",
+          success: () => {
             get().fetchStudentGroups()
-          else
-            set( { error: `Error${resp.statusCode}: ${resp.message}` })
-        } catch (e) {
-            set( { error: `Error: ${e}` })
-
-        } finally {
-          set({ isLoading: false })
-        }
+            return "Student Group Updated!"
+          },
+          error: (e) => {
+            let userFriendlyMessage = "An unexpected error occurred while updating student group."
+            if (e instanceof Error) {
+              userFriendlyMessage = e.message
+            }
+            return userFriendlyMessage
+          },
+        })
+        set({ isLoading: false })
       },
       deleteStudentGroup: async (id) => {
         set({ isLoading: true })
-        try {
-          const resp = await repository.deleteStudentGroup(id)
-          if (resp.success)
+        await toast.promise(repository.deleteStudentGroup(id), {
+          loading: "Deleting...",
+          success: () => {
             get().fetchStudentGroups()
-          else
-            set( { error: `Error${resp.statusCode}: ${resp.message}` })
-
-        } catch (e) {
-            set( { error: `Error: ${e}` })
-
-        } finally {
-          set({ isLoading: false })
-        }
+            return "Student Group Deleted!"
+          },
+          error: (e) => {
+            let userFriendlyMessage = "An unexpected error occurred while deleting student group."
+            if (e instanceof Error) {
+              userFriendlyMessage = e.message
+            }
+            return userFriendlyMessage
+          },
+        })
+        set({ isLoading: false })
       },
       setActive: (id) => set({ activeStudentGroup: get().studentGroups.find(x => x.studentGroupId == id) || null}),
 

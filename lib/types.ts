@@ -85,6 +85,12 @@ export interface ApiResponse<T> {
   statusCode: number;
   pagination?: PaginationData;
 }
+export interface ApiErrorData {
+  message?: string;
+  code?: string;
+  details?: any;
+  timestamp?: string;
+}
 
 export type TimeSlot = {
   timeslotId: string;
