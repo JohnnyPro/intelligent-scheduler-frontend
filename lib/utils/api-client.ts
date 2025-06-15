@@ -38,10 +38,15 @@ export const apiClient = async <T = unknown>(
     };
   }
 
-  headers = {
-    "Content-Type": "application/json",
-    ...headers,
-  };
+  if (
+    !new Headers(headers).get("content-type") &&
+    !(options?.body instanceof FormData)
+  ) {
+    headers = {
+      "Content-Type": "application/json",
+      ...headers,
+    };
+  }
 
   const config: RequestInit = {
     ...options,
@@ -116,6 +121,12 @@ export const apiClient = async <T = unknown>(
 
     if (response.status === 204) {
       return {} as T;
+    }
+
+    // Check if the response is CSV
+    const contentType = response.headers.get("content-type");
+    if (contentType?.includes("text/csv")) {
+      return response.blob() as unknown as T;
     }
 
     return response.json();

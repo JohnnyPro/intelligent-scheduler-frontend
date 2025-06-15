@@ -1,5 +1,8 @@
 import { ApiResponse, TimeSlot } from "../types";
-import { ScheduleResponse, SearchSessionsRequest } from "../types/schedule.types";
+import {
+  ScheduleResponse,
+  SearchSessionsRequest,
+} from "../types/schedule.types";
 import {
   Classroom,
   ClassroomCreating,
@@ -29,10 +32,19 @@ import {
 } from "../types/department.type";
 import { apiClient } from "../utils/api-client";
 import { Constraint, ConstraintCreating } from "../types/constraints.types";
+import {
+  AllTasksResponse,
+  CsvUpload,
+  TaskResponse,
+} from "../types/csv-validation.types";
+import { CsvCategory } from "../types";
+import useAuthStore from "@/lib/stores/auth-store";
 
 // Teachers CRUD
-export const getTeachers = (page?: number, size?: number) => 
-  apiClient<ApiResponse<Teacher[]>>(`/teachers?${page ? `page=${page}` : ''}${size ? `&size=${size}` : ''}`);
+export const getTeachers = (page?: number, size?: number) =>
+  apiClient<ApiResponse<Teacher[]>>(
+    `/teachers?${page ? `page=${page}` : ""}${size ? `&size=${size}` : ""}`
+  );
 export const addTeacher = (teacher: TeacherCreating) =>
   apiClient<ApiResponse<Teacher>>(`/teachers`, {
     method: "POST",
@@ -48,7 +60,9 @@ export const deleteTeacher = (id: string) =>
 
 // Rooms CRUD
 export const getRooms = (page?: number, size?: number) =>
-  apiClient<ApiResponse<Classroom[]>>(`/classrooms?${page ? `page=${page}` : ''}${size ? `&size=${size}` : ''}`);
+  apiClient<ApiResponse<Classroom[]>>(
+    `/classrooms?${page ? `page=${page}` : ""}${size ? `&size=${size}` : ""}`
+  );
 export const addRoom = (room: ClassroomCreating) =>
   apiClient<ApiResponse<Classroom>>(`/classrooms`, {
     method: "POST",
@@ -64,7 +78,11 @@ export const deleteRoom = (id: string) =>
 
 // StudentGroups CRUD
 export const getStudentGroups = (page?: number, size?: number) =>
-  apiClient<ApiResponse<StudentGroup[]>>(`/student-groups?${page ? `page=${page}` : ''}${size ? `&size=${size}` : ''}`);
+  apiClient<ApiResponse<StudentGroup[]>>(
+    `/student-groups?${page ? `page=${page}` : ""}${
+      size ? `&size=${size}` : ""
+    }`
+  );
 export const addStudentGroup = (studentGroup: StudentGroupCreating) =>
   apiClient<ApiResponse<StudentGroup>>(`/student-groups`, {
     method: "POST",
@@ -83,7 +101,9 @@ export const deleteStudentGroup = (id: string) =>
 
 // Buildings CRUD
 export const getBuildings = (page?: number, size?: number) =>
-  apiClient<ApiResponse<Building[]>>(`/buildings?${page ? `page=${page}` : ''}${size ? `&size=${size}` : ''}`);
+  apiClient<ApiResponse<Building[]>>(
+    `/buildings?${page ? `page=${page}` : ""}${size ? `&size=${size}` : ""}`
+  );
 export const addBuilding = (building: BuildingCreating) =>
   apiClient<ApiResponse<Building>>(`/buildings`, {
     method: "POST",
@@ -98,8 +118,10 @@ export const deleteBuilding = (id: string) =>
   apiClient<ApiResponse<any>>(`/buildings/${id}`, { method: "DELETE" });
 
 // Courses CRUD
-export const getCourses = (page?: number, size?: number) => 
-  apiClient<ApiResponse<Course[]>>(`/courses?${page ? `page=${page}` : ''}${size ? `&size=${size}` : ''}`);
+export const getCourses = (page?: number, size?: number) =>
+  apiClient<ApiResponse<Course[]>>(
+    `/courses?${page ? `page=${page}` : ""}${size ? `&size=${size}` : ""}`
+  );
 export const addCourse = (course: CourseCreating) =>
   apiClient<ApiResponse<Course>>(`/courses`, {
     method: "POST",
@@ -117,10 +139,14 @@ export const deleteCourse = (id: string) =>
 export const getSchedules = () =>
   apiClient<ApiResponse<ScheduleResponse[]>>(`/schedules`);
 export const generateSchedule = (name: string) =>
-   apiClient<ApiResponse<ScheduleResponse>>(`/schedules/generate/${name}`, { method: 'POST' })
+  apiClient<ApiResponse<ScheduleResponse>>(`/schedules/generate/${name}`, {
+    method: "POST",
+  });
 
 export const activateSchedule = (id: string) =>
-   apiClient<ApiResponse<ScheduleResponse>>(`/schedules/activate/id/${id}`, { method: 'POST' })
+  apiClient<ApiResponse<ScheduleResponse>>(`/schedules/activate/id/${id}`, {
+    method: "POST",
+  });
 
 export const deleteSchedule = (id: string) =>
   apiClient<ApiResponse<any>>(`/schedules/${id}`, { method: "DELETE" });
@@ -131,7 +157,6 @@ export const filterSessionsInSchedule = (params: SearchSessionsRequest) =>
     method: "POST",
     body: JSON.stringify(params),
   });
-  
 
 export const getProfile = async (
   accessToken: string
@@ -142,7 +167,9 @@ export const getTimeslots = () =>
 
 // Departments CRUD
 export const getDepartments = (page?: number, size?: number) =>
-  apiClient<ApiResponse<Department[]>>(`/departments?${page ? `page=${page}` : ''}${size ? `&size=${size}` : ''}`);
+  apiClient<ApiResponse<Department[]>>(
+    `/departments?${page ? `page=${page}` : ""}${size ? `&size=${size}` : ""}`
+  );
 export const addDepartment = (department: DepartmentCreating) =>
   apiClient<ApiResponse<Department>>(`/departments`, {
     method: "POST",
@@ -157,8 +184,10 @@ export const deleteDepartment = (id: string) =>
   apiClient<ApiResponse<any>>(`/departments/${id}`, { method: "DELETE" });
 
 // Users CRUD
-export const getUsers = (page?: number, size?: number) => 
-  apiClient<ApiResponse<User[]>>(`/users?${page ? `page=${page}` : ''}${size ? `&size=${size}` : ''}`);
+export const getUsers = (page?: number, size?: number) =>
+  apiClient<ApiResponse<User[]>>(
+    `/users?${page ? `page=${page}` : ""}${size ? `&size=${size}` : ""}`
+  );
 export const addUser = (user: UserCreating) =>
   apiClient<ApiResponse<User>>(`/users`, {
     method: "POST",
@@ -172,12 +201,57 @@ export const updateUser = (id: string, user: UserUpdating) =>
 export const deleteUser = (id: string) =>
   apiClient<ApiResponse<any>>(`/users/${id}`, { method: "DELETE" });
 
+// CSV Upload CRUD
+
+export const uploadCsv = (data: CsvUpload) => {
+  const formData = new FormData();
+  formData.append("file", data.file);
+  formData.append("category", data.category);
+  if (data.description) {
+    formData.append("description", data.description);
+  }
+
+  return apiClient<ApiResponse<string>>("/file/upload", {
+    method: "POST",
+    body: formData,
+  });
+};
+
+export const downloadTemplate = (category: CsvCategory) => {
+  return apiClient<Blob>(`/file/template/${category}`, {
+    method: "GET",
+    headers: {
+      Accept: "text/csv",
+    },
+  });
+};
+
+// Validation Status CRUD
+
+export const getAllTasks = (page?: number, size?: number) => {
+  return apiClient<ApiResponse<AllTasksResponse[]>>("/validation/status", {
+    method: "GET",
+  });
+};
+
+export const getTask = (id: string) => {
+  return apiClient<ApiResponse<TaskResponse>>(`/validation/status/${id}`, {
+    method: "GET",
+  });
+};
+
+export const deleteTask = (id: string) => {
+  return apiClient<ApiResponse<AllTasksResponse>>(`/validation/${id}`, {
+    method: "DELETE",
+  });
+};
+
 // Teacher Preferences CRUD
 export const getTeacherPreferences = () =>
   apiClient<ApiResponse<Constraint[]>>(`/constraints`);
 
-export const createConstraint = (constraint: ConstraintCreating) => 
-  apiClient<ApiResponse<Constraint>>('/constraints', {
-    method: 'POST',
+export const createConstraint = (constraint: ConstraintCreating) =>
+  apiClient<ApiResponse<Constraint>>("/constraints", {
+    method: "POST",
     body: JSON.stringify(constraint),
   });
