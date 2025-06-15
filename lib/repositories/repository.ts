@@ -37,6 +37,8 @@ import {
   CsvUpload,
   TaskResponse,
 } from "../types/csv-validation.types";
+import { CsvCategory } from "../types";
+import useAuthStore from "@/lib/stores/auth-store";
 
 // Teachers CRUD
 export const getTeachers = (page?: number, size?: number) =>
@@ -220,6 +222,15 @@ export const uploadCsv = (data: CsvUpload) => {
   });
 };
 
+export const downloadTemplate = (category: CsvCategory) => {
+  return apiClient<Blob>(`/file/template/${category}`, {
+    method: "GET",
+    headers: {
+      Accept: "text/csv",
+    },
+  });
+};
+
 // Validation Status CRUD
 
 export const getAllTasks = (page?: number, size?: number) => {
@@ -239,3 +250,5 @@ export const deleteTask = (id: string) => {
     method: "DELETE",
   });
 };
+
+// Download Template CRUD

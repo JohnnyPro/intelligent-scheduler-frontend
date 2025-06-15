@@ -99,6 +99,12 @@ export const apiClient = async <T = unknown>(
       return {} as T;
     }
 
+    // Check if the response is CSV
+    const contentType = response.headers.get("content-type");
+    if (contentType?.includes("text/csv")) {
+      return response.blob() as unknown as T;
+    }
+
     return response.json();
   } catch (error) {
     console.error(`API Call Error (${endpoint}):`, error);

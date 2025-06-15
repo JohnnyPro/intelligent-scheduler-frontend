@@ -28,6 +28,7 @@ interface StoreState {
   fetchAllTasks: (page?: number, size?: number) => Promise<void>;
   fetchTask: (id: string) => Promise<void>;
   deleteTask: (id: string) => Promise<void>;
+  downloadTemplate: (category: CsvCategory) => Promise<Blob>;
   clearError: () => void;
 }
 
@@ -141,6 +142,24 @@ export const useCsvStore = create<StoreState>()(
                 ? e.message
                 : "An error occurred while deleting task",
           });
+        } finally {
+          set({ isLoading: false });
+        }
+      },
+
+      downloadTemplate: async (category: CsvCategory) => {
+        set({ isLoading: true, error: "" });
+        try {
+          const response = await repository.downloadTemplate(category);
+          return response;
+        } catch (e) {
+          set({
+            error:
+              e instanceof Error
+                ? e.message
+                : "An error occurred while downloading template",
+          });
+          throw e;
         } finally {
           set({ isLoading: false });
         }

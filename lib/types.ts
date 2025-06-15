@@ -58,16 +58,16 @@ export enum CsvCategory {
   CLASSROOM = "CLASSROOM",
   DEPARTMENT = "DEPARTMENT",
   COURSE = "COURSE",
-  STUDNETGROUP = "STUDNETGROUP",
+  STUDENTGROUP = "STUDENTGROUP",
   SGCOURSE = "SGCOURSE",
 }
 
-export type  PaginationData = {
+export type PaginationData = {
   totalItems: number;
   currentPage: number;
   totalPages: number;
   itemsPerPage: number;
-}
+};
 
 export type LoginResult =
   | { success: boolean; accessToken: string; refreshToken: string; error: "" }

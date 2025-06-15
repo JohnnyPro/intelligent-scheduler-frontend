@@ -225,7 +225,7 @@ const dataTypes: DataType[] = [
 
   {
     id: "student-groups",
-    category: CsvCategory.STUDNETGROUP,
+    category: CsvCategory.STUDENTGROUP,
     name: "Student Groups",
     description: "Class sections and student cohorts",
     dependencies: ["departments"],
@@ -313,6 +313,7 @@ export default function CSVUploadPage() {
     error,
     deleteTask,
     pagination,
+    downloadTemplate: downloadTemplateFromStore,
   } = useCsvStore();
   const [uploadResults, setUploadResults] = useState<
     Record<string, UploadResult>
@@ -412,17 +413,18 @@ export default function CSVUploadPage() {
     }
   };
 
-  const downloadTemplate = (dataType: DataType) => {
-    const csvContent = dataType.sampleData
-      .map((row) => row.join(","))
-      .join("\n");
-    const blob = new Blob([csvContent], { type: "text/csv" });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `${dataType.id}-template.csv`;
-    a.click();
-    window.URL.revokeObjectURL(url);
+  const downloadTemplate = async (dataType: DataType) => {
+    try {
+      const blob = await downloadTemplateFromStore(dataType.category);
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${dataType.id}-template.csv`;
+      a.click();
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Failed to download template:", error);
+    }
   };
 
   const resetUpload = (dataTypeId: string) => {
