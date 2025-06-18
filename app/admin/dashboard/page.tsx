@@ -11,6 +11,7 @@ import {
   RoomUtilizationCard,
   ScheduleQualityCard,
 } from "@/components/dashboard/analytics-card";
+import { TeacherWorkloadCard } from "@/components/dashboard/teacher-workload-card";
 import { useEffect } from "react";
 import { useScheduleStore } from "@/lib/stores/schedule.store";
 
@@ -51,12 +52,21 @@ export default function DashboardPage() {
     activate,
     deleteSchedule,
   } = useScheduleStore();
-  const { metrics, alerts } = useStore();
+  const { metrics, alerts, fetchDashboardMetrics, fetchSystemAlerts } =
+    useStore();
 
   useEffect(() => {
     fetchSchedules();
     getCurrentSchedule();
-  }, [getCurrentSchedule, fetchSchedules]);
+    // Fetch dashboard metrics and alerts
+    fetchDashboardMetrics();
+    fetchSystemAlerts();
+  }, [
+    getCurrentSchedule,
+    fetchSchedules,
+    fetchDashboardMetrics,
+    fetchSystemAlerts,
+  ]);
 
   return (
     <DashboardLayout title="Dashboard">
@@ -64,66 +74,65 @@ export default function DashboardPage() {
         {/* Header Section */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Dashboard Overview</h1>
-            <p className="text-gray-600 mt-1">Academic Year 2025-2026</p>
+            <h2 className="text-2xl font-bold">Dashboard Overview</h2>
+            <p className="text-gray-500">Academic Year 2025-2026</p>
           </div>
         </div>
-
         {/* Active Schedule Section */}
         {activeSchedule && (
-          <div className="space-y-4">
-            <CurrentScheduleCard
-              name={activeSchedule.scheduleName}
-              lastUpdated={new Date(activeSchedule.createdAt).toLocaleDateString(
-                "en-GB",
-                {
-                  weekday: "long",
-                  year: "numeric",
-                  month: "long",
-                  day: "numeric",
-                }
-              )}
-            />
+          <CurrentScheduleCard
+            name={activeSchedule.scheduleName}
+            lastUpdated={new Date(activeSchedule.createdAt).toLocaleDateString(
+              "en-GB",
+              {
+                weekday: "long",
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+              }
+            )}
+          />
+        )}
+        {alerts.length > 0 && (
+          <div>
+            <h3 className="mb-4 text-lg font-semibold">System Alerts</h3>
+            <div className="space-y-3">
+              {alerts.slice(0, 3).map((alert) => (
+                <AlertCard key={alert.id} alert={alert} />
+              ))}
+            </div>
           </div>
         )}
-
-        {/* Key Metrics Section */}
-        <div className="space-y-4">
-          <h2 className="text-xl font-semibold text-gray-900">Key Metrics</h2>
+        ==
+        <div>
+          <div className="mb-4 flex items-center justify-between">
+            <h3 className="text-lg font-semibold">
+              Schedule Generation History
+            </h3>
+          </div>
+          <div className="mx-auto">
+            <ScheduleHistoryTable
+              schedules={schedules}
+              onActivate={activate}
+              onDelete={deleteSchedule}
+            />
+          </div>
+        </div>
+        <div>
+          <h3 className="mb-4 text-lg font-semibold">Key Metrics</h3>
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {metrics.map((metric) => (
               <MetricCard key={metric.id} metric={metric} />
             ))}
           </div>
         </div>
-
-        {/* Analytics Section */}
-        <div className="space-y-4">
-          <h2 className="text-xl font-semibold text-gray-900">Analytics</h2>
-          <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-            <RoomUtilizationCard />
-            <ScheduleQualityCard />
-          </div>
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+          <RoomUtilizationCard />
+          <ScheduleQualityCard />
         </div>
-
-        {/* Schedule History Section */}
-        <div className="space-y-4">
-          <h2 className="text-xl font-semibold text-gray-900">Recent Schedule History</h2>
-          <div className="mx-auto">
-            <ScheduleHistoryTable
-              schedules={schedules
-                .filter((s) => !s.isActive)
-                .sort(
-                  (a, b) =>
-                    new Date(b.createdAt).getTime() -
-                    new Date(a.createdAt).getTime()
-                )
-                .slice(0, 3)}
-              onActivate={activate}
-            />
-          </div>
+        <div className="grid grid-cols-1 gap-6">
+          <TeacherWorkloadCard />
         </div>
-
         {/* Quick Actions Section */}
         <div className="space-y-4">
           <h2 className="text-xl font-semibold text-gray-900">Quick Actions</h2>
