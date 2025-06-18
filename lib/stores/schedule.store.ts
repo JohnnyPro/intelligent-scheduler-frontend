@@ -67,7 +67,10 @@ export const useScheduleStore = create<StoreState>()(
             return "Schedule Generated!";
           },
           error: (e) => {
-            let userFriendlyMessage = "An unexpected error occurred while generating schedule.";
+            set({ isLoading: false });
+
+            let userFriendlyMessage =
+              "An unexpected error occurred while generating schedule.";
             if (e instanceof Error) {
               userFriendlyMessage = e.message;
             }
@@ -85,7 +88,8 @@ export const useScheduleStore = create<StoreState>()(
             return "Schedule Deleted!";
           },
           error: (e) => {
-            let userFriendlyMessage = "An unexpected error occurred while deleting schedule.";
+            let userFriendlyMessage =
+              "An unexpected error occurred while deleting schedule.";
             if (e instanceof Error) {
               userFriendlyMessage = e.message;
             }
@@ -110,7 +114,8 @@ export const useScheduleStore = create<StoreState>()(
             return "Schedule Activated!";
           },
           error: (e) => {
-            let userFriendlyMessage = "An unexpected error occurred while activating schedule.";
+            let userFriendlyMessage =
+              "An unexpected error occurred while activating schedule.";
             if (e instanceof Error) {
               userFriendlyMessage = e.message;
             }
@@ -134,8 +139,12 @@ export const useScheduleStore = create<StoreState>()(
             set({
               sessions: resp.data?.sessions || [],
             });
-          } else set({ error: `Error: ${resp.message}` });
+          } else {
+            set({ sessions: [] });
+            set({ error: `Error: ${resp.message}` });
+          }
         } catch (e) {
+          set({ sessions: [] });
           set({ error: `Error: ${e}` });
         } finally {
           set({ isLoading: false });
@@ -145,21 +154,23 @@ export const useScheduleStore = create<StoreState>()(
         set({ isLoading: true });
         try {
           const blob = await repository.exportScheduleToPdf(params);
-          
+
           // Create download link
           const url = window.URL.createObjectURL(blob);
-          const link = document.createElement('a');
+          const link = document.createElement("a");
           link.href = url;
-          link.download = `schedule-${params.scheduleId}-${new Date().toISOString().split('T')[0]}.pdf`;
+          link.download = `schedule-${params.scheduleId}-${
+            new Date().toISOString().split("T")[0]
+          }.pdf`;
           document.body.appendChild(link);
           link.click();
           document.body.removeChild(link);
           window.URL.revokeObjectURL(url);
-          
-          toast.success('Schedule exported successfully!');
+
+          toast.success("Schedule exported successfully!");
         } catch (e) {
-          toast.error('Failed to export schedule. Please try again.');
-          console.error('Export error:', e);
+          toast.error("Failed to export schedule. Please try again.");
+          console.error("Export error:", e);
         } finally {
           set({ isLoading: false });
         }
@@ -186,8 +197,12 @@ export const useScheduleStore = create<StoreState>()(
                 activeSchedule: resp.data,
               };
             });
-          } else set({ error: `Error: ${resp.message}` });
+          } else {
+            set({ activeSchedule: null });
+            set({ error: `Error: ${resp.message}` });
+          }
         } catch (e) {
+          set({ activeSchedule: null });
           set({ error: `Error: ${e}` });
         } finally {
           set({ isLoading: false });
@@ -201,7 +216,7 @@ export const useScheduleStore = create<StoreState>()(
           }
           return null;
         } catch (e) {
-          console.error('Error fetching active schedule ID:', e);
+          console.error("Error fetching active schedule ID:", e);
           return null;
         }
       },

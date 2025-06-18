@@ -181,7 +181,7 @@ export const ScheduleCalendar = () => {
 
   // make a backend request to get sessions based on active schedule and relevant filters
   useEffect(() => {
-    if (!activeSchedule || !searchParams.scheduleId) return;
+    // if (!activeSchedule || !searchParams.scheduleId) return;
     filterSessionsInSchedule(searchParams);
   }, [filterSessionsInSchedule, activeSchedule, searchParams]);
 

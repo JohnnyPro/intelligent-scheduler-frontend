@@ -81,7 +81,7 @@ export default function ViewSchedulePage() {
           </div>
           <div className="flex gap-2">
             <Button
-              disabled={activeSchedule?.isActive}
+              disabled={!activeSchedule || activeSchedule?.isActive}
               variant="outline"
               className="bg-green-600 hover:bg-green-500 text-white  hover:text-white font-semibold shadow-sm"
               onClick={() => {
@@ -94,7 +94,7 @@ export default function ViewSchedulePage() {
               Activate
             </Button>
             <Button
-              disabled={activeSchedule?.isActive}
+              disabled={!activeSchedule || activeSchedule?.isActive}
               variant="outline"
               className="bg-red-600 hover:bg-red-500 text-white  hover:text-white font-semibold shadow-sm"
               onClick={() => {
