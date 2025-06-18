@@ -12,7 +12,6 @@ import {
   ScheduleQualityCard,
 } from "@/components/dashboard/analytics-card";
 import { TeacherWorkloadCard } from "@/components/dashboard/teacher-workload-card";
-import { TeacherWorkloadCard } from "@/components/dashboard/teacher-workload-card";
 import { useEffect } from "react";
 import { useScheduleStore } from "@/lib/stores/schedule.store";
 
@@ -104,21 +103,6 @@ export default function DashboardPage() {
             </div>
           </div>
         )}
-        ==
-        <div>
-          <div className="mb-4 flex items-center justify-between">
-            <h3 className="text-lg font-semibold">
-              Schedule Generation History
-            </h3>
-          </div>
-          <div className="mx-auto">
-            <ScheduleHistoryTable
-              schedules={schedules}
-              onActivate={activate}
-              onDelete={deleteSchedule}
-            />
-          </div>
-        </div>
         <div>
           <h3 className="mb-4 text-lg font-semibold">Key Metrics</h3>
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
@@ -133,6 +117,20 @@ export default function DashboardPage() {
         </div>
         <div className="grid grid-cols-1 gap-6">
           <TeacherWorkloadCard />
+        </div>
+        <div>
+          <div className="mb-4 flex items-center justify-between">
+            <h3 className="text-lg font-semibold">
+              Schedule Generation History
+            </h3>
+          </div>
+          <div className="mx-auto">
+            <ScheduleHistoryTable
+              schedules={schedules.slice(0, 3)}
+              onActivate={activate}
+              onDelete={deleteSchedule}
+            />
+          </div>
         </div>
         {/* Quick Actions Section */}
         <div className="space-y-4">
