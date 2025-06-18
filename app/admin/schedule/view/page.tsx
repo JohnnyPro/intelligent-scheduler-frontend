@@ -12,7 +12,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { Check, Play, X } from "lucide-react";
+import { Check, Play, Trash2, X } from "lucide-react";
 import { DashboardLayout } from "@/components/layout/dashboard-layout";
 
 export default function ViewSchedulePage() {
@@ -21,6 +21,7 @@ export default function ViewSchedulePage() {
     activeSchedule,
     activate,
     fetchSchedules,
+    deleteSchedule,
     fetchCurrentSchedule,
     setActive,
   } = useScheduleStore();
@@ -58,7 +59,11 @@ export default function ViewSchedulePage() {
                     >
                       <div className="flex items-center flex-row gap-2 w-full">
                         <div className="flex items-center gap-2">
-                          <span className={`h-3 w-3 rounded-full ${schedule.isActive ? 'bg-green-600' : 'bg-gray-300'}`}></span>
+                          <span
+                            className={`h-3 w-3 rounded-full ${
+                              schedule.isActive ? "bg-green-600" : "bg-gray-300"
+                            }`}
+                          ></span>
 
                           {schedule.scheduleName}
                         </div>
@@ -74,15 +79,34 @@ export default function ViewSchedulePage() {
               </Select>
             </div>
           </div>
-          <Button
-            disabled={activeSchedule?.isActive}
-            variant="outline"
-            className="bg-green-600 hover:bg-green-500 text-white  hover:text-white font-semibold shadow-sm"
-            onClick={() => {activeSchedule?.scheduleId ? activate(activeSchedule?.scheduleId) : null}}
-          >
-            <Play className="mr-2 h-4 w-4" />
-            Activate
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              disabled={activeSchedule?.isActive}
+              variant="outline"
+              className="bg-green-600 hover:bg-green-500 text-white  hover:text-white font-semibold shadow-sm"
+              onClick={() => {
+                activeSchedule?.scheduleId
+                  ? activate(activeSchedule?.scheduleId)
+                  : null;
+              }}
+            >
+              <Play className="mr-2 h-4 w-4" />
+              Activate
+            </Button>
+            <Button
+              disabled={activeSchedule?.isActive}
+              variant="outline"
+              className="bg-red-600 hover:bg-red-500 text-white  hover:text-white font-semibold shadow-sm"
+              onClick={() => {
+                activeSchedule?.scheduleId
+                  ? deleteSchedule(activeSchedule?.scheduleId)
+                  : null;
+              }}
+            >
+              <Trash2 className="mr-2 h-4 w-4" />
+              Delete
+            </Button>
+          </div>
         </div>
         <ScheduleCalendar />
       </div>
