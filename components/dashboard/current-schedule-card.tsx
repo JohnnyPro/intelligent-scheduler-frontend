@@ -1,7 +1,5 @@
 import { Calendar } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { useRouter } from "next/navigation"
 
 type CurrentScheduleProps = {
   name: string
@@ -9,21 +7,22 @@ type CurrentScheduleProps = {
 }
 
 export function CurrentScheduleCard({ name, lastUpdated }: CurrentScheduleProps) {
-  const router = useRouter()
-
   return (
-    <Card>
-      <CardHeader className="pb-2">
-        <CardTitle className="text-lg font-medium">Currently active schedule - {name}</CardTitle>
+    <Card className="relative overflow-hidden border-l-4 border-l-green-500 shadow-lg">
+      <div className="absolute left-0 top-0 h-full w-1 bg-green-500"></div>
+      <CardHeader className="pb-3">
+        <div className="flex items-center justify-between">
+          <CardTitle className="text-xl font-semibold text-gray-900">Currently Active Schedule</CardTitle>
+          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 border border-green-200">
+            Active
+          </span>
+        </div>
+        <p className="text-lg font-medium text-gray-700 mt-1">{name}</p>
       </CardHeader>
       <CardContent>
-        <p className="text-sm text-gray-500">Generated on: {lastUpdated}</p>
-        <div className="mt-4 flex gap-3">
-          <Button onClick={() => router.push("/admin/schedule/generate")} className="bg-indigo-600 hover:bg-indigo-700">
-            <Calendar className="mr-2 h-4 w-4" />
-            Start New Generation
-          </Button>
-          <Button onClick={() => router.push("/admin/schedule/view")} variant="outline">View Schedule</Button>
+        <div className="flex items-center text-sm text-gray-600">
+          <Calendar className="mr-2 h-4 w-4 text-gray-500" />
+          Generated on: {lastUpdated}
         </div>
       </CardContent>
     </Card>

@@ -20,25 +20,25 @@ const quickActions = [
     id: "1",
     title: "Upload CSV Data",
     icon: "upload",
-    link: "#",
+    link: "/admin/data/csv-upload",
   },
   {
     id: "2",
-    title: "Add New Teacher",
-    icon: "user-plus",
-    link: "/data/teachers",
+    title: "Generate Schedule",
+    icon: "file-spreadsheet",
+    link: "/admin/schedule/generate",
   },
   {
     id: "3",
-    title: "Export Schedule",
-    icon: "download",
-    link: "#",
+    title: "View Schedule",
+    icon: "calendar",
+    link: "/admin/schedule/view",
   },
   {
     id: "4",
-    title: "System Settings",
-    icon: "settings",
-    link: "/admin/settings",
+    title: "Manage Teachers",
+    icon: "users",
+    link: "/admin/data/teachers",
   },
 ];
 
@@ -60,46 +60,36 @@ export default function DashboardPage() {
 
   return (
     <DashboardLayout title="Dashboard">
-      <div className="space-y-6">
+      <div className="space-y-8">
+        {/* Header Section */}
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-2xl font-bold">Dashboard Overview</h2>
-            <p className="text-gray-500">Academic Year 2025-2026</p>
+            <h1 className="text-3xl font-bold text-gray-900">Dashboard Overview</h1>
+            <p className="text-gray-600 mt-1">Academic Year 2025-2026</p>
           </div>
         </div>
 
+        {/* Active Schedule Section */}
         {activeSchedule && (
-          <CurrentScheduleCard
-            name={activeSchedule.scheduleName}
-            lastUpdated={new Date(activeSchedule.createdAt).toLocaleDateString(
-              "en-GB",
-              {
-                weekday: "long",
-                year: "numeric",
-                month: "long",
-                day: "numeric",
-              }
-            )}
-          />
-        )}
-
-        <div>
-          <div className="mb-4 flex items-center justify-between">
-            <h3 className="text-lg font-semibold">
-              Schedule Generation History
-            </h3>
-          </div>
-          <div className="mx-auto">
-            <ScheduleHistoryTable
-              schedules={schedules}
-              onActivate={activate}
-              onDelete={deleteSchedule}
+          <div className="space-y-4">
+            <CurrentScheduleCard
+              name={activeSchedule.scheduleName}
+              lastUpdated={new Date(activeSchedule.createdAt).toLocaleDateString(
+                "en-GB",
+                {
+                  weekday: "long",
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                }
+              )}
             />
           </div>
-        </div>
+        )}
 
-        <div>
-          <h3 className="mb-4 text-lg font-semibold">Key Metrics</h3>
+        {/* Key Metrics Section */}
+        <div className="space-y-4">
+          <h2 className="text-xl font-semibold text-gray-900">Key Metrics</h2>
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {metrics.map((metric) => (
               <MetricCard key={metric.id} metric={metric} />
@@ -107,13 +97,36 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-          <RoomUtilizationCard />
-          <ScheduleQualityCard />
+        {/* Analytics Section */}
+        <div className="space-y-4">
+          <h2 className="text-xl font-semibold text-gray-900">Analytics</h2>
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+            <RoomUtilizationCard />
+            <ScheduleQualityCard />
+          </div>
         </div>
 
-        <div>
-          <h3 className="mb-4 text-lg font-semibold">Quick Actions</h3>
+        {/* Schedule History Section */}
+        <div className="space-y-4">
+          <h2 className="text-xl font-semibold text-gray-900">Recent Schedule History</h2>
+          <div className="mx-auto">
+            <ScheduleHistoryTable
+              schedules={schedules
+                .filter((s) => !s.isActive)
+                .sort(
+                  (a, b) =>
+                    new Date(b.createdAt).getTime() -
+                    new Date(a.createdAt).getTime()
+                )
+                .slice(0, 3)}
+              onActivate={activate}
+            />
+          </div>
+        </div>
+
+        {/* Quick Actions Section */}
+        <div className="space-y-4">
+          <h2 className="text-xl font-semibold text-gray-900">Quick Actions</h2>
           <div className="grid grid-cols-2 gap-6 sm:grid-cols-4">
             {quickActions.map((action) => (
               <QuickActionCard key={action.id} action={action} />
