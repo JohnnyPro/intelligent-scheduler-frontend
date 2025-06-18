@@ -85,6 +85,7 @@ export const useScheduleStore = create<StoreState>()(
           loading: "Deleting schedule...",
           success: () => {
             get().fetchSchedules();
+            get().fetchCurrentSchedule();
             return "Schedule Deleted!";
           },
           error: (e) => {
