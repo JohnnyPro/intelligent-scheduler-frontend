@@ -15,6 +15,8 @@ interface StoreState {
   timeslots: TimeSlot[];
 
   fetchTimeslots: () => void;
+  fetchDashboardMetrics: () => void;
+  fetchSystemAlerts: () => void;
 }
 
 // Create store
@@ -41,6 +43,26 @@ export const useStore = create<StoreState>()(
         } catch (e) {
         } finally {
           set({ isLoading: false });
+        }
+      },
+
+      fetchDashboardMetrics: async () => {
+        try {
+          const { success, data } = await repository.getDashboardMetrics();
+          if (success && data) set({ metrics: data });
+          else set({ metrics: [] });
+        } catch (e) {
+          set({ metrics: [] });
+        }
+      },
+
+      fetchSystemAlerts: async () => {
+        try {
+          const { success, data } = await repository.getSystemAlerts();
+          if (success && data) set({ alerts: data });
+          else set({ alerts: [] });
+        } catch (e) {
+          set({ alerts: [] });
         }
       },
     }),

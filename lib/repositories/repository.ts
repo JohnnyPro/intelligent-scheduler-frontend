@@ -291,3 +291,74 @@ export const createConstraint = (constraint: ConstraintCreating) =>
     method: "POST",
     body: JSON.stringify(constraint),
   });
+
+// Metrics API functions
+export const getDashboardMetrics = () =>
+  apiClient<ApiResponse<{
+    id: string;
+    title: string;
+    value: number;
+    change: {
+      type: 'increase' | 'decrease' | 'no-change';
+      value: string;
+    };
+    icon: string;
+  }[]>>('/metrics/dashboard');
+
+export const getSystemAlerts = () =>
+  apiClient<ApiResponse<{
+    id: string;
+    type: 'error' | 'warning' | 'success' | 'info';
+    title: string;
+    message: string;
+    actionLink?: string;
+    actionText?: string;
+  }[]>>('/metrics/alerts');
+
+export const getRoomUtilization = (scheduleId?: string) =>
+  apiClient<ApiResponse<{
+    overall: number;
+    byBuilding: Array<{
+      buildingId: string;
+      buildingName: string;
+      utilization: number;
+      totalMinutesScheduled: number;
+      totalMinutesAvailable: number;
+    }>;
+  }>>(`/metrics/room-utilization${scheduleId ? `?scheduleId=${scheduleId}` : ''}`);
+
+export const getScheduleQuality = (scheduleId?: string) =>
+  apiClient<ApiResponse<{
+    roomUtilization: number;
+    teacherPreferenceSatisfaction: number;
+    teacherWorkloadBalance: number;
+    studentGroupConflictRate: number;
+    scheduleCompactness: number;
+    overallScore: number;
+  }>>(`/metrics/schedule-quality${scheduleId ? `?scheduleId=${scheduleId}` : ''}`);
+
+export const getTeacherWorkload = (scheduleId?: string) =>
+  apiClient<ApiResponse<Array<{
+    teacherId: string;
+    teacherName: string;
+    totalSessions: number;
+    preferenceSatisfactionRatio: number;
+    dailySessions: number[];
+  }>>>(`/metrics/teacher-workload${scheduleId ? `?scheduleId=${scheduleId}` : ''}`);
+
+export const getTeacherPreferenceTrends = () =>
+  apiClient<ApiResponse<Array<{
+    timeslot: string;
+    preferCount: number;
+    avoidCount: number;
+    neutralCount: number;
+  }>>>('/metrics/teacher-preference-trends');
+
+export const getCrowdedTimeslots = (scheduleId?: string) =>
+  apiClient<ApiResponse<Array<{
+    day: string;
+    timeslot: string;
+    usagePercentage: number;
+    sessionCount: number;
+    roomsAvailable: number;
+  }>>>(`/metrics/crowded-timeslots${scheduleId ? `?scheduleId=${scheduleId}` : ''}`);
