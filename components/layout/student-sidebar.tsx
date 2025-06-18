@@ -8,7 +8,7 @@ import ProfileSnippet from "./profile-snippet"
 
 const sidebarItems = [
    {
-      title: "MAIN",
+      title: "Schedule",
       items: [
          {
             title: "My Schedule",

@@ -14,7 +14,7 @@ export function CurrentScheduleCard({ name, lastUpdated }: CurrentScheduleProps)
   return (
     <Card>
       <CardHeader className="pb-2">
-        <CardTitle className="text-lg font-medium">{name}</CardTitle>
+        <CardTitle className="text-lg font-medium">Currently active schedule - {name}</CardTitle>
       </CardHeader>
       <CardContent>
         <p className="text-sm text-gray-500">Generated on: {lastUpdated}</p>
