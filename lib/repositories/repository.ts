@@ -55,6 +55,26 @@ export const updateTeacher = (id: string, teacher: TeacherUpdating) =>
     method: "PUT",
     body: JSON.stringify(teacher),
   });
+
+export const assignTeacher = (id: string, teacher: TeacherUpdating) =>
+  apiClient<ApiResponse<Teacher>>(`/teachers`, {
+    method: "PATCH",
+    body: JSON.stringify({
+      teacherId: id,
+      departmentId: teacher.departmentId,
+      courseId: teacher.courseId,
+    }),
+  });
+
+export const unassignTeacher = (teacherId: string, courseIds: string[]) =>
+  apiClient<ApiResponse<void>>(`/teachers/unassign`, {
+    method: "POST",
+    body: JSON.stringify({
+      teacherId: teacherId,
+      courseIds: courseIds,
+    }),
+  });
+
 export const deleteTeacher = (id: string) =>
   apiClient<ApiResponse<any>>(`/teachers/${id}`, { method: "DELETE" });
 
@@ -79,8 +99,7 @@ export const deleteRoom = (id: string) =>
 // StudentGroups CRUD
 export const getStudentGroups = (page?: number, size?: number) =>
   apiClient<ApiResponse<StudentGroup[]>>(
-    `/student-groups?${page ? `page=${page}` : ""}${
-      size ? `&size=${size}` : ""
+    `/student-groups?${page ? `page=${page}` : ""}${size ? `&size=${size}` : ""
     }`
   );
 export const addStudentGroup = (studentGroup: StudentGroupCreating) =>
