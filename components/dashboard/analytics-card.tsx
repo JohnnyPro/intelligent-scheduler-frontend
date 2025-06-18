@@ -16,6 +16,24 @@ interface RoomUtilizationData {
     totalMinutesAvailable: number;
   }>;
 }
+"use client";
+
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { EChart } from "@/components/charts/EChart";
+import { useEffect, useState } from "react";
+import * as repository from "@/lib/repositories/repository";
+import type { EChartsOption } from "echarts";
+
+interface RoomUtilizationData {
+  overall: number;
+  byBuilding: Array<{
+    buildingId: string;
+    buildingName: string;
+    utilization: number;
+    totalMinutesScheduled: number;
+    totalMinutesAvailable: number;
+  }>;
+}
 
 export function RoomUtilizationCard() {
   const [data, setData] = useState<RoomUtilizationData | null>(null);
@@ -117,6 +135,8 @@ export function RoomUtilizationCard() {
       <CardContent>
         <div className="h-[200px]">
           <EChart option={chartOption} loading={loading} />
+        <div className="h-[200px]">
+          <EChart option={chartOption} loading={loading} />
         </div>
         {data && data.byBuilding.length > 0 && (
           <div className="mt-4 space-y-2">
@@ -136,6 +156,16 @@ export function RoomUtilizationCard() {
         )}
       </CardContent>
     </Card>
+  );
+}
+
+interface ScheduleQualityData {
+  roomUtilization: number;
+  teacherPreferenceSatisfaction: number;
+  teacherWorkloadBalance: number;
+  studentGroupConflictRate: number;
+  scheduleCompactness: number;
+  overallScore: number;
   );
 }
 
@@ -248,8 +278,11 @@ export function ScheduleQualityCard() {
       <CardContent>
         <div className="h-[200px]">
           <EChart option={chartOption} loading={loading} />
+        <div className="h-[200px]">
+          <EChart option={chartOption} loading={loading} />
         </div>
       </CardContent>
     </Card>
+  );
   );
 }

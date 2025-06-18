@@ -12,6 +12,7 @@ import {
   ScheduleQualityCard,
 } from "@/components/dashboard/analytics-card";
 import { TeacherWorkloadCard } from "@/components/dashboard/teacher-workload-card";
+import { TeacherWorkloadCard } from "@/components/dashboard/teacher-workload-card";
 import { useEffect } from "react";
 import { useScheduleStore } from "@/lib/stores/schedule.store";
 
