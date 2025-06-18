@@ -24,6 +24,7 @@ interface StoreState {
   fetchSchedules: () => void;
   addSchedule: (name: string) => void;
   filterSessionsInSchedule: (params: SearchSessionsRequest) => void;
+  exportScheduleToPdf: (params: SearchSessionsRequest) => void;
   deleteSchedule: (id: string) => void;
   activate: (id: string) => void;
   setActive: (id: string) => void; // THIS IS ONLY FOR FRONTEND NOT ACTUALLY SETTING THE ACTIVE SCHEDULE IN DB
@@ -66,14 +67,10 @@ export const useScheduleStore = create<StoreState>()(
             return "Schedule Generated!";
           },
           error: (e) => {
-            let userFriendlyMessage =
-              "An unexpected error occurred while generating schedule.";
+            let userFriendlyMessage = "An unexpected error occurred while generating schedule.";
             if (e instanceof Error) {
               userFriendlyMessage = e.message;
             }
-            console.log("failed");
-            set({ isLoading: false });
-
             return userFriendlyMessage;
           },
         });
@@ -88,12 +85,10 @@ export const useScheduleStore = create<StoreState>()(
             return "Schedule Deleted!";
           },
           error: (e) => {
-            let userFriendlyMessage =
-              "An unexpected error occurred while deleting schedule.";
+            let userFriendlyMessage = "An unexpected error occurred while deleting schedule.";
             if (e instanceof Error) {
               userFriendlyMessage = e.message;
             }
-            set({ isLoading: false });
             return userFriendlyMessage;
           },
         });
@@ -115,12 +110,10 @@ export const useScheduleStore = create<StoreState>()(
             return "Schedule Activated!";
           },
           error: (e) => {
-            let userFriendlyMessage =
-              "An unexpected error occurred while activating schedule.";
+            let userFriendlyMessage = "An unexpected error occurred while activating schedule.";
             if (e instanceof Error) {
               userFriendlyMessage = e.message;
             }
-            set({ isLoading: false });
             return userFriendlyMessage;
           },
         });
@@ -144,6 +137,29 @@ export const useScheduleStore = create<StoreState>()(
           } else set({ error: `Error: ${resp.message}` });
         } catch (e) {
           set({ error: `Error: ${e}` });
+        } finally {
+          set({ isLoading: false });
+        }
+      },
+      exportScheduleToPdf: async (params) => {
+        set({ isLoading: true });
+        try {
+          const blob = await repository.exportScheduleToPdf(params);
+          
+          // Create download link
+          const url = window.URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = `schedule-${params.scheduleId}-${new Date().toISOString().split('T')[0]}.pdf`;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          window.URL.revokeObjectURL(url);
+          
+          toast.success('Schedule exported successfully!');
+        } catch (e) {
+          toast.error('Failed to export schedule. Please try again.');
+          console.error('Export error:', e);
         } finally {
           set({ isLoading: false });
         }

@@ -105,8 +105,12 @@ export const ScheduleCalendar = () => {
     DayOfWeek.SATURDAY,
     DayOfWeek.SUNDAY,
   ];
-  const { activeSchedule, sessions, filterSessionsInSchedule } =
-    useScheduleStore();
+  const {
+    activeSchedule,
+    sessions,
+    filterSessionsInSchedule,
+    exportScheduleToPdf,
+  } = useScheduleStore();
   const { teachers, fetchTeachers } = useTeacherStore();
   const { studentGroups, fetchStudentGroups } = useStudentGroupStore();
   const { classrooms, fetchClassrooms } = useClassroomStore();
@@ -146,9 +150,8 @@ export const ScheduleCalendar = () => {
         }));
       }
     } else if (user.role === Role.STUDENT) {
-      const studentGroupId = studentGroups.find(
-        (x) =>
-          x.students?.filter((y) => y.userId == user.userId)?.length ?? 0 > 0
+      const studentGroupId = studentGroups.find((x) =>
+        x.students?.filter((y) => y.userId == user.userId)
       )?.studentGroupId;
       if (studentGroupId && studentGroupId !== currentStudentGroupId) {
         setSearchParams((prev) => ({
@@ -277,7 +280,11 @@ export const ScheduleCalendar = () => {
           </span>
         </div>
         <div className="flex items-center gap-2 relative">
-          <Button variant="secondary" size="sm">
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={() => exportScheduleToPdf(searchParams)}
+          >
             <Download className="mr-2 h-4 w-4" />
             Export
           </Button>
