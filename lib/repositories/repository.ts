@@ -158,6 +158,23 @@ export const filterSessionsInSchedule = (params: SearchSessionsRequest) =>
     body: JSON.stringify(params),
   });
 
+export const exportScheduleToPdf = async (params: SearchSessionsRequest): Promise<Blob> => {
+  const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API_URL || "http://localhost:3001"}/schedules/export/pdf`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${useAuthStore.getState().accessToken}`,
+    },
+    body: JSON.stringify(params),
+  });
+
+  if (!response.ok) {
+    throw new Error(`Failed to export schedule: ${response.statusText}`);
+  }
+
+  return response.blob();
+};
+
 export const getProfile = async (
   accessToken: string
 ): Promise<ApiResponse<User>> => apiClient<ApiResponse<User>>(`/users/me`);
