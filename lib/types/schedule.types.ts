@@ -46,5 +46,6 @@ export interface ScheduleResponse {
    scheduleId: string;
    scheduleName: string;
    isActive: boolean;
+   createdAt: Date;
    sessions?: ScheduledSessionDto[];
 }

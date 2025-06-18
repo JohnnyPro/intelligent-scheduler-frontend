@@ -66,10 +66,14 @@ export const useScheduleStore = create<StoreState>()(
             return "Schedule Generated!";
           },
           error: (e) => {
-            let userFriendlyMessage = "An unexpected error occurred while generating schedule.";
+            let userFriendlyMessage =
+              "An unexpected error occurred while generating schedule.";
             if (e instanceof Error) {
               userFriendlyMessage = e.message;
             }
+            console.log("failed");
+            set({ isLoading: false });
+
             return userFriendlyMessage;
           },
         });
@@ -84,10 +88,12 @@ export const useScheduleStore = create<StoreState>()(
             return "Schedule Deleted!";
           },
           error: (e) => {
-            let userFriendlyMessage = "An unexpected error occurred while deleting schedule.";
+            let userFriendlyMessage =
+              "An unexpected error occurred while deleting schedule.";
             if (e instanceof Error) {
               userFriendlyMessage = e.message;
             }
+            set({ isLoading: false });
             return userFriendlyMessage;
           },
         });
@@ -109,10 +115,12 @@ export const useScheduleStore = create<StoreState>()(
             return "Schedule Activated!";
           },
           error: (e) => {
-            let userFriendlyMessage = "An unexpected error occurred while activating schedule.";
+            let userFriendlyMessage =
+              "An unexpected error occurred while activating schedule.";
             if (e instanceof Error) {
               userFriendlyMessage = e.message;
             }
+            set({ isLoading: false });
             return userFriendlyMessage;
           },
         });

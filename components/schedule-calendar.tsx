@@ -15,7 +15,13 @@ import { useTeacherStore } from "@/lib/stores/teacher.store";
 import { useStudentGroupStore } from "@/lib/stores/student-group.store";
 import { useClassroomStore } from "@/lib/stores/classroom.store";
 import { useCourseStore } from "@/lib/stores/course.store";
-import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "./ui/select";
+import {
+  Select,
+  SelectTrigger,
+  SelectContent,
+  SelectItem,
+  SelectValue,
+} from "./ui/select";
 import { Label } from "./ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover"; // Import Popover components
 
@@ -125,36 +131,45 @@ export const ScheduleCalendar = () => {
 
   useEffect(() => {
     if (!user) return;
-    
+
     const currentTeacherId = searchParams.teacherId;
     const currentStudentGroupId = searchParams.studentGroupId;
-    
+
     if (user.role === Role.TEACHER) {
-      const teacherId = teachers.find((x) => x.userId == user.userId)?.teacherId;
+      const teacherId = teachers.find(
+        (x) => x.userId == user.userId
+      )?.teacherId;
       if (teacherId && teacherId !== currentTeacherId) {
-        setSearchParams(prev => ({
+        setSearchParams((prev) => ({
           ...prev,
           teacherId: teacherId,
         }));
       }
     } else if (user.role === Role.STUDENT) {
-      const studentGroupId = studentGroups.find((x) =>
-        x.students?.filter((y) => y.userId == user.userId)
+      const studentGroupId = studentGroups.find(
+        (x) =>
+          x.students?.filter((y) => y.userId == user.userId)?.length ?? 0 > 0
       )?.studentGroupId;
       if (studentGroupId && studentGroupId !== currentStudentGroupId) {
-        setSearchParams(prev => ({
+        setSearchParams((prev) => ({
           ...prev,
           studentGroupId: studentGroupId,
         }));
       }
     }
-  }, [user, teachers, studentGroups, searchParams.teacherId, searchParams.studentGroupId]);
+  }, [
+    user,
+    teachers,
+    studentGroups,
+    searchParams.teacherId,
+    searchParams.studentGroupId,
+  ]);
 
   // update search params when active schedule changes (usually done outside this component to make it flexible)
   useEffect(() => {
     const newScheduleId = activeSchedule?.scheduleId || "";
     if (searchParams.scheduleId !== newScheduleId) {
-      setSearchParams(prev => ({
+      setSearchParams((prev) => ({
         ...prev,
         scheduleId: newScheduleId,
       }));
@@ -166,7 +181,6 @@ export const ScheduleCalendar = () => {
     if (!activeSchedule || !searchParams.scheduleId) return;
     filterSessionsInSchedule(searchParams);
   }, [filterSessionsInSchedule, activeSchedule, searchParams]);
-
 
   const getPositionedSessionsForDay = (
     daySessions: ScheduledSessionDto[]
@@ -220,7 +234,6 @@ export const ScheduleCalendar = () => {
 
   // Helper to reset all filters
   const clearAllFilters = () => {
-
     if (!user) {
       setSearchParams({ scheduleId: activeSchedule?.scheduleId || "" });
       return;
@@ -244,8 +257,11 @@ export const ScheduleCalendar = () => {
   };
 
   // Helper to update a field in searchParams and trigger filtering
-  const updateFilter = (field: keyof SearchSessionsRequest, value: string | undefined) => {
-    setSearchParams(prev => ({
+  const updateFilter = (
+    field: keyof SearchSessionsRequest,
+    value: string | undefined
+  ) => {
+    setSearchParams((prev) => ({
       ...prev,
       [field]: value === "all" ? undefined : value,
     }));
@@ -256,7 +272,9 @@ export const ScheduleCalendar = () => {
       <div className="flex items-center justify-between border-b p-4">
         <div className="flex items-center gap-2">
           <Calendar className="h-4 w-4" />
-          <span className="font-medium">{activeSchedule?.scheduleName ?? "Schedule Calendar"}</span>
+          <span className="font-medium">
+            {activeSchedule?.scheduleName ?? "Schedule Calendar"}
+          </span>
         </div>
         <div className="flex items-center gap-2 relative">
           <Button variant="secondary" size="sm">
@@ -267,16 +285,15 @@ export const ScheduleCalendar = () => {
           {/* Popover implementation */}
           <Popover>
             <PopoverTrigger asChild>
-              <Button
-                variant="default"
-                size="sm"
-              >
+              <Button variant="default" size="sm">
                 <Filter className="mr-2 h-4 w-4" />
                 Filter
                 <ChevronDownSquare strokeWidth={3} className="ml-2 h-4 w-4" />
               </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-96 p-6"> {/* Remove absolute positioning and custom top style */}
+            <PopoverContent className="w-96 p-6">
+              {" "}
+              {/* Remove absolute positioning and custom top style */}
               <div className="flex items-center justify-between mb-4">
                 <span className="text-lg font-semibold">Filter Schedule</span>
                 <button
@@ -288,39 +305,48 @@ export const ScheduleCalendar = () => {
                 </button>
               </div>
               <div className="space-y-4">
-                {(user?.role !== Role.TEACHER) && (
+                {user?.role !== Role.TEACHER && (
                   <div>
                     <Label htmlFor="teacher-select">Teacher</Label>
                     <Select
                       value={searchParams.teacherId || "all"}
-                      onValueChange={val => updateFilter("teacherId", val)}
+                      onValueChange={(val) => updateFilter("teacherId", val)}
                     >
                       <SelectTrigger id="teacher-select" className="mt-1">
                         <SelectValue placeholder="All Teachers" />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="all">All Teachers</SelectItem>
-                        {teachers.map(t => (
-                          <SelectItem key={t.teacherId} value={t.teacherId}>{t.user.firstName} {t.user.lastName}</SelectItem>
+                        {teachers.map((t) => (
+                          <SelectItem key={t.teacherId} value={t.teacherId}>
+                            {t.user.firstName} {t.user.lastName}
+                          </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
                   </div>
                 )}
-                {(user?.role !== Role.STUDENT) && (
+                {user?.role !== Role.STUDENT && (
                   <div>
                     <Label htmlFor="group-select">Student Group</Label>
                     <Select
                       value={searchParams.studentGroupId || "all"}
-                      onValueChange={val => updateFilter("studentGroupId", val)}
+                      onValueChange={(val) =>
+                        updateFilter("studentGroupId", val)
+                      }
                     >
                       <SelectTrigger id="group-select" className="mt-1">
                         <SelectValue placeholder="All Groups" />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="all">All Groups</SelectItem>
-                        {studentGroups.map(g => (
-                          <SelectItem key={g.studentGroupId} value={g.studentGroupId}>{g.name}</SelectItem>
+                        {studentGroups.map((g) => (
+                          <SelectItem
+                            key={g.studentGroupId}
+                            value={g.studentGroupId}
+                          >
+                            {g.name}
+                          </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
@@ -331,15 +357,17 @@ export const ScheduleCalendar = () => {
                   <Label htmlFor="classroom-select">Classroom</Label>
                   <Select
                     value={searchParams.classroomId || "all"}
-                    onValueChange={val => updateFilter("classroomId", val)}
+                    onValueChange={(val) => updateFilter("classroomId", val)}
                   >
                     <SelectTrigger id="classroom-select" className="mt-1">
                       <SelectValue placeholder="All Classrooms" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all">All Classrooms</SelectItem>
-                      {classrooms.map(c => (
-                        <SelectItem key={c.classroomId} value={c.classroomId}>{c.name}</SelectItem>
+                      {classrooms.map((c) => (
+                        <SelectItem key={c.classroomId} value={c.classroomId}>
+                          {c.name}
+                        </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
@@ -348,15 +376,17 @@ export const ScheduleCalendar = () => {
                   <Label htmlFor="course-select">Course</Label>
                   <Select
                     value={searchParams.courseId || "all"}
-                    onValueChange={val => updateFilter("courseId", val)}
+                    onValueChange={(val) => updateFilter("courseId", val)}
                   >
                     <SelectTrigger id="course-select" className="mt-1">
                       <SelectValue placeholder="All Courses" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all">All Courses</SelectItem>
-                      {courses.map(c => (
-                        <SelectItem key={c.courseId} value={c.courseId}>{c.name}</SelectItem>
+                      {courses.map((c) => (
+                        <SelectItem key={c.courseId} value={c.courseId}>
+                          {c.name}
+                        </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
@@ -365,7 +395,6 @@ export const ScheduleCalendar = () => {
             </PopoverContent>
           </Popover>
           {/* End Popover implementation */}
-
         </div>
       </div>
 

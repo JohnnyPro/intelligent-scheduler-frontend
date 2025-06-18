@@ -43,15 +43,20 @@ const quickActions = [
 ];
 
 export default function DashboardPage() {
-  const { activeSchedule, fetchCurrentSchedule: getCurrentSchedule } =
-    useScheduleStore();
+  const {
+    activeSchedule,
+    fetchCurrentSchedule: getCurrentSchedule,
+    schedules,
+    fetchSchedules,
+    activate,
+    deleteSchedule,
+  } = useScheduleStore();
   const { metrics, alerts } = useStore();
 
-
   useEffect(() => {
+    fetchSchedules();
     getCurrentSchedule();
-  }, [getCurrentSchedule]);
-
+  }, [getCurrentSchedule, fetchSchedules]);
 
   return (
     <DashboardLayout title="Dashboard">
@@ -62,24 +67,34 @@ export default function DashboardPage() {
             <p className="text-gray-500">Academic Year 2025-2026</p>
           </div>
         </div>
+
         {activeSchedule && (
-          <CurrentScheduleCard name={"Fix Name"} lastUpdated={"21/09/2002"} />
+          <CurrentScheduleCard
+            name={activeSchedule.scheduleName}
+            lastUpdated={new Date(activeSchedule.createdAt).toLocaleDateString(
+              "en-GB",
+              {
+                weekday: "long",
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+              }
+            )}
+          />
         )}
 
         <div>
           <div className="mb-4 flex items-center justify-between">
-            <h3 className="text-lg font-semibold">Alerts & Notifications</h3>
-            <a
-              href="#"
-              className="text-sm font-medium text-indigo-600 hover:underline"
-            >
-              View All
-            </a>
+            <h3 className="text-lg font-semibold">
+              Schedule Generation History
+            </h3>
           </div>
-          <div>
-            {alerts.slice(0, 3).map((alert) => (
-              <AlertCard key={alert.id} alert={alert} />
-            ))}
+          <div className="mx-auto">
+            <ScheduleHistoryTable
+              schedules={schedules}
+              onActivate={activate}
+              onDelete={deleteSchedule}
+            />
           </div>
         </div>
 
@@ -90,21 +105,6 @@ export default function DashboardPage() {
               <MetricCard key={metric.id} metric={metric} />
             ))}
           </div>
-        </div>
-
-        <div>
-          <div className="mb-4 flex items-center justify-between">
-            <h3 className="text-lg font-semibold">
-              Schedule Generation History
-            </h3>
-            <a
-              href="#"
-              className="text-sm font-medium text-indigo-600 hover:underline"
-            >
-              View All History
-            </a>
-          </div>
-          <ScheduleHistoryTable schedules={[]} />
         </div>
 
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">

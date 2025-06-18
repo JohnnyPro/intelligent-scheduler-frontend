@@ -69,12 +69,14 @@ export const useBuildingStore = create<StoreState>()(
             if (e instanceof Error) {
               userFriendlyMessage = e.message;
             }
+            set({ isLoading: false });
             return userFriendlyMessage;
           },
         });
         set({ isLoading: false });
       },
       updateBuilding: async (id, building) => {
+        set({ isLoading: true });
         await toast.promise(repository.updateBuilding(id, building), {
           loading: "Updating...",
           success: () => {
@@ -86,11 +88,14 @@ export const useBuildingStore = create<StoreState>()(
             if (e instanceof Error) {
               userFriendlyMessage = e.message;
             }
+            set({ isLoading: false });
             return userFriendlyMessage;
           },
         });
+        set({ isLoading: false });
       },
       deleteBuilding: async (id) => {
+        set({ isLoading: true });
         await toast.promise(repository.deleteBuilding(id), {
           loading: "Deleting...",
           success: () => {
@@ -102,9 +107,11 @@ export const useBuildingStore = create<StoreState>()(
             if (e instanceof Error) {
               userFriendlyMessage = e.message;
             }
+            set({ isLoading: false });
             return userFriendlyMessage;
           },
         });
+        set({ isLoading: false });
       },
       setActive: (id) =>
         set({
