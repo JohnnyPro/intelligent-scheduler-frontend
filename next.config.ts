@@ -13,6 +13,11 @@ const nextConfig: NextConfig = {
         destination: "/student/schedule",
         permanent: true,
       },
+      {
+        source: "/",
+        destination: "/login",
+        permanent: true,
+      },
     ];
   },
 };
