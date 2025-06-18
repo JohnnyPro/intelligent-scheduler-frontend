@@ -11,6 +11,7 @@ import {
   RoomUtilizationCard,
   ScheduleQualityCard,
 } from "@/components/dashboard/analytics-card";
+import { TeacherWorkloadCard } from "@/components/dashboard/teacher-workload-card";
 import { useEffect } from "react";
 import { useScheduleStore } from "@/lib/stores/schedule.store";
 
@@ -51,12 +52,15 @@ export default function DashboardPage() {
     activate,
     deleteSchedule,
   } = useScheduleStore();
-  const { metrics, alerts } = useStore();
+  const { metrics, alerts, fetchDashboardMetrics, fetchSystemAlerts } = useStore();
 
   useEffect(() => {
     fetchSchedules();
     getCurrentSchedule();
-  }, [getCurrentSchedule, fetchSchedules]);
+    // Fetch dashboard metrics and alerts
+    fetchDashboardMetrics();
+    fetchSystemAlerts();
+  }, [getCurrentSchedule, fetchSchedules, fetchDashboardMetrics, fetchSystemAlerts]);
 
   return (
     <DashboardLayout title="Dashboard">
@@ -81,6 +85,17 @@ export default function DashboardPage() {
               }
             )}
           />
+        )}
+
+        {alerts.length > 0 && (
+          <div>
+            <h3 className="mb-4 text-lg font-semibold">System Alerts</h3>
+            <div className="space-y-3">
+              {alerts.slice(0, 3).map((alert) => (
+                <AlertCard key={alert.id} alert={alert} />
+              ))}
+            </div>
+          </div>
         )}
 
         <div>
@@ -110,6 +125,10 @@ export default function DashboardPage() {
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
           <RoomUtilizationCard />
           <ScheduleQualityCard />
+        </div>
+
+        <div className="grid grid-cols-1 gap-6">
+          <TeacherWorkloadCard />
         </div>
 
         <div>
