@@ -75,7 +75,7 @@ type DataType = {
   category: CsvCategory;
   description: string;
   dependencies: string[];
-  sampleData: (string | Number)[][];
+  sampleData: (string | number)[][];
   required: boolean;
 };
 
@@ -88,9 +88,9 @@ const dataTypes: DataType[] = [
     dependencies: [],
     required: true,
     sampleData: [
-      ["deptId", "name", "campusId"],
-      ["dpt-1a2b3g", "Computer Science", "campus-001"],
-      ["dpt-4d5e6w", "Mathematics", "campus-001"],
+      ["deptId", "name"],
+      ["dpt-1a2b3g", "Computer Science"],
+      ["dpt-4d5e6w", "Mathematics"],
     ],
   },
 
@@ -115,7 +115,7 @@ const dataTypes: DataType[] = [
         "crs-aaa111",
         "Introduction to AI",
         "AI101",
-        "dpt-1a2b3c",
+        "dpt-1a2b3g",
         "Foundations of AI",
         "LECTURE",
         3,
@@ -124,7 +124,7 @@ const dataTypes: DataType[] = [
         "crs-bbb222",
         "Linear Algebra",
         "LA201",
-        "dpt-4d5e6f",
+        "dpt-4d5e6w",
         "Matrix methods",
         "LAB",
         2,
@@ -159,7 +159,7 @@ const dataTypes: DataType[] = [
         "securePass123",
         "555-0100",
         "TEACHER",
-        "dept-cs-001",
+        "dpt-1a2b3g",
         "false",
       ],
       [
@@ -170,7 +170,7 @@ const dataTypes: DataType[] = [
         "securePass456",
         "555-0200",
         "TEACHER",
-        "dept-cs-001",
+        "dpt-1a2b3g",
         "true",
       ],
     ],
@@ -189,7 +189,6 @@ const dataTypes: DataType[] = [
         "name",
         "capacity",
         "type",
-        "campusId",
         "buildingId",
         "isWheelchairAccessible",
         "openingTime",
@@ -201,7 +200,6 @@ const dataTypes: DataType[] = [
         "Room 101",
         40,
         "LECTURE",
-        "camp-1234",
         "bdg-10",
         "false",
         "08:00",
@@ -213,7 +211,6 @@ const dataTypes: DataType[] = [
         "Laboratory 1",
         20,
         "LAB",
-        "camp-1234",
         "bdg-11",
         "true",
         "09:00",
@@ -238,8 +235,8 @@ const dataTypes: DataType[] = [
         "accessibilityRequirement",
         "departmentId",
       ],
-      ["sgp-111aaa", "Group A", 25, "false", "dpt-1a2b3c"],
-      ["sgp-222bbb", "Group B", 30, "true", "dpt-4d5e6f"],
+      ["sgp-111aaa", "Group A", 25, "false", "dpt-1a2b3g"],
+      ["sgp-222bbb", "Group B", 30, "true", "dpt-4d5e6w"],
     ],
   },
 
@@ -291,13 +288,13 @@ const dataTypes: DataType[] = [
     id: "student-group-courses",
     category: CsvCategory.SGCOURSE,
     name: "Student Group Courses",
-    description: "Links between student groups and their courses",
-    dependencies: ["courses", "student-groups"],
+    description: "Links between student groups and their courses with teacher assignments",
+    dependencies: ["courses", "student-groups", "teachers"],
     required: true,
     sampleData: [
-      ["studentGroupId", "courseId"],
-      ["sgp-111aaa", "crs-aaa111"],
-      ["sgp-222bbb", "crs-bbb222"],
+      ["studentGroupId", "courseId", "teacherId"],
+      ["sgp-111aaa", "crs-aaa111", "tch-xyz789"],
+      ["sgp-222bbb", "crs-bbb222", "tch-opq456"],
     ],
   },
 ];
@@ -325,6 +322,8 @@ export default function CSVUploadPage() {
   const [fileDescriptions, setFileDescriptions] = useState<
     Record<string, string>
   >({});
+  const [bulkFiles, setBulkFiles] = useState<File[]>([]);
+  const [isBulkUploading, setIsBulkUploading] = useState(false);
 
   const getCsvStatus = (dataTypeId: string): CsvStatus => {
     return uploadResults[dataTypeId]?.status || CsvStatus.EMPTY;
@@ -547,6 +546,86 @@ export default function CSVUploadPage() {
     window.URL.revokeObjectURL(url);
   };
 
+  // Function to detect CSV category from filename
+  const detectCategoryFromFilename = (filename: string): CsvCategory | null => {
+    const name = filename.toLowerCase();
+    if (name.includes('department')) return CsvCategory.DEPARTMENT;
+    if (name.includes('course')) return CsvCategory.COURSE;
+    if (name.includes('teacher')) return CsvCategory.TEACHER;
+    if (name.includes('classroom')) return CsvCategory.CLASSROOM;
+    if (name.includes('student-group') || name.includes('studentgroup')) return CsvCategory.STUDENTGROUP;
+    if (name.includes('student') && !name.includes('group')) return CsvCategory.STUDENT;
+    if (name.includes('sgcourse') || name.includes('student-group-course')) return CsvCategory.SGCOURSE;
+    return null;
+  };
+
+  // Function to handle bulk upload
+  const handleBulkUpload = async () => {
+    if (bulkFiles.length === 0) return;
+
+    setIsBulkUploading(true);
+    
+    // Categorize files
+    const categorizedFiles: Record<CsvCategory, File[]> = {
+      [CsvCategory.DEPARTMENT]: [],
+      [CsvCategory.COURSE]: [],
+      [CsvCategory.TEACHER]: [],
+      [CsvCategory.CLASSROOM]: [],
+      [CsvCategory.STUDENTGROUP]: [],
+      [CsvCategory.STUDENT]: [],
+      [CsvCategory.SGCOURSE]: [],
+    };
+
+    // Group files by detected category
+    for (const file of bulkFiles) {
+      const category = detectCategoryFromFilename(file.name);
+      if (category) {
+        categorizedFiles[category].push(file);
+      }
+    }
+
+    // Upload in dependency order
+    const uploadOrder = [
+      CsvCategory.DEPARTMENT,
+      CsvCategory.COURSE,
+      CsvCategory.TEACHER,
+      CsvCategory.CLASSROOM,
+      CsvCategory.STUDENTGROUP,
+      CsvCategory.STUDENT,
+      CsvCategory.SGCOURSE,
+    ];
+
+    try {
+      for (const category of uploadOrder) {
+        const files = categorizedFiles[category];
+        if (files.length > 0) {
+          // Upload all files of this category
+          for (const file of files) {
+            const dataType = dataTypes.find(dt => dt.category === category);
+            if (dataType) {
+              await handleFileUpload(dataType.id, file, `Bulk upload: ${file.name}`);
+              // Small delay between uploads to avoid overwhelming the server
+              await new Promise(resolve => setTimeout(resolve, 500));
+            }
+          }
+        }
+      }
+      
+      // Refresh tasks after all uploads
+      await fetchAllTasks();
+      setBulkFiles([]);
+    } catch (error) {
+      console.error('Bulk upload failed:', error);
+    } finally {
+      setIsBulkUploading(false);
+    }
+  };
+
+  const handleBulkFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(event.target.files || []);
+    setBulkFiles(files);
+  };
+
   const errors = selectedTask?.errors || [];
   const showDownload = errors.length > 3;
   const errorsToShow = showDownload ? errors.slice(0, 3) : errors;
@@ -625,6 +704,91 @@ export default function CSVUploadPage() {
                 → Students/Student Group Courses
               </AlertDescription>
             </Alert>
+
+            {/* Bulk Upload Section for Debugging */}
+            <Card className="border-blue-200 bg-blue-50">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-blue-900">
+                  <Upload className="h-5 w-5" />
+                  Bulk Upload All CSVs
+                </CardTitle>
+                <p className="text-sm text-blue-700">
+                  Upload multiple CSV files at once. Files will be automatically categorized by filename and uploaded in dependency order.
+                </p>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div>
+                  <Label htmlFor="bulk-upload" className="text-sm font-medium">
+                    Select multiple CSV files
+                  </Label>
+                  <Input
+                    id="bulk-upload"
+                    type="file"
+                    accept=".csv"
+                    multiple
+                    onChange={handleBulkFileSelect}
+                    disabled={isBulkUploading}
+                    className="mt-1"
+                  />
+                  <p className="text-xs text-blue-600 mt-1">
+                    Tip: Name your files with keywords like "department", "course", "teacher", "classroom", "student-group", "student", "sgcourse" for automatic detection.
+                  </p>
+                </div>
+                
+                {bulkFiles.length > 0 && (
+                  <div className="space-y-3">
+                    <div>
+                      <h4 className="text-sm font-medium text-blue-900 mb-2">Selected Files ({bulkFiles.length}):</h4>
+                      <div className="grid gap-2 max-h-32 overflow-y-auto">
+                        {bulkFiles.map((file, index) => {
+                          const detectedCategory = detectCategoryFromFilename(file.name);
+                          return (
+                            <div key={index} className="flex items-center justify-between text-xs bg-white p-2 rounded border">
+                              <span className="font-mono truncate">{file.name}</span>
+                              <span className={cn(
+                                "px-2 py-1 rounded-full text-xs font-medium",
+                                detectedCategory 
+                                  ? "bg-green-100 text-green-700" 
+                                  : "bg-red-100 text-red-700"
+                              )}>
+                                {detectedCategory || "Unknown"}
+                              </span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                    
+                    <div className="flex gap-2">
+                      <Button
+                        onClick={handleBulkUpload}
+                        disabled={isBulkUploading}
+                        className="bg-blue-600 hover:bg-blue-700"
+                      >
+                        {isBulkUploading ? (
+                          <>
+                            <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
+                            Uploading...
+                          </>
+                        ) : (
+                          <>
+                            <Upload className="mr-2 h-4 w-4" />
+                            Upload All ({bulkFiles.length} files)
+                          </>
+                        )}
+                      </Button>
+                      <Button
+                        variant="outline"
+                        onClick={() => setBulkFiles([])}
+                        disabled={isBulkUploading}
+                      >
+                        Clear
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
 
             <div className="grid gap-4">
               {dataTypes.map((dataType) => {
