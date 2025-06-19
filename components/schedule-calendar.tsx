@@ -187,9 +187,9 @@ export const ScheduleCalendar = () => {
 
   const getPositionedSessionsForDay = (
     daySessions: ScheduledSessionDto[]
-  ): PositionedSession[] => {
+  ): { sessions: PositionedSession[]; hasOverflow: boolean } => {
     if (!daySessions.length) {
-      return [];
+      return { sessions: [], hasOverflow: false };
     }
 
     // Sort sessions by start time to ensure a consistent stacking order.
@@ -208,12 +208,19 @@ export const ScheduleCalendar = () => {
 
     // A map to track how many items we've already placed at a given start time.
     const stackCount: { [key: number]: number } = {};
+    let hasOverflow = false;
 
     for (const session of sortedSessions) {
       const startMinutes = timeToMinutes(session.timeslot.split("-")[0]);
 
       const stackIndex = stackCount[startMinutes] || 0;
       stackCount[startMinutes] = stackIndex + 1;
+
+      // Only show first 3 items per time slot
+      if (stackIndex >= 2) {
+        hasOverflow = true;
+        continue;
+      }
 
       const baseTop =
         ((startMinutes - calendarStartMinutes) / totalCalendarMinutes) * 100;
@@ -228,7 +235,7 @@ export const ScheduleCalendar = () => {
       });
     }
 
-    return positionedSessions;
+    return { sessions: positionedSessions, hasOverflow };
   };
 
   const templateColumns = days.map((day) =>
@@ -428,10 +435,15 @@ export const ScheduleCalendar = () => {
             const daySessions = sessions.filter(
               (s) => s.day.toUpperCase() === day
             );
-            const positionedSessions = getPositionedSessionsForDay(daySessions);
+            const { sessions: positionedSessions, hasOverflow } = getPositionedSessionsForDay(daySessions);
 
             return (
               <div key={day} className="flex-1 border-r last:border-r-0">
+                {hasOverflow && (
+                  <div className="absolute top-2 left-0 right-0 text-center text-xs text-gray-400 px-2">
+                    Some schedule items not displayed due to overflow
+                  </div>
+                )}
                 {/* Day Header */}
                 <div className="h-10 border-b p-2 text-center font-medium">
                   {day.charAt(0).toUpperCase() + day.slice(1).toLowerCase()}
