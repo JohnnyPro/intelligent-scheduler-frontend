@@ -22,7 +22,7 @@ interface StoreState {
 
   activeSchedule: ScheduleResponse | null;
   fetchSchedules: () => void;
-  addSchedule: (name: string) => void;
+  addSchedule: (name: string, timeLimit?: number) => void;
   filterSessionsInSchedule: (params: SearchSessionsRequest) => void;
   exportScheduleToPdf: (params: SearchSessionsRequest) => void;
   deleteSchedule: (id: string) => void;
@@ -58,22 +58,22 @@ export const useScheduleStore = create<StoreState>()(
           set({ isLoading: false });
         }
       },
-      addSchedule: async (name) => {
-        set({ isLoading: true });
-        await toast.promise(repository.generateSchedule(name), {
+      addSchedule: async (name, timeLimit) => {
+        set({ isLoading: true, error: "" });
+        await toast.promise(repository.generateSchedule(name, timeLimit), {
           loading: "Generating schedule...",
           success: () => {
             get().fetchSchedules();
+            set({ error: "" });
             return "Schedule Generated!";
           },
           error: (e) => {
-            set({ isLoading: false });
-
             let userFriendlyMessage =
               "An unexpected error occurred while generating schedule.";
             if (e instanceof Error) {
               userFriendlyMessage = e.message;
             }
+            set({ error: userFriendlyMessage, isLoading: false });
             return userFriendlyMessage;
           },
         });
