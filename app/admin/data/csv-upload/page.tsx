@@ -32,20 +32,9 @@ import { uploadCsv } from "@/lib/repositories/repository";
 import { useCsvStore } from "@/lib/stores/csv-validation.store";
 import { TaskError, Severity } from "@/lib/types/csv-validation.types";
 import PaginationControls from "@/components/ui/pagination-control";
+import { ConfirmDeleteDialog } from "@/components/ui/confirm-delete";
 
-/**
- * TODO:
- * 1. Upload CSV
- * [ ] connect ui with repository
- * [X] remove validation logic in frontend
- * [ ] improve uploading animation? (uploading or validating?)
- * 2. Get Initiated Tasks
- * [X] connect ui with repository
- * [ ] list all tasks initiated.
- * [ ] show all details about a task when selected.
- * 3. Alerts and Notifications ?
- * 4. allow for downloading templates from backend
- */
+
 enum CsvStatus {
   EMPTY = "EMPTY",
   UPLOADING = "UPLOADING",
@@ -288,7 +277,8 @@ const dataTypes: DataType[] = [
     id: "student-group-courses",
     category: CsvCategory.SGCOURSE,
     name: "Student Group Courses",
-    description: "Links between student groups and their courses with teacher assignments",
+    description:
+      "Links between student groups and their courses with teacher assignments",
     dependencies: ["courses", "student-groups", "teachers"],
     required: true,
     sampleData: [
@@ -324,6 +314,9 @@ export default function CSVUploadPage() {
   >({});
   const [bulkFiles, setBulkFiles] = useState<File[]>([]);
   const [isBulkUploading, setIsBulkUploading] = useState(false);
+  const [isConfirmDeleteDialogOpen, setIsConfirmDeleteDialogOpen] =
+    useState(false);
+  const [taskIdToDelete, setTaskIdToDelete] = useState<string | null>(null);
 
   const getCsvStatus = (dataTypeId: string): CsvStatus => {
     return uploadResults[dataTypeId]?.status || CsvStatus.EMPTY;
@@ -549,13 +542,16 @@ export default function CSVUploadPage() {
   // Function to detect CSV category from filename
   const detectCategoryFromFilename = (filename: string): CsvCategory | null => {
     const name = filename.toLowerCase();
-    if (name.includes('department')) return CsvCategory.DEPARTMENT;
-    if (name.includes('course')) return CsvCategory.COURSE;
-    if (name.includes('teacher')) return CsvCategory.TEACHER;
-    if (name.includes('classroom')) return CsvCategory.CLASSROOM;
-    if (name.includes('student-group') || name.includes('studentgroup')) return CsvCategory.STUDENTGROUP;
-    if (name.includes('student') && !name.includes('group')) return CsvCategory.STUDENT;
-    if (name.includes('sgcourse') || name.includes('student-group-course')) return CsvCategory.SGCOURSE;
+    if (name.includes("department")) return CsvCategory.DEPARTMENT;
+    if (name.includes("course")) return CsvCategory.COURSE;
+    if (name.includes("teacher")) return CsvCategory.TEACHER;
+    if (name.includes("classroom")) return CsvCategory.CLASSROOM;
+    if (name.includes("student-group") || name.includes("studentgroup"))
+      return CsvCategory.STUDENTGROUP;
+    if (name.includes("student") && !name.includes("group"))
+      return CsvCategory.STUDENT;
+    if (name.includes("sgcourse") || name.includes("student-group-course"))
+      return CsvCategory.SGCOURSE;
     return null;
   };
 
@@ -564,7 +560,7 @@ export default function CSVUploadPage() {
     if (bulkFiles.length === 0) return;
 
     setIsBulkUploading(true);
-    
+
     // Categorize files
     const categorizedFiles: Record<CsvCategory, File[]> = {
       [CsvCategory.DEPARTMENT]: [],
@@ -601,21 +597,25 @@ export default function CSVUploadPage() {
         if (files.length > 0) {
           // Upload all files of this category
           for (const file of files) {
-            const dataType = dataTypes.find(dt => dt.category === category);
+            const dataType = dataTypes.find((dt) => dt.category === category);
             if (dataType) {
-              await handleFileUpload(dataType.id, file, `Bulk upload: ${file.name}`);
+              await handleFileUpload(
+                dataType.id,
+                file,
+                `Bulk upload: ${file.name}`
+              );
               // Small delay between uploads to avoid overwhelming the server
-              await new Promise(resolve => setTimeout(resolve, 500));
+              await new Promise((resolve) => setTimeout(resolve, 500));
             }
           }
         }
       }
-      
+
       // Refresh tasks after all uploads
       await fetchAllTasks();
       setBulkFiles([]);
     } catch (error) {
-      console.error('Bulk upload failed:', error);
+      console.error("Bulk upload failed:", error);
     } finally {
       setIsBulkUploading(false);
     }
@@ -713,7 +713,8 @@ export default function CSVUploadPage() {
                   Bulk Upload All CSVs
                 </CardTitle>
                 <p className="text-sm text-blue-700">
-                  Upload multiple CSV files at once. Files will be automatically categorized by filename and uploaded in dependency order.
+                  Upload multiple CSV files at once. Files will be automatically
+                  categorized by filename and uploaded in dependency order.
                 </p>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -731,26 +732,39 @@ export default function CSVUploadPage() {
                     className="mt-1"
                   />
                   <p className="text-xs text-blue-600 mt-1">
-                    Tip: Name your files with keywords like "department", "course", "teacher", "classroom", "student-group", "student", "sgcourse" for automatic detection.
+                    Tip: Name your files with keywords like "department",
+                    "course", "teacher", "classroom", "student-group",
+                    "student", "sgcourse" for automatic detection.
                   </p>
                 </div>
-                
+
                 {bulkFiles.length > 0 && (
                   <div className="space-y-3">
                     <div>
-                      <h4 className="text-sm font-medium text-blue-900 mb-2">Selected Files ({bulkFiles.length}):</h4>
+                      <h4 className="text-sm font-medium text-blue-900 mb-2">
+                        Selected Files ({bulkFiles.length}):
+                      </h4>
                       <div className="grid gap-2 max-h-32 overflow-y-auto">
                         {bulkFiles.map((file, index) => {
-                          const detectedCategory = detectCategoryFromFilename(file.name);
+                          const detectedCategory = detectCategoryFromFilename(
+                            file.name
+                          );
                           return (
-                            <div key={index} className="flex items-center justify-between text-xs bg-white p-2 rounded border">
-                              <span className="font-mono truncate">{file.name}</span>
-                              <span className={cn(
-                                "px-2 py-1 rounded-full text-xs font-medium",
-                                detectedCategory 
-                                  ? "bg-green-100 text-green-700" 
-                                  : "bg-red-100 text-red-700"
-                              )}>
+                            <div
+                              key={index}
+                              className="flex items-center justify-between text-xs bg-white p-2 rounded border"
+                            >
+                              <span className="font-mono truncate">
+                                {file.name}
+                              </span>
+                              <span
+                                className={cn(
+                                  "px-2 py-1 rounded-full text-xs font-medium",
+                                  detectedCategory
+                                    ? "bg-green-100 text-green-700"
+                                    : "bg-red-100 text-red-700"
+                                )}
+                              >
                                 {detectedCategory || "Unknown"}
                               </span>
                             </div>
@@ -758,7 +772,7 @@ export default function CSVUploadPage() {
                         })}
                       </div>
                     </div>
-                    
+
                     <div className="flex gap-2">
                       <Button
                         onClick={handleBulkUpload}
@@ -1050,13 +1064,8 @@ export default function CSVUploadPage() {
                               variant="destructive"
                               size="sm"
                               onClick={() => {
-                                if (
-                                  window.confirm(
-                                    "Are you sure you want to delete this task?"
-                                  )
-                                ) {
-                                  deleteTask(taskId);
-                                }
+                                setTaskIdToDelete(taskId);
+                                setIsConfirmDeleteDialogOpen(true);
                               }}
                             >
                               Delete Task
@@ -1304,6 +1313,22 @@ export default function CSVUploadPage() {
             </CardContent>
           </Card>
         )}
+
+        <ConfirmDeleteDialog
+          open={isConfirmDeleteDialogOpen}
+          onOpenChange={setIsConfirmDeleteDialogOpen}
+          title="Delete Task"
+          description="Are you sure you want to delete this task? This action cannot be undone."
+          confirmText="Delete"
+          cancelText="Cancel"
+          onConfirm={() => {
+            if (taskIdToDelete) {
+              deleteTask(taskIdToDelete);
+              setTaskIdToDelete(null);
+            }
+          }}
+          onCancel={() => setTaskIdToDelete(null)}
+        />
       </div>
     </DashboardLayout>
   );
