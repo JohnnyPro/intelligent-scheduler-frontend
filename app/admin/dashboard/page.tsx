@@ -128,7 +128,6 @@ export default function DashboardPage() {
             <ScheduleHistoryTable
               schedules={schedules.slice(0, 3)}
               onActivate={activate}
-              onDelete={deleteSchedule}
             />
           </div>
         </div>
