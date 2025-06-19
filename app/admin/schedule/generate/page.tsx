@@ -11,7 +11,7 @@ import { useCourseStore } from "@/lib/stores/course.store";
 import { useScheduleStore } from "@/lib/stores/schedule.store";
 import { useStudentGroupStore } from "@/lib/stores/student-group.store";
 import { useTeacherStore } from "@/lib/stores/teacher.store";
-import { CheckCircle, Clock, Play, Settings, X } from "lucide-react";
+import { CheckCircle, Clock, Play, Settings, X, AlertCircle, RefreshCw } from "lucide-react";
 import { useEffect, useState } from "react";
 
 const parsePositiveInt = (val: string) => {
@@ -30,15 +30,14 @@ export default function GenerateSchedulePage() {
   const { pagination: teacherPagination, fetchTeachers } = useTeacherStore();
   const { pagination: studentGroupPagination, fetchStudentGroups } =
     useStudentGroupStore();
-  const { addSchedule, isLoading } = useScheduleStore();
+  const { addSchedule, isLoading, error, setError } = useScheduleStore();
   const initialAdvancedSettings = {
     scheduleName: "",
     populationSize: 100,
-    maxGenerations: 1000,
+    maxGenerations: 10000,
     mutationRate: 0.1,
     crossoverRate: 0.8,
-    timeLimit: 30,
-    fitnessThreshold: 0.95,
+    timeLimit: 120,
   };
   const [settingParams, setSettingParams] = useState(initialAdvancedSettings);
 
@@ -206,6 +205,7 @@ export default function GenerateSchedulePage() {
                       id="mutation-rate"
                       type="number"
                       step="0.01"
+                      disabled={true}
                       value={settingParams.mutationRate}
                       onChange={(e) =>
                         setSettingParams({
@@ -215,7 +215,7 @@ export default function GenerateSchedulePage() {
                       }
                     />
                     <p className="text-xs text-gray-500">
-                      Probability of mutation (0.0 to 1.0)
+                      Mutation rate is automatically optimized by the algorithm
                     </p>
                   </div>
                   <div className="space-y-2">
@@ -224,6 +224,7 @@ export default function GenerateSchedulePage() {
                       id="crossover-rate"
                       type="number"
                       step="0.01"
+                      disabled={true}
                       value={settingParams.crossoverRate}
                       onChange={(e) =>
                         setSettingParams({
@@ -234,7 +235,7 @@ export default function GenerateSchedulePage() {
                       }
                     />
                     <p className="text-xs text-gray-500">
-                      Probability of crossover (0.0 to 1.0)
+                      Crossover rate is automatically optimized by the algorithm
                     </p>
                   </div>
                 </div>
@@ -251,6 +252,8 @@ export default function GenerateSchedulePage() {
                   <Input
                     id="time-limit"
                     type="number"
+                    min="1"
+                    max="5"
                     value={settingParams.timeLimit}
                     onChange={(e) =>
                       setSettingParams({
@@ -260,26 +263,7 @@ export default function GenerateSchedulePage() {
                     }
                   />
                   <p className="text-xs text-gray-500">
-                    Maximum time to run the algorithm (0 for no limit)
-                  </p>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="fitness-threshold">Fitness Threshold</Label>
-                  <Input
-                    id="fitness-threshold"
-                    type="number"
-                    step="0.01"
-                    value={settingParams.fitnessThreshold}
-                    onChange={(e) =>
-                      setSettingParams({
-                        ...settingParams,
-                        fitnessThreshold:
-                          parsePositiveFloat(e.target.value) || 0,
-                      })
-                    }
-                  />
-                  <p className="text-xs text-gray-500">
-                    Stop when this fitness score is reached (0.0 to 1.0)
+                    Maximum time to run the algorithm (1-5 minutes, recommended: 2-3 minutes)
                   </p>
                 </div>
               </CardContent>
@@ -384,23 +368,61 @@ export default function GenerateSchedulePage() {
             </Button>
             <Button
               disabled={!settingParams.scheduleName.trim().length || isLoading}
-              onClick={() => addSchedule(settingParams.scheduleName)} //TODO: include other constraint params
-              className="bg-indigo-600 hover:bg-indigo-700"
+              onClick={() => {
+                setError(""); // Clear any previous errors
+                addSchedule(settingParams.scheduleName, settingParams.timeLimit);
+              }}
+              className="bg-indigo-600 hover:bg-indigo-700 min-w-[180px]"
             >
               {isLoading && (
-                <div className="flex items-center justify-center h-screen">
-                  <div className="w-5 h-5 border-4 border-white border-t-transparent rounded-full animate-spin" />
+                <div className="flex items-center">
+                  <div className="w-5 h-5 border-4 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                  Generating schedule...
                 </div>
               )}
-              {!isLoading && (
+              {!isLoading && !error && (
                 <>
                   <Play className="mr-2 h-4 w-4" />
                   Start Generation
                 </>
               )}
+              {!isLoading && error && (
+                <>
+                  <AlertCircle className="mr-2 h-4 w-4" />
+                  Try Again
+                </>
+              )}
             </Button>
           </div>
         </div>
+
+        {/* Error display */}
+        {!isLoading && error && (
+          <div className="rounded-md bg-red-50 p-4 border border-red-200">
+            <div className="flex">
+              <AlertCircle className="h-5 w-5 text-red-500 flex-shrink-0" />
+              <div className="ml-3">
+                <h3 className="text-sm font-medium text-red-800">
+                  Schedule Generation Failed
+                </h3>
+                <p className="mt-1 text-sm text-red-700">
+                  {error}
+                </p>
+                <div className="mt-3">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setError("")}
+                    className="text-red-700 border-red-300 hover:bg-red-100"
+                  >
+                    <X className="mr-1 h-3 w-3" />
+                    Dismiss
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </DashboardLayout>
   );

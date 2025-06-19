@@ -157,8 +157,8 @@ export const deleteCourse = (id: string) =>
 // Schedules CRUD
 export const getSchedules = () =>
   apiClient<ApiResponse<ScheduleResponse[]>>(`/schedules`);
-export const generateSchedule = (name: string) =>
-  apiClient<ApiResponse<ScheduleResponse>>(`/schedules/generate/${name}`, {
+export const generateSchedule = (name: string, timeLimit?: number) =>
+  apiClient<ApiResponse<ScheduleResponse>>(`/schedules/generate/${name}${timeLimit ? `?timeLimit=${timeLimit}` : ''}`, {
     method: "POST",
   });
 
